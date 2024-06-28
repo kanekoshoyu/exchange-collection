@@ -31,6 +31,7 @@ asyncapi generate fromTemplate example_2.yml @asyncapi/python-sanic-template -o 
 
 # note
 - apparently the these templates only work on AsyncAPI v2, not v3 (kraken_3.yml does not work)
+- model gen supports: typescript, csharp, golang, java, javascript, dart, python, rust, kotlin, php, cplusplus, scala
 - the `ag` command seems to be deprecated and cannot generate code properly
 
 # todo
