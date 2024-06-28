@@ -34,4 +34,7 @@ asyncapi generate fromTemplate example_2.yml @asyncapi/python-sanic-template -o 
 - the `ag` command seems to be deprecated and cannot generate code properly
 
 # todo
-- verify implementing traits on top of the generated model
+- gather binance asyncAPI
+- verify if the binance models can be generated on python/rust
+- verify if traits could be implemented on top of the generated model
+- package model with its version
