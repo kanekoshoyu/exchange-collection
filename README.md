@@ -4,11 +4,34 @@ there are way too many crypto exchanges and programming languages. we should try
 
 I will add a bunch of AsyncAPI YAML here. In the near future I will set up a codegen that generates the rust exchange lib for python and crate for rust.
 
-# Python
+# generate code
 install async api code generator
-`npm install -g @asyncapi/generator`
-generate python code for kraken (installation fails)
-`ag kraken-asyncapi.yml @asyncapi/python-sanic-template -o ./output_python`
+```
+npm install -g @asyncapi/generator
+```
+## rust model
+```
+asyncapi generate models rust example_2.yml -o output/example_rust_model
+```
+## python model
+```
+asyncapi generate models python example_2.yml -o output/example_python_model
+```
+## python paho
+```
+asyncapi generate fromTemplate example_2.yml @asyncapi/python-paho-template -o output/example_python_paho
+```
+## python sanic (failing)
+```
+asyncapi generate fromTemplate example_2.yml @asyncapi/python-sanic-template -o output/example_python_sanic
+```
 
-`npm install -g @asyncapi/cli`
-`asyncapi generate fromTemplate example_2.yml @asyncapi/python-paho-template -o output/example`
+
+
+
+# note
+- apparently the these templates only work on AsyncAPI v2, not v3 (kraken_3.yml does not work)
+- the `ag` command seems to be deprecated and cannot generate code properly
+
+# todo
+- verify implementing traits on top of the generated model
