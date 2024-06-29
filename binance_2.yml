@@ -1,0 +1,74 @@
+asyncapi: '2.0.0'
+info:
+  title: Binance Spot Trade Streams API
+  version: 1.0.0
+  description: AsyncAPI specification for Binance Spot Trade Streams API
+servers:
+  production:
+    url: wss://stream.binance.com:9443
+    protocol: websocket
+channels:
+  trade:
+    description: Trade stream for a specific symbol
+    parameters:
+      symbol:
+        description: Symbol to receive trade updates for (e.g., btcusdt)
+        schema:
+          type: string
+    subscribe:
+      operationId: subscribeToTradeStream
+      summary: Subscribe to trade updates for a symbol
+      message:
+        contentType: application/json
+        payload:
+          type: object
+          properties:
+            eventType:
+              type: string
+              description: Type of event (e.g., trade)
+            eventTime:
+              type: integer
+              description: Event time in milliseconds
+            symbol:
+              type: string
+              description: Symbol of the trade
+            tradeId:
+              type: integer
+              description: Unique trade ID
+            price:
+              type: string
+              description: Trade price
+            quantity:
+              type: string
+              description: Trade quantity
+            buyerOrderId:
+              type: integer
+              description: Unique order ID of buyer
+            sellerOrderId:
+              type: integer
+              description: Unique order ID of seller
+            tradeTime:
+              type: integer
+              description: Trade execution time in milliseconds
+            isBuyerMaker:
+              type: boolean
+              description: Whether the buyer is the maker
+            isBestMatch:
+              type: boolean
+              description: Whether the trade was the best price match
+
+    x-examples:
+      basicExample:
+        summary: Example of trade update
+        payload:
+          eventType: trade
+          eventTime: 1624910226000
+          symbol: BTCUSDT
+          tradeId: 12345
+          price: "35000.00"
+          quantity: "0.1"
+          buyerOrderId: 67890
+          sellerOrderId: 54321
+          tradeTime: 1624910226000
+          isBuyerMaker: false
+          isBestMatch: true
