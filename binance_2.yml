@@ -1,74 +1,243 @@
-asyncapi: '2.0.0'
+asyncapi: 2.6.0
 info:
-  title: Binance Spot Trade Streams API
+  title: Binance WebSocket API
   version: 1.0.0
-  description: AsyncAPI specification for Binance Spot Trade Streams API
+  description: >
+    The base endpoint is: `wss://ws-api.binance.com:443/ws-api/v3`
+
+    If you experience issues with the standard 443 port, alternative port 9443
+    is also available.
+
+    The base endpoint for testnet is: `wss://testnet.binance.vision/ws-api/v3`
+
+    A single connection to the API is only valid for 24 hours; expect to be
+    disconnected after the 24-hour mark.
+
+    WebSocket server will send a ping frame every 3 minutes.
+
+    If the WebSocket server does not receive a pong frame back from the
+    connection within a 10 minute period, the connection will be disconnected.
+
+    When you receive a ping, you must send a pong with a copy of ping's payload
+    as soon as possible.
+
+    Unsolicited pong frames are allowed, but will not prevent disconnection. It
+    is recommended that the payload for these pong frames are empty.
+
+    Lists are returned in chronological order, unless noted otherwise.
+
+    All timestamps are in milliseconds in UTC, unless noted otherwise.
+
+    All field names and values are case-sensitive, unless noted otherwise.
 servers:
   production:
-    url: wss://stream.binance.com:9443
-    protocol: websocket
+    url: 'wss://ws-api.binance.com:443/ws-api/v3'
+    protocol: wss
+    description: Production WebSocket endpoint
+  testnet:
+    url: 'wss://testnet.binance.vision/ws-api/v3'
+    protocol: wss
+    description: Testnet WebSocket endpoint
 channels:
-  trade:
-    description: Trade stream for a specific symbol
-    parameters:
-      symbol:
-        description: Symbol to receive trade updates for (e.g., btcusdt)
-        schema:
-          type: string
-    subscribe:
-      operationId: subscribeToTradeStream
-      summary: Subscribe to trade updates for a symbol
+  request:
+    description: Channel for sending requests
+    publish:
+      operationId: sendRequest
+      summary: Send a request to Binance WebSocket API
       message:
         contentType: application/json
         payload:
           type: object
+          required:
+            - id
+            - method
           properties:
-            eventType:
+            id:
               type: string
-              description: Type of event (e.g., trade)
-            eventTime:
-              type: integer
-              description: Event time in milliseconds
-            symbol:
+              description: Arbitrary ID used to match responses to requests
+            method:
               type: string
-              description: Symbol of the trade
-            tradeId:
-              type: integer
-              description: Unique trade ID
-            price:
-              type: string
-              description: Trade price
-            quantity:
-              type: string
-              description: Trade quantity
-            buyerOrderId:
-              type: integer
-              description: Unique order ID of buyer
-            sellerOrderId:
-              type: integer
-              description: Unique order ID of seller
-            tradeTime:
-              type: integer
-              description: Trade execution time in milliseconds
-            isBuyerMaker:
-              type: boolean
-              description: Whether the buyer is the maker
-            isBestMatch:
-              type: boolean
-              description: Whether the trade was the best price match
-
-    x-examples:
-      basicExample:
-        summary: Example of trade update
-        payload:
-          eventType: trade
-          eventTime: 1624910226000
-          symbol: BTCUSDT
-          tradeId: 12345
-          price: "35000.00"
-          quantity: "0.1"
-          buyerOrderId: 67890
-          sellerOrderId: 54321
-          tradeTime: 1624910226000
-          isBuyerMaker: false
-          isBestMatch: true
+              description: Request method name
+            params:
+              type: object
+              description: Request parameters (optional)
+              properties:
+                symbol:
+                  type: string
+                  description: Trading symbol
+                side:
+                  $ref: '#/components/schemas/side'
+                type:
+                  $ref: '#/components/schemas/order_type'
+                price:
+                  type: string
+                  description: Order price
+                quantity:
+                  type: string
+                  description: Order quantity
+                timeInForce:
+                  type: string
+                  description: Time in force for the order
+                timestamp:
+                  type: integer
+                  description: Timestamp of the order in milliseconds since Unix epoch
+                apiKey:
+                  type: string
+                  description: API key for authentication
+                signature:
+                  type: string
+                  description: Signature for authentication
+  response:
+    description: Channel for receiving responses
+    subscribe:
+      operationId: receiveResponse
+      summary: Receive a response from Binance WebSocket API
+      message:
+        oneOf:
+          - $ref: '#/components/messages/successResponse'
+          - $ref: '#/components/messages/errorResponse'
+components:
+  schemas:
+    side:
+      type: string
+      enum:
+        - BUY
+        - SELL
+      description: 'Side of the order (BUY, SELL)'
+    order_type:
+      type: string
+      enum:
+        - LIMIT
+        - MARKET
+      description: 'Type of order (LIMIT, MARKET, etc.)'
+  messages:
+    successResponse:
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - id
+          - status
+        properties:
+          id:
+            type: string
+            description: Same as in the original request
+          status:
+            type: integer
+            description: Response status code
+          result:
+            type: object
+            description: Response content if request succeeded
+            properties:
+              symbol:
+                type: string
+                description: Symbol of the order
+              orderId:
+                type: integer
+                description: Unique identifier of the order
+              orderListId:
+                type: integer
+                description: Unique identifier of the order list
+              clientOrderId:
+                type: string
+                description: Unique identifier of the order assigned by the client
+              transactTime:
+                type: integer
+                description: Transaction time in milliseconds since Unix epoch
+              price:
+                type: string
+                description: Price of the order
+              origQty:
+                type: string
+                description: Original quantity of the order
+              executedQty:
+                type: string
+                description: Quantity of the order that has been executed
+              cummulativeQuoteQty:
+                type: string
+                description: Cumulative quote asset transacted quantity
+              status:
+                type: string
+                description: Status of the order
+              timeInForce:
+                type: string
+                description: Time in force for the order
+              type:
+                type: string
+                description: 'Type of order (LIMIT, MARKET, etc.)'
+              side:
+                type: string
+                enum:
+                  - BUY
+                  - SELL
+                description: 'Side of the order (BUY, SELL)'
+              workingTime:
+                type: integer
+                description: Working time in milliseconds since Unix epoch
+              selfTradePreventionMode:
+                type: string
+                description: Self-trade prevention mode of the order
+          rateLimits:
+            type: array
+            items:
+              type: object
+              properties:
+                rateLimitType:
+                  type: string
+                  description: 'Type of rate limit (ORDERS, REQUEST_WEIGHT, etc.)'
+                interval:
+                  type: string
+                  description: 'Interval of rate limiting (SECOND, MINUTE, etc.)'
+                intervalNum:
+                  type: integer
+                  description: Number of intervals
+                limit:
+                  type: integer
+                  description: Limit per interval
+                count:
+                  type: integer
+                  description: Count of requests made
+    errorResponse:
+      contentType: application/json
+      payload:
+        type: object
+        required:
+          - id
+          - status
+          - error
+        properties:
+          id:
+            type: string
+            description: Same as in the original request
+          status:
+            type: integer
+            description: Response status code
+          error:
+            type: object
+            properties:
+              code:
+                type: integer
+                description: Error code
+              msg:
+                type: string
+                description: Error message
+          rateLimits:
+            type: array
+            items:
+              type: object
+              properties:
+                rateLimitType:
+                  type: string
+                  description: 'Type of rate limit (ORDERS, REQUEST_WEIGHT, etc.)'
+                interval:
+                  type: string
+                  description: 'Interval of rate limiting (SECOND, MINUTE, etc.)'
+                intervalNum:
+                  type: integer
+                  description: Number of intervals
+                limit:
+                  type: integer
+                  description: Limit per interval
+                count:
+                  type: integer
+                  description: Count of requests made
