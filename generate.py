@@ -16,7 +16,10 @@ def remove_suffix(text, suffix):
 
 
 async def generate_rust_models(yaml_file, parser):
-    output_dir = "output/"
+    # for testing
+    # output_dir = "output/"
+    # for production
+    output_dir = "generated/"
     if parser == Parser.ASYNC_API:
         output_dir_name = remove_suffix(yaml_file, '_asyncapi.yml')
         command = f"asyncapi generate models rust {yaml_file} -o {output_dir}/{output_dir_name}"
