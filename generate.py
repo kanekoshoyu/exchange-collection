@@ -19,18 +19,20 @@ async def generate_rust_models(yaml_file, parser):
     # for testing
     # output_dir = "output/"
     # for production
-    output_dir = "generated/"
+    output_dir = "target/"
+    modes = ["python", "rust"]
     if parser == Parser.ASYNC_API:
         output_dir_name = remove_suffix(yaml_file, '_asyncapi.yml')
-        command = f"asyncapi generate models rust {yaml_file} -o {output_dir}/{output_dir_name}"
+        for mode in modes:
+            command = f"asyncapi generate models {mode} {yaml_file} -o {output_dir}/{mode}/{output_dir_name}"
+            proc = await asyncio.create_subprocess_shell(command)
+            await proc.communicate()
     elif parser == Parser.OPEN_API:
         # todo implement the naming convension
         print("todo implement open API parser")
     else:
         raise ValueError(f"Unknown parser type: {parser}")
 
-    proc = await asyncio.create_subprocess_shell(command)
-    await proc.communicate()
 
 
 async def process_yaml_files(yaml_directory):
