@@ -1,6 +1,6 @@
-// AnonymousSchema45 represents a AnonymousSchema45 model.
+// RateLimit represents a RateLimit model.
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct AnonymousSchema45 {
+pub struct RateLimit {
     #[serde(rename="rateLimitType", skip_serializing_if = "Option::is_none")]
     pub rate_limit_type: Option<String>,
     #[serde(rename="interval", skip_serializing_if = "Option::is_none")]

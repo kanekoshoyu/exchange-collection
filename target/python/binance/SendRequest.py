@@ -1,12 +1,12 @@
 from __future__ import annotations
 from typing import Any, Dict
-from . import AnonymousSchema4
-class AnonymousSchema1: 
+from . import SendRequestParam
+class SendRequest: 
   def __init__(self, input: Dict):
     self._id: str = input['id']
     self._method: str = input['method']
     if 'params' in input:
-      self._params: AnonymousSchema4.AnonymousSchema4 = AnonymousSchema4.AnonymousSchema4(input['params'])
+      self._params: SendRequestParam.SendRequestParam = SendRequestParam.SendRequestParam(input['params'])
     if 'additional_properties' in input:
       self._additional_properties: dict[str, Any] = input['additional_properties']
 
@@ -25,10 +25,10 @@ class AnonymousSchema1:
     self._method = method
 
   @property
-  def params(self) -> AnonymousSchema4.AnonymousSchema4:
+  def params(self) -> SendRequestParam.SendRequestParam:
     return self._params
   @params.setter
-  def params(self, params: AnonymousSchema4.AnonymousSchema4):
+  def params(self, params: SendRequestParam.SendRequestParam):
     self._params = params
 
   @property

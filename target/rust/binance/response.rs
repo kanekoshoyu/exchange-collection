@@ -1,10 +1,10 @@
-// Response represents a union of types: AnonymousSchema12, AnonymousSchema38
+// Response represents a union of types: SuccessResponse, ErrorResponse
 #[derive(Clone, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
 #[serde(untagged)]
 pub enum Response {
-    #[serde(rename="AnonymousSchema12")]
-    AnonymousSchema12(crate::AnonymousSchema12),
-    #[serde(rename="AnonymousSchema38")]
-    AnonymousSchema38(crate::AnonymousSchema38),
+    #[serde(rename="SuccessResponse")]
+    SuccessResponse(crate::SuccessResponse),
+    #[serde(rename="ErrorResponse")]
+    ErrorResponse(crate::ErrorResponse),
 }
 

@@ -1,28 +1,28 @@
 from __future__ import annotations
 from typing import Any, Dict
 
-class LightMeasuredPayload: 
+class Error: 
   def __init__(self, input: Dict):
-    if 'lumens' in input:
-      self._lumens: int = input['lumens']
-    if 'sent_at' in input:
-      self._sent_at: str = input['sent_at']
+    if 'code' in input:
+      self._code: int = input['code']
+    if 'msg' in input:
+      self._msg: str = input['msg']
     if 'additional_properties' in input:
       self._additional_properties: dict[str, Any] = input['additional_properties']
 
   @property
-  def lumens(self) -> int:
-    return self._lumens
-  @lumens.setter
-  def lumens(self, lumens: int):
-    self._lumens = lumens
+  def code(self) -> int:
+    return self._code
+  @code.setter
+  def code(self, code: int):
+    self._code = code
 
   @property
-  def sent_at(self) -> str:
-    return self._sent_at
-  @sent_at.setter
-  def sent_at(self, sent_at: str):
-    self._sent_at = sent_at
+  def msg(self) -> str:
+    return self._msg
+  @msg.setter
+  def msg(self, msg: str):
+    self._msg = msg
 
   @property
   def additional_properties(self) -> dict[str, Any]:

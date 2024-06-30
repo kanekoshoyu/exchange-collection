@@ -1,6 +1,6 @@
-// AnonymousSchema4 represents a AnonymousSchema4 model.
+// SendRequestParam represents a SendRequestParam model.
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct AnonymousSchema4 {
+pub struct SendRequestParam {
     #[serde(rename="symbol", skip_serializing_if = "Option::is_none")]
     pub symbol: Option<String>,
     #[serde(rename="side", skip_serializing_if = "Option::is_none")]

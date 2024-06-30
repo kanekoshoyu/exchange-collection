@@ -1,14 +1,15 @@
 from __future__ import annotations
 from typing import Any, List, Dict
-from . import AnonymousSchema41
-from . import AnonymousSchema45
-class AnonymousSchema38: 
+from . import SuccessResponseResult
+from . import RateLimit
+class SuccessResponse: 
   def __init__(self, input: Dict):
     self._id: str = input['id']
     self._status: int = input['status']
-    self._error: AnonymousSchema41.AnonymousSchema41 = AnonymousSchema41.AnonymousSchema41(input['error'])
+    if 'result' in input:
+      self._result: SuccessResponseResult.SuccessResponseResult = SuccessResponseResult.SuccessResponseResult(input['result'])
     if 'rate_limits' in input:
-      self._rate_limits: List[AnonymousSchema45.AnonymousSchema45] = input['rate_limits']
+      self._rate_limits: List[RateLimit.RateLimit] = input['rate_limits']
     if 'additional_properties' in input:
       self._additional_properties: dict[str, Any] = input['additional_properties']
 
@@ -27,17 +28,17 @@ class AnonymousSchema38:
     self._status = status
 
   @property
-  def error(self) -> AnonymousSchema41.AnonymousSchema41:
-    return self._error
-  @error.setter
-  def error(self, error: AnonymousSchema41.AnonymousSchema41):
-    self._error = error
+  def result(self) -> SuccessResponseResult.SuccessResponseResult:
+    return self._result
+  @result.setter
+  def result(self, result: SuccessResponseResult.SuccessResponseResult):
+    self._result = result
 
   @property
-  def rate_limits(self) -> List[AnonymousSchema45.AnonymousSchema45]:
+  def rate_limits(self) -> List[RateLimit.RateLimit]:
     return self._rate_limits
   @rate_limits.setter
-  def rate_limits(self, rate_limits: List[AnonymousSchema45.AnonymousSchema45]):
+  def rate_limits(self, rate_limits: List[RateLimit.RateLimit]):
     self._rate_limits = rate_limits
 
   @property

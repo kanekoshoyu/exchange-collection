@@ -1,6 +1,6 @@
-// AnonymousSchema15 represents a AnonymousSchema15 model.
+// SuccessResponseResult represents a SuccessResponseResult model.
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct AnonymousSchema15 {
+pub struct SuccessResponseResult {
     #[serde(rename="symbol", skip_serializing_if = "Option::is_none")]
     pub symbol: Option<String>,
     #[serde(rename="orderId", skip_serializing_if = "Option::is_none")]
@@ -23,10 +23,10 @@ pub struct AnonymousSchema15 {
     pub status: Option<String>,
     #[serde(rename="timeInForce", skip_serializing_if = "Option::is_none")]
     pub time_in_force: Option<String>,
-    #[serde(rename="type", skip_serializing_if = "Option::is_none")]
-    pub reserved_type: Option<String>,
     #[serde(rename="side", skip_serializing_if = "Option::is_none")]
-    pub side: Option<Box<crate::AnonymousSchema28>>,
+    pub side: Option<Box<crate::Side>>,
+    #[serde(rename="type", skip_serializing_if = "Option::is_none")]
+    pub reserved_type: Option<Box<crate::OrderType>>,
     #[serde(rename="workingTime", skip_serializing_if = "Option::is_none")]
     pub working_time: Option<i32>,
     #[serde(rename="selfTradePreventionMode", skip_serializing_if = "Option::is_none")]

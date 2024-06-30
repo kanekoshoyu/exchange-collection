@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Any, Dict
 
-class AnonymousSchema32: 
+class RateLimit: 
   def __init__(self, input: Dict):
     if 'rate_limit_type' in input:
       self._rate_limit_type: str = input['rate_limit_type']

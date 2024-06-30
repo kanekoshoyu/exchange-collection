@@ -1,7 +1,8 @@
 from __future__ import annotations
 from typing import Any, Dict
-from . import AnonymousSchema28
-class AnonymousSchema15: 
+from . import Side
+from . import OrderType
+class SuccessResponseResult: 
   def __init__(self, input: Dict):
     if 'symbol' in input:
       self._symbol: str = input['symbol']
@@ -25,10 +26,10 @@ class AnonymousSchema15:
       self._status: str = input['status']
     if 'time_in_force' in input:
       self._time_in_force: str = input['time_in_force']
-    if 'type' in input:
-      self._type: str = input['type']
     if 'side' in input:
-      self._side: AnonymousSchema28.AnonymousSchema28 = AnonymousSchema28.AnonymousSchema28(input['side'])
+      self._side: Side.Side = Side.Side(input['side'])
+    if 'type' in input:
+      self._type: OrderType.OrderType = OrderType.OrderType(input['type'])
     if 'working_time' in input:
       self._working_time: int = input['working_time']
     if 'self_trade_prevention_mode' in input:
@@ -114,18 +115,18 @@ class AnonymousSchema15:
     self._time_in_force = time_in_force
 
   @property
-  def type(self) -> str:
-    return self._type
-  @type.setter
-  def type(self, type: str):
-    self._type = type
-
-  @property
-  def side(self) -> AnonymousSchema28.AnonymousSchema28:
+  def side(self) -> Side.Side:
     return self._side
   @side.setter
-  def side(self, side: AnonymousSchema28.AnonymousSchema28):
+  def side(self, side: Side.Side):
     self._side = side
+
+  @property
+  def type(self) -> OrderType.OrderType:
+    return self._type
+  @type.setter
+  def type(self, type: OrderType.OrderType):
+    self._type = type
 
   @property
   def working_time(self) -> int:

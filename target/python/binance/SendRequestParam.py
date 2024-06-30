@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any, Dict
 from . import Side
 from . import OrderType
-class AnonymousSchema4: 
+class SendRequestParam: 
   def __init__(self, input: Dict):
     if 'symbol' in input:
       self._symbol: str = input['symbol']

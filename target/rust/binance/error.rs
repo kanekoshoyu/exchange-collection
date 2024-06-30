@@ -1,6 +1,6 @@
-// AnonymousSchema41 represents a AnonymousSchema41 model.
+// Error represents a Error model.
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct AnonymousSchema41 {
+pub struct Error {
     #[serde(rename="code", skip_serializing_if = "Option::is_none")]
     pub code: Option<i32>,
     #[serde(rename="msg", skip_serializing_if = "Option::is_none")]
