@@ -23,6 +23,9 @@ jobs:
           python -m pip install --upgrade pip
           # Install other dependencies if needed
           # pip install -r requirements.txt
+    
+      - name: Install asyncapi generator
+        run: npm install -g @asyncapi/generator
 
       - name: Run generate.py
         run: python generate.py
