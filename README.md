@@ -1,4 +1,4 @@
-# henlo: machine readable crypto exchange API doc in AsyncAPI YAML
+# clob: machine readable crypto exchange API doc in AsyncAPI YAML
 
 there are way too many crypto exchanges and programming languages. we should try standardise the way we implement the exchange library.
 
