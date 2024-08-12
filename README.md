@@ -63,6 +63,7 @@ asyncapi generate fromTemplate example_2.yml @asyncapi/python-sanic-template -o 
 - model gen supports: typescript, csharp, golang, java, javascript, dart, python, rust, kotlin, php, cplusplus, scala
 - the `ag` command seems to be deprecated and cannot generate code properly
 - you can install `asyncapi-preview` extension on vs code for preview
+- follow the naming convension of `{exchange}_{asyncapi/openapi}.yaml` for easier browsing and scripting.
 
 ## todo
 - gather 3+ exchanges

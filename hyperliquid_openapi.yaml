@@ -1,0 +1,3037 @@
+openapi: 3.0.0
+info:
+  title: Hyperliquid API
+  version: 1.0.0
+  description: |
+    Documentation for the Hyperliquid public API 
+
+
+     ## **Rate limits**
+    The following rate limits apply per IP address:
+
+     - All REST requests have a weight limit of 1200 per minute. All documented exchange API requests have a weight of 1. All documented info API requests have a weight of either 2 or 20; these limits can be found in the description for each info request in the Info endpoint section. All explorer API requests have a weight of 40.
+
+     - Maximum of 100 websocket connections
+
+     - Maximum of 1000 websocket subscriptions
+
+     - Maximum of 10 unique users across user-specific websocket subscriptions
+
+    - Maximum of 2000 inbound messages per minute across all websocket connections
+
+     - Use websockets for lowest latency realtime data. See the python SDK for a full-featured example.
+     
+     ## **Address-based L1 Rate limits**
+     
+     The L1 rate limiting logic will allow 1 requests per 1 USDC traded cumulatively since address inception.
+
+     Using an order value of 100 USDC, this only requires a fill rate of 1%.
+
+      Each address starts with an initial buffer of 10000 requests. When rate limited, an address will still be allowed one request every 10 seconds.
+
+    Cancels have cumulative limit min(limit + 100000, limit * 2) where limit is the default limit for other actions. This way, hitting the address-based rate limit will still allow open orders to be canceled. 
+
+    Note that this rate limit only applies to L1 actions, not info requests. 
+
+    ## **Batched Requests**
+    A batched request with n orders (or cancels) is treated as one request for IP based rate limiting, but as n requests for address-based L1 rate limiting.
+servers:
+  - url: https://api.hyperliquid.xyz
+    description: Mainnet URL
+  - url: https://api.hyperliquid-testnet.xyz
+    description: Testnet URL
+  - url: wss://api.hyperliquid.xyz/ws
+    description: Mainnet Websocket URL
+  - url: wss://api.hyperliquid-testnet.xyz/ws
+    description: Testnet Websocket URL
+
+paths:
+  /info:
+    post:
+      summary: Fetch Information about exchange and users
+      description: |
+        The info endpoint is used to fetch information about the exchange and specific users. The different request bodies result in different corresponding response body schemas.
+
+      operationId: getInfoOrOrders
+      tags:
+        - Info
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf: # Used to specify multiple request body formats
+                - $ref: "#/components/schemas/MarketDataRequest"
+                - $ref: "#/components/schemas/OpenOrdersRequest"
+                - $ref: "#/components/schemas/FrontendOpenOrdersRequest"
+                - $ref: "#/components/schemas/UserFillsRequest"
+                - $ref: "#/components/schemas/UserFillsByTimeRequest"
+                - $ref: "#/components/schemas/OrderStatusRequest"
+                - $ref: "#/components/schemas/L2BookRequest"
+                - $ref: "#/components/schemas/CandleSnapshotRequest"
+                - $ref: "#/components/schemas/MetaRequest"
+                - $ref: "#/components/schemas/MetaAndAssetCtxsRequest"
+                - $ref: "#/components/schemas/ClearinghouseStateRequest"
+                - $ref: "#/components/schemas/UserFundingOrLedgerUpdatesRequest"
+                - $ref: "#/components/schemas/FundingHistoryRequest"
+                - $ref: "#/components/schemas/SpotMetaRequest"
+                - $ref: "#/components/schemas/SpotMetaAndAssetCtxsRequest"
+                - $ref: "#/components/schemas/SpotClearinghouseStateRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/MarketDataResponse"
+                  - $ref: "#/components/schemas/OpenOrdersResponse"
+                  - $ref: "#/components/schemas/FrontendOpenOrdersResponse"
+                  - $ref: "#/components/schemas/UserFillsResponse"
+                  - $ref: "#/components/schemas/UserFillsByTimeResponse"
+                  - $ref: "#/components/schemas/OrderStatusResponse"
+                  - $ref: "#/components/schemas/L2BookResponse"
+                  - $ref: "#/components/schemas/CandleSnapshotResponse"
+                  - $ref: "#/components/schemas/MetaResponse"
+                  - $ref: "#/components/schemas/MetaAndAssetCtxsResponse"
+                  - $ref: "#/components/schemas/ClearinghouseStateResponse"
+                  - $ref: "#/components/schemas/UserFundingOrLedgerUpdatesResponse"
+                  - $ref: "#/components/schemas/FundingHistoryResponse"
+                  - $ref: "#/components/schemas/SpotMetaResponse"
+                  - $ref: "#/components/schemas/SpotMetaAndAssetCtxsResponse"
+                  - $ref: "#/components/schemas/SpotClearinghouseStateResponse"
+  /exchange:
+    post:
+      summary: Place an order
+      description: |
+        This endpoint allows you to place an order on the exchange. You can choose between limit and trigger orders, set time-in-force options, and more.
+        See the Python SDK for detailed examples of order field usage.
+      tags:
+        - Exchange
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/PlaceOrderRequest"
+                - $ref: "#/components/schemas/CancelOrderRequest"
+                - $ref: "#/components/schemas/CancelOrderByCloidRequest"
+                - $ref: "#/components/schemas/ScheduleCancelRequest"
+                - $ref: "#/components/schemas/ModifyOrderRequest"
+                - $ref: "#/components/schemas/BatchModifyOrderRequest"
+                - $ref: "#/components/schemas/UpdateLeverageRequest"
+                - $ref: "#/components/schemas/UpdateIsolatedMarginRequest"
+                - $ref: "#/components/schemas/L1SpotTransferRequest"
+                - $ref: "#/components/schemas/InitiateWithdrawalRequest"
+                - $ref: "#/components/schemas/SpotToPerpTransferRequest"
+                - $ref: "#/components/schemas/VaultTransferRequest"
+      responses:
+        "200":
+          description: Successful order placement or error response.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PlaceOrderRestingResponse"
+                  - $ref: "#/components/schemas/PlaceOrderErrorResponse"
+                  - $ref: "#/components/schemas/PlaceOrderFilledResponse"
+                  - $ref: "#/components/schemas/CancelOrderSuccessResponse"
+                  - $ref: "#/components/schemas/CancelOrderErrorResponse"
+                  - $ref: "#/components/schemas/CancelOrderByCloidSuccessResponse"
+                  - $ref: "#/components/schemas/CancelOrderByCloidErrorResponse"
+                  - $ref: "#/components/schemas/ScheduleCancelResponse"
+                  - $ref: "#/components/schemas/ErrorResponse"
+                  - $ref: "#/components/schemas/ModifyOrderResponse"
+                  - $ref: "#/components/schemas/ModifyOrderErrorResponse"
+                  - $ref: "#/components/schemas/BatchModifyOrderResponse"
+                  - $ref: "#/components/schemas/BatchModifyOrderErrorResponse"
+                  - $ref: "#/components/schemas/UpdateLeverageResponse"
+                  - $ref: "#/components/schemas/UpdateLeverageErrorResponse"
+                  - $ref: "#/components/schemas/UpdateIsolatedMarginResponse"
+                  - $ref: "#/components/schemas/UpdateIsolatedMarginErrorResponse"
+                  - $ref: "#/components/schemas/L1SpotTransferResponse"
+                  - $ref: "#/components/schemas/L1SpotTransferErrorResponse"
+                  - $ref: "#/components/schemas/InitiateWithdrawalResponse"
+                  - $ref: "#/components/schemas/InitiateWithdrawalErrorResponse"
+                  - $ref: "#/components/schemas/SpotToPerpTransferResponse"
+                  - $ref: "#/components/schemas/SpotToPerpTransferErrorResponse"
+                  - $ref: "#/components/schemas/VaultTransferResponse"
+                  - $ref: "#/components/schemas/VaultTransferErrorResponse"
+  /ws:
+    post:
+      tags:
+        - Websocket
+      summary: WebSocket API for real-time data streaming
+      description: |
+        The WebSocket API allows for real-time data streaming and serves as an alternative to HTTP requests on the Hyperliquid exchange.
+        - **Mainnet URL:** `wss://api.hyperliquid.xyz/ws`
+        - **Testnet URL:** `wss://api.hyperliquid-testnet.xyz/ws`
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: "#/components/schemas/WebSocketSubscriptionRequest"
+                - $ref: "#/components/schemas/WebSocketPostSubscription"
+                - $ref: "#/components/schemas/OrderSignedRequest"
+
+      responses:
+        "200":
+          description: WebSocket connection established
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/WebSocketMessage"
+                  - $ref: "#/components/schemas/WebSocketResponse"
+                  - $ref: "#/components/schemas/WebSocketSubscriptionResponse"
+                  - $ref: "#/components/schemas/WebSocketPostResponse"
+                  - $ref: "#/components/schemas/OrderSignedResponse"
+
+components:
+  schemas:
+    MarketDataRequest:
+      type: object
+      description: Retrieve mids for all actively traded coins
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          description: The type of market data to retrieve.
+          example: "allMids"
+
+    OpenOrdersRequest:
+      type: object
+      description: Retrieve a user's open orders
+      required:
+        - type
+        - user
+      properties:
+        type:
+          type: string
+          description: Request type to see open orders.
+          example: "openOrders"
+        user:
+          type: string
+          description: Address in 42-character hexadecimal format.
+          example: "0x0000000000000000000000000000000000000000"
+    FrontendOpenOrdersRequest:
+      type: object
+      description: Retrieve a user's open orders with additional frontend info
+      required:
+        - type
+        - user
+      properties:
+        type:
+          type: string
+          description: Request type to see frontend open orders.
+          example: "frontendOpenOrders"
+        user:
+          type: string
+          description: Address in 42-character hexadecimal format.
+          example: "0x0000000000000000000000000000000000000000"
+      additionalProperties: false
+    MarketDataResponse:
+      type: object
+      properties:
+        APE:
+          type: string
+          example: "4.33245"
+          description: APE market data value.
+        ARB:
+          type: string
+          example: "1.21695"
+          description: ARB market data value.
+
+    OpenOrdersResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          coin:
+            type: string
+            example: "BTC"
+            description: The cryptocurrency coin.
+          limitPx:
+            type: string
+            example: "29792.0"
+            description: The limit price for the order.
+          oid:
+            type: integer
+            example: 91490942
+            description: The order ID.
+          side:
+            type: string
+            example: "A"
+            description: The side of the order (e.g., Buy or Sell).
+          sz:
+            type: string
+            example: "0.0"
+            description: The size of the order.
+          timestamp:
+            type: integer
+            example: 1681247412573
+            description: The timestamp of the order.
+    FrontendOpenOrdersResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          coin:
+            type: string
+            example: "BTC"
+            description: The cryptocurrency coin.
+          isPositionTpsl:
+            type: boolean
+            example: false
+            description: Whether the order is a position TPSL.
+          isTrigger:
+            type: boolean
+            example: false
+            description: Whether the order is a trigger order.
+          limitPx:
+            type: string
+            example: "29792.0"
+            description: The limit price for the order.
+          oid:
+            type: integer
+            example: 91490942
+            description: The order ID.
+          orderType:
+            type: string
+            example: "Limit"
+            description: The type of the order.
+          origSz:
+            type: string
+            example: "5.0"
+            description: The original size of the order.
+          reduceOnly:
+            type: boolean
+            example: false
+            description: Whether the order is reduce-only.
+          side:
+            type: string
+            example: "A"
+            description: The side of the order (e.g., Buy or Sell).
+          sz:
+            type: string
+            example: "5.0"
+            description: The size of the order.
+          timestamp:
+            type: integer
+            example: 1681247412573
+            description: The timestamp of the order.
+          triggerCondition:
+            type: string
+            example: "N/A"
+            description: The trigger condition for the order.
+          triggerPx:
+            type: string
+            example: "0.0"
+            description: The trigger price for the order.
+            additionalProperties: false
+    UserFillsRequest:
+      type: object
+      description: Retrieve a user's fills
+      required:
+        - type
+        - user
+      properties:
+        type:
+          type: string
+          example: "userFills"
+        user:
+          type: string
+          description: Address in 42-character hexadecimal format.
+          example: "0x0000000000000000000000000000000000000000"
+    UserFillsResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          closedPnl:
+            type: string
+            example: "0.0"
+            description: The closed PnL for the fill.
+          coin:
+            type: string
+            example: "AVAX"
+            description: The cryptocurrency coin involved in the fill.
+          crossed:
+            type: boolean
+            example: false
+            description: Whether the order was crossed.
+          dir:
+            type: string
+            example: "Open Long"
+            description: The direction of the order (e.g., Open Long).
+          hash:
+            type: string
+            example: "0xa166e3fa63c25663024b03f2e0da011a00307e4017465df020210d3d432e7cb8"
+            description: The transaction hash.
+          oid:
+            type: integer
+            example: 90542681
+            description: The order ID.
+          px:
+            type: string
+            example: "18.435"
+            description: The price at which the fill occurred.
+          side:
+            type: string
+            example: "B"
+            description: The side of the order (e.g., Buy or Sell).
+          startPosition:
+            type: string
+            example: "26.86"
+            description: The starting position of the order.
+          sz:
+            type: string
+            example: "93.53"
+            description: The size of the fill.
+          time:
+            type: integer
+            example: 1681222254710
+            description: The timestamp of the fill.
+    UserFillsByTimeRequest:
+      type: object
+      required:
+        - type
+        - user
+        - startTime
+      description: Retrieve a user's fills by time
+      properties:
+        type:
+          type: string
+          description: Request type to retrieve user fills by time.
+          example: "userFillsByTime"
+        user:
+          type: string
+          description: Address in 42-character hexadecimal format.
+          example: "0x0000000000000000000000000000000000000000"
+        startTime:
+          type: integer
+          description: Start time in milliseconds, inclusive.
+          example: 1681222254710
+        endTime:
+          type: integer
+          description: End time in milliseconds, inclusive. Defaults to current time.
+          example: 1681226254710
+    UserFillsByTimeResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          closedPnl:
+            type: string
+            example: "0.0"
+            description: The closed PnL for the fill.
+          coin:
+            type: string
+            example: "AVAX"
+            description: The cryptocurrency coin involved in the fill.
+          crossed:
+            type: boolean
+            example: false
+            description: Whether the order was crossed.
+          dir:
+            type: string
+            example: "Open Long"
+            description: The direction of the order (e.g., Open Long).
+          hash:
+            type: string
+            example: "0xa166e3fa63c25663024b03f2e0da011a00307e4017465df020210d3d432e7cb8"
+            description: The transaction hash.
+          oid:
+            type: integer
+            example: 90542681
+            description: The order ID.
+          px:
+            type: string
+            example: "18.435"
+            description: The price at which the fill occurred.
+          side:
+            type: string
+            example: "B"
+            description: The side of the order (e.g., Buy or Sell).
+          startPosition:
+            type: string
+            example: "26.86"
+            description: The starting position of the order.
+          sz:
+            type: string
+            example: "93.53"
+            description: The size of the fill.
+          time:
+            type: integer
+            example: 1681222254710
+            description: The timestamp of the fill.
+    UserRateLimitRequest:
+      type: object
+      required:
+        - user
+        - type
+      properties:
+        user:
+          type: string
+          description: Address in 42-character hexadecimal format.
+          example: "0x0000000000000000000000000000000000000000"
+        type:
+          type: string
+          description: Request type to check user rate limits.
+          example: "userRateLimit"
+      additionalProperties: false
+
+    OrderStatusRequest:
+      type: object
+      required:
+        - user
+        - type
+        - oid
+      description: Query order status by oid or cloid
+      properties:
+        user:
+          type: string
+          description: Address in 42-character hexadecimal format.
+          example: "0x0000000000000000000000000000000000000000"
+        type:
+          type: string
+          description: Request type to query order status.
+          example: "orderStatus"
+        oid:
+          type: string
+          description: Either a u64 representing the order id or a 16-byte hex string representing the client order id.
+          example: "12345678901234567890123456789012"
+      additionalProperties: false
+
+    OrderStatusResponse:
+      type: object
+      properties:
+        orderId:
+          type: string
+          description: The ID of the order.
+          example: "12345678901234567890123456789012"
+        status:
+          type: string
+          description: The current status of the order.
+          example: "Completed"
+        timestamp:
+          type: integer
+          description: The timestamp when the status was last updated.
+          example: 1681222254710
+    L2BookRequest:
+      type: object
+      required:
+        - type
+        - coin
+      description: L2 Book snapshot
+      properties:
+        type:
+          type: string
+          description: Request type to retrieve the level 2 order book.
+          example: "l2Book"
+        coin:
+          type: string
+          description: The cryptocurrency coin for which to retrieve the order book.
+          example: "BTC"
+      additionalProperties: false
+
+    L2BookResponse:
+      type: array
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            px:
+              type: string
+              description: The price level.
+              example: "19900"
+            sz:
+              type: string
+              description: The size of the order at this price level.
+              example: "1"
+            n:
+              type: integer
+              description: The order rank or identifier.
+              example: 1
+      description: Level 2 order book, with separate arrays for bid and ask sides.
+      example:
+        - [
+            { "px": "19900", "sz": "1", "n": 1 },
+            { "px": "19800", "sz": "2", "n": 2 },
+            { "px": "19700", "sz": "3", "n": 3 },
+          ]
+        - [
+            { "px": "20100", "sz": "1", "n": 1 },
+            { "px": "20200", "sz": "2", "n": 2 },
+            { "px": "20300", "sz": "3", "n": 3 },
+          ]
+    CandleSnapshotRequest:
+      type: object
+      required:
+        - type
+        - req
+      description: Candle snapshot
+      properties:
+        type:
+          type: string
+          description: Request type to retrieve candle snapshots.
+          example: "candleSnapshot"
+        req:
+          type: object
+          required:
+            - coin
+            - interval
+            - startTime
+            - endTime
+          properties:
+            coin:
+              type: string
+              description: The cryptocurrency coin for which to retrieve candle data.
+              example: "BTC"
+            interval:
+              type: string
+              description: The time interval for the candles (e.g., "15m").
+              example: "15m"
+            startTime:
+              type: integer
+              description: Start time in epoch milliseconds.
+              example: 1681923600000
+            endTime:
+              type: integer
+              description: End time in epoch milliseconds.
+              example: 1681924499999
+      additionalProperties: false
+
+    CandleSnapshotResponse:
+      type: array
+      items:
+        type: array
+        items:
+          type: object
+          properties:
+            T:
+              type: integer
+              description: The end time of the candle in epoch milliseconds.
+              example: 1681924499999
+            c:
+              type: string
+              description: The closing price of the candle.
+              example: "29258.0"
+            h:
+              type: string
+              description: The highest price during the candle interval.
+              example: "29309.0"
+            i:
+              type: string
+              description: The interval for the candle.
+              example: "15m"
+            l:
+              type: string
+              description: The lowest price during the candle interval.
+              example: "29250.0"
+            n:
+              type: integer
+              description: The number of trades during the candle interval.
+              example: 189
+            o:
+              type: string
+              description: The opening price of the candle.
+              example: "29295.0"
+            s:
+              type: string
+              description: The cryptocurrency coin symbol.
+              example: "BTC"
+            t:
+              type: integer
+              description: The start time of the candle in epoch milliseconds.
+              example: 1681923600000
+            v:
+              type: string
+              description: The volume of trades during the candle interval.
+              example: "0.98639"
+      description: An array of candle snapshots for the specified parameters.
+      example:
+        [
+          {
+            "T": 1681924499999,
+            "c": "29258.0",
+            "h": "29309.0",
+            "i": "15m",
+            "l": "29250.0",
+            "n": 189,
+            "o": "29295.0",
+            "s": "BTC",
+            "t": 1681923600000,
+            "v": "0.98639",
+          },
+        ]
+    MetaRequest:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          description: Request type to retrieve metadata.
+          example: "meta"
+      additionalProperties: false
+
+    MetaResponse:
+      type: object
+      properties:
+        universe:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The name of the asset or universe.
+                example: "BTC"
+              szDecimals:
+                type: integer
+                description: The number of decimal places for sizes.
+                example: 5
+              maxLeverage:
+                type: integer
+                description: The maximum leverage allowed for the asset.
+                example: 50
+              onlyIsolated:
+                type: boolean
+                description: Indicates if only isolated margin is allowed.
+                example: false
+      description: Retrieve perpetuals metadata
+      example:
+        {
+          "universe":
+            [
+              {
+                "name": "BTC",
+                "szDecimals": 5,
+                "maxLeverage": 50,
+                "onlyIsolated": false,
+              },
+              {
+                "name": "ETH",
+                "szDecimals": 4,
+                "maxLeverage": 50,
+                "onlyIsolated": false,
+              },
+              {
+                "name": "HPOS",
+                "szDecimals": 0,
+                "maxLeverage": 3,
+                "onlyIsolated": true,
+              },
+            ],
+        }
+    MetaAndAssetCtxsRequest:
+      type: object
+      required:
+        - type
+      description: Retrieve perpetuals asset contexts (includes mark price, current funding, open interest, etc)
+      properties:
+        type:
+          type: string
+          description: Request type to retrieve metadata and asset contexts.
+          example: "metaAndAssetCtxs"
+
+    MetaAndAssetCtxsResponse:
+      type: object
+      properties:
+        universe:
+          type: array
+          description: Metadata about available assets or universes.
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The name of the asset or universe.
+                example: "BTC"
+              szDecimals:
+                type: integer
+                description: The number of decimal places for sizes.
+                example: 5
+              maxLeverage:
+                type: integer
+                description: The maximum leverage allowed for the asset.
+                example: 50
+              onlyIsolated:
+                type: boolean
+                description: Indicates if only isolated margin is allowed.
+                example: false
+        assetContexts:
+          type: array
+          description: Asset context information.
+          items:
+            type: object
+            properties:
+              dayNtlVlm:
+                type: string
+                description: The daily notional volume.
+                example: "1169046.29406"
+              funding:
+                type: string
+                description: The funding rate.
+                example: "0.0000125"
+              impactPxs:
+                type: array
+                description: Impact prices for the asset.
+                items:
+                  type: string
+                  example: "14.3047"
+              markPx:
+                type: string
+                description: The mark price of the asset.
+                example: "14.3161"
+              midPx:
+                type: string
+                description: The mid price of the asset.
+                example: "14.314"
+              openInterest:
+                type: string
+                description: The open interest for the asset.
+                example: "688.11"
+              oraclePx:
+                type: string
+                description: The oracle price of the asset.
+                example: "14.32"
+              premium:
+                type: string
+                description: The premium of the asset.
+                example: "0.00031774"
+              prevDayPx:
+                type: string
+                description: The previous day's price of the asset.
+                example: "15.322"
+      required:
+        - universe
+        - assetContexts
+      description: Metadata and asset context information.
+      example:
+        universe:
+          - name: "BTC"
+            szDecimals: 5
+            maxLeverage: 50
+            onlyIsolated: false
+          - name: "ETH"
+            szDecimals: 4
+            maxLeverage: 50
+            onlyIsolated: false
+          - name: "HPOS"
+            szDecimals: 0
+            maxLeverage: 3
+            onlyIsolated: true
+        assetContexts:
+          - dayNtlVlm: "1169046.29406"
+            funding: "0.0000125"
+            impactPxs: ["14.3047", "14.3444"]
+            markPx: "14.3161"
+            midPx: "14.314"
+            openInterest: "688.11"
+            oraclePx: "14.32"
+            premium: "0.00031774"
+            prevDayPx: "15.322"
+          - dayNtlVlm: "1426126.295175"
+            funding: "0.0000125"
+            impactPxs: ["6.0386", "6.0562"]
+            markPx: "6.0436"
+            midPx: "6.0431"
+            openInterest: "1882.55"
+            oraclePx: "6.0457"
+            premium: "0.00028119"
+            prevDayPx: "6.3611"
+          - dayNtlVlm: "809774.565507"
+            funding: "0.0000125"
+            impactPxs: ["8.4505", "8.4722"]
+            markPx: "8.4542"
+            midPx: "8.4557"
+            openInterest: "2912.05"
+            oraclePx: "8.4585"
+            premium: "0.00033694"
+            prevDayPx: "8.8097"
+    ClearinghouseStateRequest:
+      type: object
+      description: Retrieve user's perpetuals account summary
+      properties:
+        type:
+          type: string
+          description: The type of the request.
+          example: "clearinghouseState"
+        user:
+          type: string
+          description: Onchain address in 42-character hexadecimal format.
+          example: "0x0000000000000000000000000000000000000000"
+      required:
+        - type
+        - user
+
+    ClearinghouseStateResponse:
+      type: object
+      properties:
+        assetPositions:
+          type: array
+          description: Details of the user's open positions.
+          items:
+            type: object
+            properties:
+              position:
+                type: object
+                properties:
+                  coin:
+                    type: string
+                    description: The cryptocurrency or asset symbol.
+                    example: "ETH"
+                  cumFunding:
+                    type: object
+                    description: Cumulative funding details.
+                    properties:
+                      allTime:
+                        type: string
+                        description: All-time cumulative funding.
+                        example: "514.085417"
+                      sinceChange:
+                        type: string
+                        description: Cumulative funding since the last change.
+                        example: "0.0"
+                      sinceOpen:
+                        type: string
+                        description: Cumulative funding since the position was opened.
+                        example: "0.0"
+                  entryPx:
+                    type: string
+                    description: The entry price for the position.
+                    example: "2986.3"
+                  leverage:
+                    type: object
+                    description: Leverage details for the position.
+                    properties:
+                      rawUsd:
+                        type: string
+                        description: The raw USD amount.
+                        example: "-95.059824"
+                      type:
+                        type: string
+                        description: The type of leverage, e.g., isolated or cross.
+                        example: "isolated"
+                      value:
+                        type: integer
+                        description: The leverage multiplier.
+                        example: 20
+                  liquidationPx:
+                    type: string
+                    description: The liquidation price for the position.
+                    example: "2866.26936529"
+                  marginUsed:
+                    type: string
+                    description: The amount of margin used.
+                    example: "4.967826"
+                  maxLeverage:
+                    type: integer
+                    description: The maximum leverage allowed.
+                    example: 50
+                  positionValue:
+                    type: string
+                    description: The value of the position.
+                    example: "100.02765"
+                  returnOnEquity:
+                    type: string
+                    description: The return on equity for the position.
+                    example: "-0.0026789"
+                  szi:
+                    type: string
+                    description: The size of the position.
+                    example: "0.0335"
+                  unrealizedPnl:
+                    type: string
+                    description: The unrealized profit and loss for the position.
+                    example: "-0.0134"
+              type:
+                type: string
+                description: The type of position, e.g., one-way or hedge.
+                example: "oneWay"
+        crossMaintenanceMarginUsed:
+          type: string
+          description: The amount of cross maintenance margin used.
+          example: "0.0"
+        crossMarginSummary:
+          type: object
+          description: Summary of the cross margin account.
+          properties:
+            accountValue:
+              type: string
+              description: The total account value.
+              example: "13104.514502"
+            totalMarginUsed:
+              type: string
+              description: The total margin used.
+              example: "0.0"
+            totalNtlPos:
+              type: string
+              description: The total notional position.
+              example: "0.0"
+            totalRawUsd:
+              type: string
+              description: The total raw USD value.
+              example: "13104.514502"
+        marginSummary:
+          type: object
+          description: Summary of the margin account.
+          properties:
+            accountValue:
+              type: string
+              description: The total account value.
+              example: "13109.482328"
+            totalMarginUsed:
+              type: string
+              description: The total margin used.
+              example: "4.967826"
+            totalNtlPos:
+              type: string
+              description: The total notional position.
+              example: "100.02765"
+            totalRawUsd:
+              type: string
+              description: The total raw USD value.
+              example: "13009.454678"
+        time:
+          type: integer
+          description: The timestamp of the data.
+          example: 1708622398623
+        withdrawable:
+          type: string
+          description: The amount of funds that can be withdrawn.
+          example: "13104.514502"
+    UserFundingOrLedgerUpdatesRequest:
+      type: object
+      description: Retrieve a user's funding history or non-funding ledger updates
+      properties:
+        type:
+          type: string
+          description: The type of ledger updates to retrieve.
+          enum:
+            - userFunding
+            - userNonFundingLedgerUpdates
+          example: "userFunding"
+        user:
+          type: string
+          description: Address in 42-character hexadecimal format.
+          example: "0x0000000000000000000000000000000000000000"
+        startTime:
+          type: integer
+          description: Start time in milliseconds, inclusive.
+          example: 1681222254710
+        endTime:
+          type: integer
+          description: End time in milliseconds, inclusive. Defaults to current time.
+          example: 1681308654710
+      required:
+        - type
+        - user
+        - startTime
+
+    UserFundingOrLedgerUpdatesResponse:
+      type: array
+      description: Array of ledger update entries.
+      items:
+        type: object
+        properties:
+          delta:
+            type: object
+            description: Details of the change in the user's balance.
+            properties:
+              coin:
+                type: string
+                description: The cryptocurrency or asset symbol.
+                example: "ETH"
+              fundingRate:
+                type: string
+                description: The rate of funding applicable.
+                example: "0.0000417"
+              szi:
+                type: string
+                description: The size of the position affected.
+                example: "49.1477"
+              type:
+                type: string
+                description: The type of ledger update, e.g., funding or non-funding.
+                example: "funding"
+              usdc:
+                type: string
+                description: The change in USDC balance.
+                example: "-3.625312"
+          hash:
+            type: string
+            description: The transaction hash.
+            example: "0xa166e3fa63c25663024b03f2e0da011a00307e4017465df020210d3d432e7cb8"
+          time:
+            type: integer
+            description: The timestamp of the update.
+            example: 1681222254710
+    FundingHistoryRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of data to retrieve.
+          enum:
+            - fundingHistory
+          example: "fundingHistory"
+        coin:
+          type: string
+          description: The cryptocurrency or asset symbol.
+          example: "ETH"
+        startTime:
+          type: integer
+          description: Start time in milliseconds, inclusive.
+          example: 1681222254710
+        endTime:
+          type: integer
+          description: End time in milliseconds, inclusive. Defaults to current time.
+          example: 1681308654710
+      required:
+        - type
+        - coin
+        - startTime
+      description: Retrieve historical funding rates
+
+    FundingHistoryResponse:
+      type: array
+      description: Array of funding history entries.
+      items:
+        type: object
+        properties:
+          coin:
+            type: string
+            description: The cryptocurrency or asset symbol.
+            example: "ETH"
+          fundingRate:
+            type: string
+            description: The rate of funding applicable at the time.
+            example: "-0.00022196"
+          premium:
+            type: string
+            description: The premium associated with the funding.
+            example: "-0.00052196"
+          time:
+            type: integer
+            description: The timestamp of the funding rate update.
+            example: 1683849600076
+    SpotMetaRequest:
+      type: object
+      description: |
+        ### Request Schema
+        This request schema is used to retrieve spot metadata.
+      properties:
+        type:
+          type: string
+          enum: ["spotMeta"]
+          description: |
+            The type of request. Use "spotMeta" to retrieve spot metadata.
+    SpotMetaResponse:
+      type: object
+      description: |
+        ### Response Schema
+        This response schema contains spot metadata, including token details and trading pairs.
+      properties:
+        tokens:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              szDecimals:
+                type: integer
+              weiDecimals:
+                type: integer
+              index:
+                type: integer
+              tokenId:
+                type: string
+              isCanonical:
+                type: boolean
+              evmContract:
+                type: string
+                nullable: true
+              fullName:
+                type: string
+                nullable: true
+        universe:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              tokens:
+                type: array
+                items:
+                  type: integer
+              index:
+                type: integer
+              isCanonical:
+                type: boolean
+    SpotMetaAndAssetCtxsRequest:
+      type: object
+      description: |
+        ### Request Schema
+        This request schema is used to retrieve spot asset contexts.
+      properties:
+        type:
+          type: string
+          description: |
+            The type of request. Use "spotMetaAndAssetCtxs" to retrieve spot asset contexts.
+
+    SpotMetaAndAssetCtxsResponse:
+      type: array
+      description: |
+        ### Response Schema
+        This response schema includes metadata about tokens and asset contexts, including trading pairs and market data.
+      items:
+        oneOf:
+          - type: object
+            properties:
+              tokens:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    szDecimals:
+                      type: integer
+                    weiDecimals:
+                      type: integer
+                    index:
+                      type: integer
+                    tokenId:
+                      type: string
+                    isCanonical:
+                      type: boolean
+                    evmContract:
+                      type: string
+                      nullable: true
+                    fullName:
+                      type: string
+                      nullable: true
+              universe:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    tokens:
+                      type: array
+                      items:
+                        type: integer
+                    index:
+                      type: integer
+                    isCanonical:
+                      type: boolean
+          - type: array
+            items:
+              type: object
+              properties:
+                dayNtlVlm:
+                  type: string
+                markPx:
+                  type: string
+                midPx:
+                  type: string
+                prevDayPx:
+                  type: string
+    SpotClearinghouseStateRequest:
+      type: object
+      description: |
+        ### Request Schema
+        This schema is used to retrieve a user's token balances.
+      properties:
+        type:
+          type: string
+          enum: ["spotClearinghouseState"]
+          description: |
+            The type of request. Use "spotClearinghouseState" to retrieve the user's token balances.
+        user:
+          type: string
+          description: |
+            The onchain address in a 42-character hexadecimal format, e.g., 0x0000000000000000000000000000000000000000.
+      required:
+        - type
+        - user
+
+    SpotClearinghouseStateResponse:
+      type: object
+      description: |
+        ### Response Schema
+        This schema defines the structure of the response that contains the user's token balances.
+      properties:
+        balances:
+          type: array
+          items:
+            type: object
+            properties:
+              coin:
+                type: string
+                description: The name of the token (e.g., USDC, PURR).
+              token:
+                type: integer
+                description: The index of the token.
+              hold:
+                type: string
+                description: The amount of the token that is on hold.
+              total:
+                type: string
+                description: The total balance of the token.
+              entryNtl:
+                type: string
+                description: The notional value at entry for the token.
+    PlaceOrderRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for placing an order. You can specify various order types, conditions, and settings.
+      properties:
+        action:
+          type: object
+          description: The action object containing order details.
+          properties:
+            type:
+              type: string
+              enum: ["order"]
+              description: Must be "order".
+            orders:
+              type: array
+              items:
+                type: object
+                properties:
+                  a:
+                    type: number
+                    description: The asset.
+                  b:
+                    type: boolean
+                    description: Indicates if the order is a buy order.
+                  p:
+                    type: string
+                    description: The price at which to place the order.
+                  s:
+                    type: string
+                    description: The size of the order.
+                  r:
+                    type: boolean
+                    description: Indicates if the order is reduce-only.
+                  t:
+                    type: object
+                    description: The type of order.
+                    properties:
+                      limit:
+                        type: object
+                        description: Limit order details.
+                        properties:
+                          tif:
+                            type: string
+                            enum: ["Alo", "Ioc", "Gtc"]
+                            description: |
+                              Time-in-force for limit orders:
+                              - **ALO**: Add liquidity only (post only)
+                              - **IOC**: Immediate or cancel
+                              - **GTC**: Good til canceled
+                      trigger:
+                        type: object
+                        description: Trigger order details.
+                        properties:
+                          isMarket:
+                            type: boolean
+                            description: Indicates if the trigger order is a market order.
+                          triggerPx:
+                            type: string
+                            description: The price at which the order is triggered.
+                          tpsl:
+                            type: string
+                            enum: ["tp", "sl"]
+                            description: Indicates if the order is a take profit (tp) or stop loss (sl).
+                  c:
+                    type: string
+                    description: |
+                      Optional client order ID (cloid), a 128-bit hex string.
+                      Example: 0x1234567890abcdef1234567890abcdef.
+            grouping:
+              type: string
+              enum: ["na", "normalTpsl", "positionTpsl"]
+              description: Specifies the grouping type for the order.
+        nonce:
+          type: number
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          description: Contains signature details.
+        vaultAddress:
+          type: string
+          description: |
+            Onchain address in 42-character hexadecimal format, required if trading on behalf of a vault.
+            Example: 0x0000000000000000000000000000000000000000.
+      required:
+        - action
+        - nonce
+        - signature
+
+    PlaceOrderRestingResponse:
+      type: object
+      description: Response when the order is placed and resting.
+      properties:
+        status:
+          type: string
+          example: "ok"
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "order"
+            data:
+              type: object
+              properties:
+                statuses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      resting:
+                        type: object
+                        properties:
+                          oid:
+                            type: integer
+                            description: The order ID.
+                            example: 77738308
+
+    PlaceOrderErrorResponse:
+      type: object
+      description: Response when there is an error in order placement.
+      properties:
+        status:
+          type: string
+          example: "error"
+        response:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Description of the error.
+
+    PlaceOrderFilledResponse:
+      type: object
+      description: Response when the order is successfully filled.
+      properties:
+        status:
+          type: string
+          example: "ok"
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "order"
+            data:
+              type: object
+              properties:
+                statuses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      filled:
+                        type: object
+                        properties:
+                          oid:
+                            type: integer
+                            description: The order ID.
+                            example: 77738308
+                          totalSz:
+                            type: integer
+                            example: 0.02
+                          avgPx:
+                            type: integer
+                            example: 1891.4
+    CancelOrderRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for canceling orders. You can specify one or more orders to cancel using their order IDs (oid).
+      properties:
+        action:
+          type: object
+          description: The action object containing cancel order details.
+          properties:
+            type:
+              type: string
+              enum: ["cancel"]
+              description: Must be "cancel".
+            cancels:
+              type: array
+              items:
+                type: object
+                properties:
+                  a:
+                    type: number
+                    description: The asset.
+                  o:
+                    type: number
+                    description: The order ID (oid).
+        nonce:
+          type: number
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          description: Contains signature details.
+        vaultAddress:
+          type: string
+          description: |
+            Onchain address in 42-character hexadecimal format, required if trading on behalf of a vault.
+            Example: 0x0000000000000000000000000000000000000000.
+      required:
+        - action
+        - nonce
+        - signature
+    CancelOrderSuccessResponse:
+      type: object
+      description: Response when the order(s) are successfully canceled.
+      properties:
+        status:
+          type: string
+          example: "ok"
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "cancel"
+            data:
+              type: object
+              properties:
+                statuses:
+                  type: array
+                  items:
+                    type: string
+                    example: "success"
+
+    CancelOrderErrorResponse:
+      type: object
+      description: Response when there is an error in canceling the order(s).
+      properties:
+        status:
+          type: string
+          example: "error"
+        response:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Description of the error.
+    CancelOrderByCloidRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for canceling orders by Client Order ID (cloid). You can specify one or more orders to cancel using their cloID and the associated asset.
+      properties:
+        action:
+          type: object
+          description: The action object containing details to cancel orders by cloid.
+          properties:
+            type:
+              type: string
+              enum: ["cancelByCloid"]
+              description: Must be "cancelByCloid".
+            cancels:
+              type: array
+              items:
+                type: object
+                properties:
+                  asset:
+                    type: number
+                    description: The asset associated with the order.
+                  cloid:
+                    type: string
+                    description: The Client Order ID (cloid) to identify the order to cancel.
+        nonce:
+          type: number
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          description: Contains signature details.
+        vaultAddress:
+          type: string
+          description: |
+            Onchain address in 42-character hexadecimal format, required if trading on behalf of a vault.
+            Example: 0x0000000000000000000000000000000000000000.
+      required:
+        - action
+        - nonce
+        - signature
+    CancelOrderByCloidSuccessResponse:
+      type: object
+      description: Response when the order(s) are successfully canceled by cloid.
+      properties:
+        status:
+          type: string
+          example: "ok"
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "cancelByCloid"
+            data:
+              type: object
+              properties:
+                statuses:
+                  type: array
+                  items:
+                    type: string
+                    example: "success"
+
+    CancelOrderByCloidErrorResponse:
+      type: object
+      description: Response when there is an error in canceling the order(s) by cloid.
+      properties:
+        status:
+          type: string
+          example: "error"
+        response:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Description of the error.
+    ScheduleCancelRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for scheduling a cancel-all operation. Setting `time` to `null` will remove any outstanding scheduled cancel operation.
+      properties:
+        type:
+          type: string
+          example: "scheduleCancel"
+          description: Must be "scheduleCancel".
+        time:
+          type: integer
+          format: int64
+          nullable: true
+          description: |
+            The time (in Unix milliseconds) at which the cancel-all operation should occur. Setting this to `null` will remove any outstanding scheduled cancel operation.
+      required:
+        - type
+        - time
+    ScheduleCancelResponse:
+      type: object
+      description: |
+        ### Response Schema
+        The response body indicating the status of the schedule cancel request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the scheduling request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "scheduleCancel"
+            data:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: "scheduled"
+                  description: Status of the scheduling (e.g., "scheduled" or "canceled").
+
+    ErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the scheduling request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            error:
+              type: string
+              description: Description of the error.
+    ModifyOrderRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for modifying an existing order.
+      properties:
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "modify"
+              description: Must be "modify".
+            oid:
+              type: integer
+              description: Order ID to modify.
+            order:
+              type: object
+              properties:
+                a:
+                  type: number
+                  description: Asset identifier.
+                b:
+                  type: boolean
+                  description: Whether the order is a buy order.
+                p:
+                  type: string
+                  description: Price at which to place the order.
+                s:
+                  type: string
+                  description: Size of the order.
+                r:
+                  type: boolean
+                  description: Whether the order is reduce-only.
+                t:
+                  type: object
+                  description: Order type details.
+                  oneOf:
+                    - type: object
+                      description: Limit order type with time-in-force options.
+                      properties:
+                        limit:
+                          type: object
+                          properties:
+                            tif:
+                              type: string
+                              enum: [Alo, Ioc, Gtc]
+                              description: Time-in-force options for limit orders.
+                    - type: object
+                      description: Trigger order type with market option.
+                      properties:
+                        trigger:
+                          type: object
+                          properties:
+                            isMarket:
+                              type: boolean
+                              description: Whether the order is a market order.
+                            triggerPx:
+                              type: string
+                              description: Trigger price for the order.
+                            tpsl:
+                              type: string
+                              enum: [tp, sl]
+                              description: Type of trigger, take-profit (tp) or stop-loss (sl).
+                c:
+                  type: string
+                  nullable: true
+                  description: Client order ID (optional).
+                  example: "0x1234567890abcdef1234567890abcdef"
+        nonce:
+          type: integer
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          properties:
+            vaultAddress:
+              type: string
+              description: |
+                If trading on behalf of a vault, its Onchain address in 42-character hexadecimal format.
+                Example: 0x0000000000000000000000000000000000000000
+      required:
+        - action
+        - nonce
+        - signature
+
+    ModifyOrderResponse:
+      type: object
+      description: |
+        ### Response Schema
+        The response body indicating the status of the modify order request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the modify request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "modify"
+            data:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: "modified"
+                  description: Status of the order modification (e.g., "modified" or "failed").
+
+    ModifyOrderErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the modify order request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "modify"
+            data:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Description of the error encountered during the modify order request.
+    BatchModifyOrderRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for modifying multiple existing orders.
+      properties:
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "batchModify"
+              description: Must be "batchModify".
+            modifies:
+              type: array
+              items:
+                type: object
+                properties:
+                  oid:
+                    type: integer
+                    description: Order ID to modify.
+                  order:
+                    type: object
+                    properties:
+                      a:
+                        type: number
+                        description: Asset identifier.
+                      b:
+                        type: boolean
+                        description: Whether the order is a buy order.
+                      p:
+                        type: string
+                        description: Price at which to place the order.
+                      s:
+                        type: string
+                        description: Size of the order.
+                      r:
+                        type: boolean
+                        description: Whether the order is reduce-only.
+                      t:
+                        type: object
+                        description: Order type details.
+                        oneOf:
+                          - type: object
+                            description: Limit order type with time-in-force options.
+                            properties:
+                              limit:
+                                type: object
+                                properties:
+                                  tif:
+                                    type: string
+                                    enum: [Alo, Ioc, Gtc]
+                                    description: Time-in-force options for limit orders.
+                          - type: object
+                            description: Trigger order type with market option.
+                            properties:
+                              trigger:
+                                type: object
+                                properties:
+                                  isMarket:
+                                    type: boolean
+                                    description: Whether the order is a market order.
+                                  triggerPx:
+                                    type: string
+                                    description: Trigger price for the order.
+                                  tpsl:
+                                    type: string
+                                    enum: [tp, sl]
+                                    description: Type of trigger, take-profit (tp) or stop-loss (sl).
+                      c:
+                        type: string
+                        nullable: true
+                        description: Client order ID (optional).
+                        example: "0x1234567890abcdef1234567890abcdef"
+        nonce:
+          type: integer
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          properties:
+            vaultAddress:
+              type: string
+              description: |
+                If trading on behalf of a vault, its Onchain address in 42-character hexadecimal format.
+                Example: 0x0000000000000000000000000000000000000000
+      required:
+        - action
+        - nonce
+        - signature
+
+    BatchModifyOrderResponse:
+      type: object
+      description: |
+        ### Response Schema
+        The response body indicating the status of the batch modify order request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the batch modify request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "batchModify"
+            data:
+              type: object
+              properties:
+                statuses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      oid:
+                        type: integer
+                        description: Order ID that was modified.
+                      status:
+                        type: string
+                        example: "modified"
+                        description: Status of each order modification (e.g., "modified" or "failed").
+
+    BatchModifyOrderErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the batch modify order request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "batchModify"
+            data:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Description of the error encountered during the batch modify order request.
+    UpdateLeverageRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for updating cross or isolated leverage on a coin.
+      properties:
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "updateLeverage"
+              description: Must be "updateLeverage".
+            asset:
+              type: integer
+              description: Index of the coin for which leverage is being updated.
+            isCross:
+              type: boolean
+              description: Whether to update cross-leverage. Set to `true` for cross, `false` for isolated.
+            leverage:
+              type: integer
+              description: New leverage value, subject to leverage constraints on that coin.
+        nonce:
+          type: integer
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          properties:
+            vaultAddress:
+              type: string
+              description: |
+                If trading on behalf of a vault, its Onchain address in 42-character hexadecimal format.
+                Example: 0x0000000000000000000000000000000000000000
+      required:
+        - action
+        - nonce
+        - signature
+
+    UpdateLeverageResponse:
+      type: object
+      description: |
+        ### Successful Response Schema
+        The response body indicating the status of the update leverage request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the update leverage request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "default"
+              description: Indicates the response type for a successful operation.
+
+    UpdateLeverageErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the update leverage request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "updateLeverage"
+            data:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Description of the error encountered during the update leverage request.
+    UpdateIsolatedMarginRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for adding or removing margin from an isolated position.
+      properties:
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "updateIsolatedMargin"
+              description: Must be "updateIsolatedMargin".
+            asset:
+              type: integer
+              description: Index of the coin for which margin is being updated.
+            isBuy:
+              type: boolean
+              example: true
+              description: Currently has no effect until hedge mode is introduced.
+            ntli:
+              type: number
+              format: float
+              description: Amount of margin to add or remove.
+        nonce:
+          type: integer
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          properties:
+            vaultAddress:
+              type: string
+              description: |
+                If trading on behalf of a vault, its Onchain address in 42-character hexadecimal format.
+                Example: 0x0000000000000000000000000000000000000000
+      required:
+        - action
+        - nonce
+        - signature
+
+    UpdateIsolatedMarginResponse:
+      type: object
+      description: |
+        ### Successful Response Schema
+        The response body indicating the status of the update isolated margin request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the update isolated margin request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "default"
+              description: Indicates the response type for a successful operation.
+
+    UpdateIsolatedMarginErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the update isolated margin request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "updateIsolatedMargin"
+            data:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Description of the error encountered during the update isolated margin request
+    L1SpotTransferRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for sending spot assets to another address without touching the EVM bridge.
+      properties:
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "spotSend"
+              description: Must be "spotSend".
+            hyperliquidChain:
+              type: string
+              example: "Mainnet"
+              description: The Hyperliquid chain to use, set to "Mainnet" or "Testnet".
+            signatureChainId:
+              type: string
+              example: "0xa4b1"
+              description: The ID of the chain used when signing in hexadecimal format (e.g., "0xa4b1" for Arbitrum).
+            destination:
+              type: string
+              example: "0x0000000000000000000000000000000000000000"
+              description: The address to send spot assets to in 42-character hexadecimal format.
+            token:
+              type: string
+              example: "PURR:0xc4bf3f870c0e9465323c0b6ed28096c2"
+              description: The token name and ID, formatted as "tokenName:tokenId".
+            amount:
+              type: string
+              example: "0.01"
+              description: The amount of the token to send as a string.
+            time:
+              type: integer
+              description: Current timestamp in milliseconds as a number, should match nonce.
+        nonce:
+          type: integer
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          description: Signature of the request.
+      required:
+        - action
+        - nonce
+        - signature
+
+    L1SpotTransferResponse:
+      type: object
+      description: |
+        ### Successful Response Schema
+        The response body indicating the status of the L1 spot transfer request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the L1 spot transfer request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "default"
+              description: Indicates the response type for a successful operation.
+
+    L1SpotTransferErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the L1 spot transfer request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "spotSend"
+            data:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Description of the error encountered during the L1 spot transfer request.
+
+    InitiateWithdrawalRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for initiating a withdrawal flow. This request will trigger the L1 validators to sign and send the withdrawal request to the bridge contract.
+      properties:
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "withdraw3"
+              description: Must be "withdraw3".
+            hyperliquidChain:
+              type: string
+              example: "Mainnet"
+              description: The Hyperliquid chain to use, set to "Mainnet" or "Testnet".
+            signatureChainId:
+              type: string
+              example: "0xa4b1"
+              description: The ID of the chain used when signing in hexadecimal format (e.g., "0xa4b1" for Arbitrum).
+            amount:
+              type: string
+              example: "1"
+              description: The amount of USD to withdraw as a string.
+            time:
+              type: integer
+              description: Current timestamp in milliseconds as a number, should match nonce.
+            destination:
+              type: string
+              example: "0x0000000000000000000000000000000000000000"
+              description: The address to withdraw to in 42-character hexadecimal format.
+        nonce:
+          type: integer
+          description: Recommended to use the current timestamp in milliseconds, must match the nonce in the action object.
+        signature:
+          type: object
+          description: Signature of the request.
+      required:
+        - action
+        - nonce
+        - signature
+
+    InitiateWithdrawalResponse:
+      type: object
+      description: |
+        ### Successful Response Schema
+        The response body indicating the status of the withdrawal request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the withdrawal request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "default"
+              description: Indicates the response type for a successful operation.
+
+    InitiateWithdrawalErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the withdrawal request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "withdraw3"
+            data:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Description of the error encountered during the withdrawal request
+    SpotToPerpTransferRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for transferring USDC between the spot wallet and the perpetual wallet. The transfer can be from spot to perp or vice versa.
+      properties:
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "spotUser"
+              description: Must be "spotUser".
+            classTransfer:
+              type: object
+              properties:
+                usdc:
+                  type: integer
+                  example: 1000000
+                  description: The amount of raw USDC to send, represented as an integer (e.g., for 1 USDC, use 1e6).
+                toPerp:
+                  type: boolean
+                  example: true
+                  description: If true, transfer from spot to perp wallet; if false, transfer from perp to spot wallet.
+          required:
+            - classTransfer
+        nonce:
+          type: integer
+          description: Recommended to use the current timestamp in milliseconds, must match the nonce in the action object.
+        signature:
+          type: object
+          description: Signature of the request.
+      required:
+        - action
+        - nonce
+        - signature
+
+    SpotToPerpTransferResponse:
+      type: object
+      description: |
+        ### Successful Response Schema
+        The response body indicating the status of the transfer request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the transfer request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "default"
+              description: Indicates the response type for a successful operation.
+
+    SpotToPerpTransferErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the transfer request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "spotUser"
+            data:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Description of the error encountered during the transfer request.
+    VaultTransferRequest:
+      type: object
+      description: |
+        ### Request Schema
+        The request body for depositing into or withdrawing from a vault. The `isDeposit` flag indicates whether the operation is a deposit or a withdrawal.
+      properties:
+        action:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "vaultTransfer"
+              description: Must be "vaultTransfer".
+            vaultAddress:
+              type: string
+              example: "0x0000000000000000000000000000000000000000"
+              description: Address of the vault in 42-character hexadecimal format.
+            isDeposit:
+              type: boolean
+              example: true
+              description: If true, the request is for depositing funds into the vault. If false, the request is for withdrawing funds from the vault.
+            usd:
+              type: number
+              example: 100.0
+              description: Amount of USD to deposit or withdraw.
+          required:
+            - vaultAddress
+            - isDeposit
+            - usd
+        nonce:
+          type: number
+          description: Recommended to use the current timestamp in milliseconds.
+        signature:
+          type: object
+          description: Signature of the request.
+      required:
+        - action
+        - nonce
+        - signature
+
+    VaultTransferResponse:
+      type: object
+      description: |
+        ### Successful Response Schema
+        The response body indicating the status of the vault transfer request.
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: Status of the vault transfer request.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "default"
+              description: Indicates the response type for a successful operation.
+
+    VaultTransferErrorResponse:
+      type: object
+      description: |
+        ### Error Response Schema
+        The response body for an error encountered during the vault transfer request.
+      properties:
+        status:
+          type: string
+          example: "error"
+          description: Status indicating an error occurred.
+        response:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "vaultTransfer"
+            data:
+              type: object
+              properties:
+                error:
+                  type: string
+                  description: Description of the error encountered during the vault transfer request
+    WebSocketMessage:
+      type: object
+      properties:
+        method:
+          type: string
+          description: The method being invoked (e.g., "subscribe").
+        subscription:
+          type: object
+          properties:
+            type:
+              type: string
+              description: The type of data subscription (e.g., "trades", "orderBook").
+            coin:
+              type: string
+              description: The cryptocurrency for which data is being subscribed (e.g., "SOL").
+      required:
+        - method
+        - subscription
+
+    WebSocketResponse:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: The channel of the response (e.g., "subscriptionResponse").
+        data:
+          type: object
+          properties:
+            method:
+              type: string
+              description: The method being invoked (e.g., "subscribe").
+            subscription:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: The type of data subscription (e.g., "trades", "orderBook").
+                coin:
+                  type: string
+                  description: The cryptocurrency for which data is being subscribed (e.g., "SOL").
+      required:
+        - channel
+        - data
+    WebSocketSubscriptionRequest:
+      type: object
+      properties:
+        method:
+          type: string
+          example: "subscribe"
+        subscription:
+          type: object
+          properties:
+            type:
+              type: string
+              description: The type of subscription.
+              enum:
+                - allMids
+                - notification
+                - webData2
+                - candle
+                - l2Book
+                - trades
+                - orderUpdates
+                - userEvents
+                - userFills
+                - userFundings
+                - userNonFundingLedgerUpdates
+            user:
+              type: string
+              description: Address of the user. Optional based on subscription type.
+              nullable: true
+            coin:
+              type: string
+              description: Coin symbol. Optional based on subscription type.
+              nullable: true
+            interval:
+              type: string
+              description: Candle interval. Optional based on subscription type.
+              nullable: true
+
+    WebSocketSubscriptionResponse:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: The channel to which the response corresponds.
+        data:
+          type: object
+          properties:
+            method:
+              type: string
+              example: "subscribe"
+            subscription:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: The type of subscription.
+                  enum:
+                    - allMids
+                    - notification
+                    - webData2
+                    - candle
+                    - l2Book
+                    - trades
+                    - orderUpdates
+                    - userEvents
+                    - userFills
+                    - userFundings
+                    - userNonFundingLedgerUpdates
+                user:
+                  type: string
+                  description: Address of the user. Optional based on subscription type.
+                  nullable: true
+                coin:
+                  type: string
+                  description: Coin symbol. Optional based on subscription type.
+                  nullable: true
+                interval:
+                  type: string
+                  description: Candle interval. Optional based on subscription type.
+                  nullable: true
+            responseData:
+              type: object
+              oneOf:
+                - $ref: "#/components/schemas/AllMids"
+                - $ref: "#/components/schemas/Notification"
+                - $ref: "#/components/schemas/WebData2"
+                - $ref: "#/components/schemas/Candle"
+                - $ref: "#/components/schemas/WsBook"
+                - $ref: "#/components/schemas/WsTrade"
+                - $ref: "#/components/schemas/WsOrder"
+                - $ref: "#/components/schemas/WsUserEvent"
+                - $ref: "#/components/schemas/WsUserFill"
+                - $ref: "#/components/schemas/WsUserFunding"
+                - $ref: "#/components/schemas/WsUserNonFundingLedgerUpdate"
+
+    AllMids:
+      type: object
+      properties:
+        mids:
+          type: object
+          additionalProperties:
+            type: string
+
+    Notification:
+      type: object
+      properties:
+        notification:
+          type: string
+
+    WebData2:
+      type: object
+      # Define the properties of WebData2 based on its data structure.
+      properties:
+        # Example properties; adjust according to actual data format.
+        exampleProperty1:
+          type: string
+        exampleProperty2:
+          type: integer
+
+    Candle:
+      type: array
+      items:
+        type: object
+        properties:
+          t:
+            type: number
+            description: Open time in milliseconds
+          T:
+            type: number
+            description: Close time in milliseconds
+          s:
+            type: string
+            description: Coin symbol
+          i:
+            type: string
+            description: Interval
+          o:
+            type: number
+            description: Open price
+          c:
+            type: number
+            description: Close price
+          h:
+            type: number
+            description: High price
+          l:
+            type: number
+            description: Low price
+          v:
+            type: number
+            description: Volume (base unit)
+          n:
+            type: number
+            description: Number of trades
+
+    WsBook:
+      type: object
+      properties:
+        coin:
+          type: string
+        levels:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/WsLevel"
+        time:
+          type: number
+
+    WsLevel:
+      type: object
+      properties:
+        px:
+          type: string
+        sz:
+          type: string
+        n:
+          type: number
+
+    WsTrade:
+      type: object
+      properties:
+        coin:
+          type: string
+        side:
+          type: string
+        px:
+          type: string
+        sz:
+          type: string
+        hash:
+          type: string
+        time:
+          type: number
+        tid:
+          type: number
+
+    WsOrder:
+      type: object
+      properties:
+        order:
+          $ref: "#/components/schemas/WsBasicOrder"
+        status:
+          type: string
+          description: Possible values open, filled, canceled, triggered, rejected, marginCanceled
+        statusTimestamp:
+          type: number
+
+    WsBasicOrder:
+      type: object
+      properties:
+        coin:
+          type: string
+        side:
+          type: string
+        limitPx:
+          type: string
+        sz:
+          type: string
+        oid:
+          type: number
+        timestamp:
+          type: number
+        origSz:
+          type: string
+        cloid:
+          type: string
+          nullable: true
+
+    WsUserEvent:
+      type: array
+      items:
+        oneOf:
+          - $ref: "#/components/schemas/WsUserFill"
+          - $ref: "#/components/schemas/WsUserFunding"
+          - $ref: "#/components/schemas/WsLiquidation"
+          - $ref: "#/components/schemas/WsNonUserCancel"
+
+    WsUserFill:
+      type: object
+      properties:
+        coin:
+          type: string
+        px:
+          type: string
+        sz:
+          type: string
+        side:
+          type: string
+        time:
+          type: number
+        startPosition:
+          type: string
+        dir:
+          type: string
+        closedPnl:
+          type: string
+        hash:
+          type: string
+        oid:
+          type: number
+        crossed:
+          type: boolean
+        fee:
+          type: string
+        tid:
+          type: number
+
+    WsUserFunding:
+      type: object
+      properties:
+        time:
+          type: number
+        coin:
+          type: string
+        usdc:
+          type: string
+        szi:
+          type: string
+        fundingRate:
+          type: string
+
+    WsLiquidation:
+      type: object
+      properties:
+        lid:
+          type: number
+        liquidator:
+          type: string
+        liquidated_user:
+          type: string
+        liquidated_ntl_pos:
+          type: string
+        liquidated_account_value:
+          type: string
+
+    WsNonUserCancel:
+      type: object
+      properties:
+        coin:
+          type: string
+        oid:
+          type: number
+
+    WsUserNonFundingLedgerUpdate:
+      type: object
+      properties:
+        time:
+          type: number
+        coin:
+          type: string
+        usdc:
+          type: string
+        szi:
+          type: string
+    WebSocketPostSubscription:
+      type: object
+      properties:
+        method:
+          type: string
+          description: The HTTP method used.
+          example: "post"
+        id:
+          type: integer
+          description: Unique identifier for the request.
+          example: 123
+        request:
+          type: object
+          properties:
+            type:
+              type: string
+              description: The type of request.
+              enum:
+                - info
+                - action
+              example: "info"
+            payload:
+              type: object
+              description: The payload of the request, varying by request type.
+              oneOf:
+                - $ref: "#/components/schemas/InfoPayload"
+                - $ref: "#/components/schemas/ActionPayload"
+
+    InfoPayload:
+      type: object
+      properties:
+        # Define specific properties for the "info" type payload.
+        detail:
+          type: string
+          description: Detailed information related to the request.
+          example: "Example detail information for the 'info' type request."
+        timestamp:
+          type: string
+          format: date-time
+          description: The timestamp of the info event.
+          example: "2024-08-11T12:00:00Z"
+
+    ActionPayload:
+      type: object
+      properties:
+        # Define specific properties for the "action" type payload.
+        actionType:
+          type: string
+          description: The specific action to be performed.
+          example: "create"
+        parameters:
+          type: object
+          description: Parameters for the action.
+          properties:
+            param1:
+              type: string
+              description: A parameter for the action.
+              example: "Parameter value"
+            param2:
+              type: integer
+              description: Another parameter for the action.
+              example: 42
+
+    WebSocketPostResponse:
+      type: object
+      properties:
+        channel:
+          type: string
+          description: The communication channel of the response.
+          example: "post"
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: Unique identifier for the response.
+              example: 123
+            response:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: Type of response data.
+                  example: "info"
+                payload:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: Type of data contained in the payload.
+                      example: "l2Book"
+                    data:
+                      type: object
+                      properties:
+                        coin:
+                          type: string
+                          description: The cryptocurrency symbol.
+                          example: "ETH"
+                        time:
+                          type: integer
+                          description: The timestamp of the data.
+                          example: 1628105400000
+                        levels:
+                          type: array
+                          description: Order book levels for the coin.
+                          items:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/WsLevel"
+
+    OrderSignedRequest:
+      type: object
+      properties:
+        method:
+          type: string
+          description: The method of the request.
+          example: "post"
+        id:
+          type: integer
+          description: Unique identifier for the request.
+          example: 256
+        request:
+          type: object
+          properties:
+            type:
+              type: string
+              description: Type of the request.
+              example: "action"
+            payload:
+              type: object
+              properties:
+                action:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: The type of action to perform.
+                      example: "order"
+                    orders:
+                      type: array
+                      description: List of orders to execute.
+                      items:
+                        type: object
+                        properties:
+                          a:
+                            type: integer
+                            description: Order attribute 'a'.
+                            example: 4
+                          b:
+                            type: boolean
+                            description: Order attribute 'b'.
+                            example: true
+                          p:
+                            type: string
+                            description: Price of the order.
+                            example: "1100"
+                          s:
+                            type: string
+                            description: Size of the order.
+                            example: "0.2"
+                          r:
+                            type: boolean
+                            description: Order attribute 'r'.
+                            example: false
+                          t:
+                            type: object
+                            properties:
+                              limit:
+                                type: object
+                                properties:
+                                  tif:
+                                    type: string
+                                    description: Time in force for the order.
+                                    example: "Gtc"
+                    grouping:
+                      type: string
+                      description: Grouping type for the order.
+                      example: "na"
+                nonce:
+                  type: integer
+                  description: Nonce value for the request.
+                  example: 1713825891591
+                signature:
+                  type: object
+                  properties:
+                    r:
+                      type: string
+                      description: Signature part 'r'.
+                      example: "..."
+                    s:
+                      type: string
+                      description: Signature part 's'.
+                      example: "..."
+                    v:
+                      type: string
+                      description: Signature part 'v'.
+                      example: "..."
+                vaultAddress:
+                  type: string
+                  description: The vault address in hexadecimal format.
+                  example: "0x12...3"
+    OrderSignedResponse:
+      type: object
+      properties:
+        method:
+          type: string
+          description: The method of the response.
+          example: "post"
+        id:
+          type: integer
+          description: Unique identifier for the response.
+          example: 256
+        request:
+          type: object
+          properties:
+            type:
+              type: string
+              description: Type of the request.
+              example: "action"
+            payload:
+              type: object
+              properties:
+                status:
+                  type: string
+                  description: Status of the request.
+                  example: "ok"
+                response:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: The type of response data.
+                      example: "order"
+                    data:
+                      type: object
+                      properties:
+                        statuses:
+                          type: array
+                          description: Status information of the order.
+                          items:
+                            type: object
+                            properties:
+                              resting:
+                                type: object
+                                properties:
+                                  oid:
+                                    type: integer
+                                    description: Order ID.
+                                    example: 88383
