@@ -1,17 +1,19 @@
 # exchange_yaml: machine readable crypto exchange API doc in OpenAPI/AsyncAPI YAML
 
 ## problem
-Most of the trading bots require data and execution at different exchanges. There are trading libraries like [CCXT](https://github.com/ccxt/ccxt) and [barter](https://github.com/barter-rs/barter-rs) that provides abstraction over multiple exchanges. However, they often miss support in either exchanges and languages.
+Most of the trading bots require data and execution at different exchanges. There are trading libraries like [CCXT](https://github.com/ccxt/ccxt) and [barter](https://github.com/barter-rs/barter-rs) that provides abstraction over multiple exchanges. However, they often miss support in either exchanges or languages.
 - high effort
 There are way too many crypto exchanges and programming languages.  Say there are N crypto exchanges, and L programming language, and the effort to convert those written API doc into exchange library is B, then the overall effort is N * L * B. 
 - versioning
-crypto exchange usually have lots of API updates and takes lots of manual testing, and it comes with inconsistent API doc as well.
+crypto exchange usually have lots of API updates and takes lots of manual testing, and it comes with inconsistent API doc as well
+- too much of its flavor
+these cross-exchange libraries often goes with their bigger project/workspace, making it hard to fulfill your needs.
 
 
 ## solution
-Ultimately I want to streamline this process of integrating multi-exchange API. I propose a new approach to this problem with the help of crowdsourcing and opensourcing. 
+Ultimately I want to streamline this process of integrating multi-exchange API. I propose a new approach to this problem with the help of crowdsourcing and opensourcing, and try to generate a bunch of generic code ready for your use.
 1. gather both OpenAPI YAML and AsyncAPI YAML
-(effort: N * S, S is the smaller effort of gathering / testing written API into YAML)
+(effort: N * S, S is the smaller effort of gathering / testing YAML from written API)
    - OpenAPI: define REST API
    - AsyncAPI: define event-driven API (websocket)
 1. Set up codegen CI for generating models for L languages
@@ -63,7 +65,7 @@ asyncapi generate fromTemplate example_2.yml @asyncapi/python-sanic-template -o 
 - you can install `asyncapi-preview` extension on vs code for preview
 
 ## todo
-- gather binance asyncAPI
+- gather 3+ exchanges
 - verify if the binance models can be generated on python/rust
 - verify if traits could be implemented on top of the generated model
 - package model with its version
