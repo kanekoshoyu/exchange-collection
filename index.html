@@ -1,33 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html> <!-- Important: must specify -->
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>Swagger UI</title>
-    <link rel="stylesheet" type="text/css"
-        href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.5/swagger-ui.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.5/swagger-ui-bundle.js"> </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.52.5/swagger-ui-standalone-preset.js"> </script>
+    <meta charset="utf-8"> <!-- Important: rapi-doc uses utf8 characters -->
+    <script type="module" src="https://unpkg.com/rapidoc/dist/rapidoc-min.js"></script>
 </head>
 
 <body>
-    <div id="swagger-ui"></div>
-    <script>
-        window.onload = function () {
-            // begin Swagger UI call region
-            const ui = SwaggerUIBundle({
-                // replace this with the path to your OpenAPI spec
-                url: "./binance_spot_openapi.yml",
-                dom_id: '#swagger-ui',
-                presets: [
-                    SwaggerUIBundle.presets.apis,
-                    SwaggerUIStandalonePreset
-                ],
-                layout: "StandaloneLayout"
-            })
-            // end Swagger UI call region
-        }
-    </script>
+    <rapi-doc spec-url="https://raw.githubusercontent.com/kanekoshoyu/exchange_yaml/main/hyperliquid_openapi.yaml"
+        theme="dark"> </rapi-doc>
 </body>
 
 </html>
