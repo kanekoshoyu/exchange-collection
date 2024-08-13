@@ -1,5 +1,7 @@
 # exchange_yaml: machine readable crypto exchange API doc in OpenAPI/AsyncAPI YAML
 
+[API doc here](https://kanekoshoyu.github.io/exchange_yaml)
+
 ## problem
 Most of the trading bots require data and execution at different exchanges. There are trading libraries like [CCXT](https://github.com/ccxt/ccxt) and [barter](https://github.com/barter-rs/barter-rs) that provides abstraction over multiple exchanges. However, they often miss support in either exchanges or languages.
 - high effort: there are way too many crypto exchanges and programming languages.  Say there are N crypto exchanges, and L programming language, and the effort to convert those written API doc into exchange library is B, then the overall effort is N * L * B.
@@ -23,7 +25,7 @@ To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I w
 | ----------- | ------------ | ------------- |
 | Binance     | Done         | WIP           |
 | Hyperliquid | Done         | planned       |
-| HashKey     | planned      | planned       |
+| HashKey     | WIP          | planned       |
 | KuCoin      | planned      | planned       |
 | ByBit       | planned      | planned       |
 
