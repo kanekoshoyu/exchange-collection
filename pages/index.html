@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Exchange YAML RapiDoc</title>
+    <script type="module" src="https://unpkg.com/rapidoc"></script>
+    <style>
+        body {
+            font-family: "Open Sans", sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+    
+        #spec-selector {
+            background-color: #333537;
+            color: #ecf0f1;
+            padding: 5px 15px;
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+        }
+    
+        #spec-selector label {
+            font-size: 1em;
+            margin-right: 10px;
+            color: #ecf0f1;
+        }
+    
+        #specs {
+            font-size: 1em;
+            padding: 3px 10px;
+            border-radius: 4px;
+            border: none;
+            background-color: #ecf0f1;
+            color: #2c3e50;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+    
+        #specs:hover {
+            background-color: #bdc3c7;
+        }
+    
+        rapi-doc {
+            flex-grow: 1;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="spec-selector">
+        <label for="specs">Choose an Exchange API:</label>
+        <select id="specs" onchange="loadSpec()"></select>
+    </div>
+    
+    <rapi-doc id="rapidoc" spec-url=""></rapi-doc>
+    
+    <script>
+        const githubApiUrl = "https://api.github.com/repos/kanekoshoyu/exchange_yaml/contents/";
+
+        async function fetchExchanges() {
+            try {
+                const response = await fetch(githubApiUrl);
+                const files = await response.json();
+                const exchanges = files
+                    .filter(file => file.name.endsWith('_openapi.yaml'))
+                    .map(file => file.name.replace('_openapi.yaml', ''));
+                return exchanges;
+            } catch (error) {
+                console.error("Error fetching exchange files:", error);
+                return [];
+            }
+        }
+
+        function loadSpec() {
+            const specUrl = document.getElementById('specs').value;
+            document.getElementById('rapidoc').setAttribute('spec-url', specUrl);
+        }
+
+        async function populateDropdown() {
+            const dropdown = document.getElementById('specs');
+            const exchanges = await fetchExchanges();
+
+            exchanges.forEach(exchange => {
+                const option = document.createElement('option');
+                option.value = `https://raw.githubusercontent.com/kanekoshoyu/exchange_yaml/main/${exchange}_openapi.yaml`;
+                option.text = exchange.charAt(0).toUpperCase() + exchange.slice(1);
+                dropdown.add(option);
+            });
+
+            // Automatically load the first exchange's spec by default
+            if (exchanges.length > 0) {
+                dropdown.selectedIndex = 0;
+                loadSpec();
+            }
+        }
+
+        // Populate the dropdown on page load
+        window.onload = populateDropdown;
+    </script>
+</body>
+
+</html>
