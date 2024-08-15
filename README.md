@@ -25,6 +25,7 @@ To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I w
 | ----------- | ------------ | ------------- |
 | Binance     | Done         | WIP           |
 | Hyperliquid | Done         | planned       |
+| Coinbase    | Done         | planned       |
 | HashKey     | WIP          | planned       |
 | KuCoin      | planned      | planned       |
 | ByBit       | planned      | planned       |
