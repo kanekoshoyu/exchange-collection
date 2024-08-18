@@ -93,7 +93,7 @@
 
             exchanges.forEach(exchange => {
                 const option = document.createElement('option');
-                option.value = `https://raw.githubusercontent.com/kanekoshoyu/exchange_yaml/main/${exchange}_openapi.yaml`;
+                option.value = `https://raw.githubusercontent.com/kanekoshoyu/exchange_yaml/main/asset/${exchange}_openapi.yaml`;
                 option.text = exchange.charAt(0).toUpperCase() + exchange.slice(1);
                 dropdown.add(option);
             });
