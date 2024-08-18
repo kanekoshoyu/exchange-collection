@@ -1,5 +1,4 @@
-# todo: this still gets generated, just gitignore it
-**/.openapi-generator/*
+# copy this file into the output directory of openapi codegen
 docs/*
 target/*
 .gitignore
@@ -7,3 +6,12 @@ target/*
 Cargo.lock
 git_push.sh
 README.md
+
+.gitlab-ci.yml
+docs/*
+test/*
+test-requirements.txt
+tox.ini
+setup.cfg
+setup.py
+pyproject.toml
