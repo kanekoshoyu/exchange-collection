@@ -183,14 +183,10 @@ async def run_command(command: str):
 
 
 async def main():
-    # OpenAPI
-    # 1. scan for all the files to be converted, change to a vector of file names
-    # 2. for every file
-    # - create output directory, move the .openapi_model_ignore file into the output directory
-    # - codegen with `openapi-generator-cli generate -i asset/binance_openapi.yaml -g python -o target/python/binance_openapi`
-
+    # arguments
     cli_input = CliInput.parse_args()
     print(cli_input)
+
     if cli_input.input_directory:
         # multiple file
         raise NotImplementedError("implement batch loading")
@@ -198,23 +194,31 @@ async def main():
         # single input, sigle output
         if cli_input.output_language:
             print("generating one language")
-            # command = codegen_command(cli_input.input_file, cli_input.input_format,
-            #                           cli_input.output_directory, cli_input.output_language)
-            # if cli_input.input_format == ApiDocFormat.OPENAPI:
-            #     # TODO create the output directory first, then
-            #     output_dir = output_directory(cli_input.input_file, cli_input.input_format,
-            #                                   cli_input.output_directory, cli_input.output_language)
-            #     print(f"output_dir:{output_dir}")
-            # proc = await asyncio.create_subprocess_shell(command)
-            # await proc.communicate()
+
+            command = codegen_command(cli_input.input_file, cli_input.input_format,
+                                      cli_input.output_directory, output_language)
+
+            # create output directory, copy .openapi_model_ignore file into the output directory
+            if cli_input.input_format == ApiDocFormat.OPENAPI:
+                output_dir = output_directory(cli_input.input_file, cli_input.input_format,
+                                              cli_input.output_directory, output_language)
+                output_dir.mkdir(parents=True, exist_ok=True)
+                # TODO make this programmable as well
+                source_file = Path("./config/.openapi-generator-ignore")
+                target_file = output_dir / source_file.name
+                shutil.copy(source_file, target_file)
+
+            print(f"running: {command}")
+            await run_command(command)
         else:
             print("generating per language")
             # single input, multiple output
             for output_language in ProgrammingLanguage:
                 command = codegen_command(cli_input.input_file, cli_input.input_format,
                                           cli_input.output_directory, output_language)
+
+                # create output directory, copy .openapi_model_ignore file into the output directory
                 if cli_input.input_format == ApiDocFormat.OPENAPI:
-                    # TODO create the output directory first, then
                     output_dir = output_directory(cli_input.input_file, cli_input.input_format,
                                                   cli_input.output_directory, output_language)
                     output_dir.mkdir(parents=True, exist_ok=True)
@@ -222,7 +226,6 @@ async def main():
                     source_file = Path("./config/.openapi-generator-ignore")
                     target_file = output_dir / source_file.name
                     shutil.copy(source_file, target_file)
-                    print(f"output_dir: {output_dir}")
 
                 print(f"running: {command}")
                 await run_command(command)
