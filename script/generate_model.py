@@ -5,6 +5,11 @@ import argparse
 from dataclasses import dataclass
 from typing import Optional
 from pathlib import Path
+import re
+import shutil
+
+
+# TODO allow a vector of output language
 
 
 @dataclass
@@ -39,20 +44,28 @@ class CliInput:
 
         args = parser.parse_args()
 
-        # we should only have either single file or a directory
-        if args.input_file is not None and args.input_directory is not None:
-            raise ValueError(
-                "both input file and directory are provided, pick only one")
-        if args.input_file is None and args.input_directory is None:
-            # default directory as running from the root of the directory
-            args.input_directory = "./asset"
-
-        return CliInput(
+        input = CliInput(
             input_format=args.input_format,
             input_file=args.input_file,
             input_directory=args.input_directory,
             output_language=args.output_language,
             output_directory=args.output_directory)
+
+        # we should only have either single file without format or a directory with input format
+        if input.input_file and input.input_directory:
+            raise ValueError(
+                "both input file and directory are provided, pick only one")
+        if not input.input_file and not input.input_directory:
+            # default directory as running from the root of the directory
+            input.input_directory = "./asset"
+        # fill the default values for different cases
+        if not input.input_format and input.input_file:
+            for format in ApiDocFormat:
+                if input.input_file.__contains__(format.suffix()):
+                    input.input_format = format
+        if not input.output_directory:
+            input.output_directory = "."
+        return input
 
 
 class ApiDocFormat(Enum):
@@ -61,9 +74,8 @@ class ApiDocFormat(Enum):
     ASYNCAPI = 'asyncapi'
     OPENAPI = 'openapi'
 
-    @classmethod
     def suffix(self) -> str:
-        f"_{self.value}.yaml"
+        return f"_{self.value}.yaml"
 
 
 class ProgrammingLanguage(Enum):
@@ -73,11 +85,24 @@ class ProgrammingLanguage(Enum):
     RUST = 'rust'
 
 
-def remove_suffix(text, suffix):
-    """return the substring after removing suffix"""
-    if text.endswith(suffix):
-        return text[:-len(suffix)]
-    return text
+# def get_exchange_name_from_file(text: str, suffix: str):
+#     """return the substring after removing suffix"""
+#     if text.endswith(suffix):
+#         return text[:-len(suffix)]
+#     return text
+
+
+def extract_exchange_name_from_input_file(filename: str) -> str:
+    # Convert the filename to a Path object to normalize it
+    path = Path(filename)
+
+    # Use regex to match and extract the exchange name
+    if match := re.search(r'([^/\\]+)_(openapi|asyncapi)\.yaml$', path.name):
+        exchange_name = match.group(1)  # Extract the exchange name
+        return exchange_name
+    else:
+        raise ValueError(
+            f"Filename '{filename}' does not match the expected pattern.")
 
 
 # async def generate_model_froms_single_api_doc(yaml_file, parser):
@@ -94,24 +119,51 @@ def remove_suffix(text, suffix):
 #             proc = await asyncio.create_subprocess_shell(command)
 #             await proc.communicate()
 #     elif parser == ApiDocFormat.OPENAPI:
-#         # todo implement the naming convension
-#         print("todo implement open API parser")
+#         # TODO implement the naming convension
+#         print("TODO implement open API parser")
 #     else:
 #         raise ValueError(f"Unknown parser type: {parser}")
 
+
+def output_directory(input_file: Path, input_format: ApiDocFormat, output_dir: Path, output_language: ProgrammingLanguage) -> Path:
+    str_input_file = str(input_file)
+    str_exchange_alias = extract_exchange_name_from_input_file(str_input_file)
+    return Path(f"{str(output_dir)}/{output_language.value}/{str_exchange_alias}_{input_format.value}")
+
+
 def codegen_command(input_file: Path, input_format: ApiDocFormat, output_dir: Path, output_language: ProgrammingLanguage) -> str:
     """cli command for codegen"""
-    str_exchange_alias = remove_suffix(input_file.name, input_format.suffix())
-    str_output_dir = f"{output_dir.name}/{str_exchange_alias}_{input_format.value}"
-    if input_file == ApiDocFormat.ASYNCAPI:
+    str_input_file = str(input_file)
+    str_output_dir = str(output_directory(
+        input_file, input_format, output_dir, output_language))
+    if input_format == ApiDocFormat.ASYNCAPI:
         # asyncapi generate models python example_asyncapi.yml -o output/example_python_model
-        f"asyncapi generate models {output_language.value} {input_file.name} -o {str_output_dir}"
-    elif input_file == ApiDocFormat.OPENAPI:
+        return f"asyncapi generate models {output_language.value} {str_input_file} -o {str_output_dir}"
+    elif input_format == ApiDocFormat.OPENAPI:
         # openapi-generator-cli generate - i path/to/your/openapi.yaml - g < language > -o path/to/output/directory
-        f"openapi-generator-cli generate - i {input_file.name} - g {output_language.value} -o {str_output_dir}"
-    else:
-        raise ValueError(f"Unknown parser type: {input_format}")
+        return f"openapi-generator-cli generate -i {str_input_file} -g {output_language.value} -o {str_output_dir}"
 
+
+async def run_command(command: str):
+    import subprocess
+    # Create the subprocess with stdout and stderr redirected to PIPE
+    proc = await asyncio.create_subprocess_shell(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
+    )
+
+    # Wait for the subprocess to finish and capture the output and errors
+    stdout, stderr = await proc.communicate()
+
+    # If needed, you can process the captured stdout and stderr here
+    # Example: Convert stdout and stderr to strings
+    stdout_str = stdout.decode()
+    stderr_str = stderr.decode()
+
+    # If you want to log or handle the output, you can do so here
+    # For now, we just return the output and error
+    return stdout_str, stderr_str
 
 # async def process_yaml_files(yaml_directory):
 #     yaml_files = [f for f in os.listdir(yaml_directory) if re.match(
@@ -130,19 +182,6 @@ def codegen_command(input_file: Path, input_format: ApiDocFormat, output_dir: Pa
 #         await codegen_command(os.path.join(yaml_directory, yaml_file), parser)
 
 
-def run_unit_test():
-    import unittest
-
-    class Test(unittest.TestCase):
-        def test_codegen_command(self):
-            cmd = codegen_command("./", ApiDocFormat.OPENAPI, output_dir="./",
-                                  output_language=ProgrammingLanguage.PYTHON)
-            self.assertEqual(cmd, "")
-
-    print("running unittest")
-    unittest.main()
-
-
 async def main():
     # OpenAPI
     # 1. scan for all the files to be converted, change to a vector of file names
@@ -151,15 +190,42 @@ async def main():
     # - codegen with `openapi-generator-cli generate -i asset/binance_openapi.yaml -g python -o target/python/binance_openapi`
 
     cli_input = CliInput.parse_args()
+    print(cli_input)
     if cli_input.input_directory:
         # multiple file
         raise NotImplementedError("implement batch loading")
     elif cli_input.input_file:
-        # single file
-        command = codegen_command(cli_input.input_file, cli_input.input_format,
-                                  cli_input.output_directory, cli_input.output_language)
-        proc = await asyncio.create_subprocess_shell(command)
-        await proc.communicate()
+        # single input, sigle output
+        if cli_input.output_language:
+            print("generating one language")
+            # command = codegen_command(cli_input.input_file, cli_input.input_format,
+            #                           cli_input.output_directory, cli_input.output_language)
+            # if cli_input.input_format == ApiDocFormat.OPENAPI:
+            #     # TODO create the output directory first, then
+            #     output_dir = output_directory(cli_input.input_file, cli_input.input_format,
+            #                                   cli_input.output_directory, cli_input.output_language)
+            #     print(f"output_dir:{output_dir}")
+            # proc = await asyncio.create_subprocess_shell(command)
+            # await proc.communicate()
+        else:
+            print("generating per language")
+            # single input, multiple output
+            for output_language in ProgrammingLanguage:
+                command = codegen_command(cli_input.input_file, cli_input.input_format,
+                                          cli_input.output_directory, output_language)
+                if cli_input.input_format == ApiDocFormat.OPENAPI:
+                    # TODO create the output directory first, then
+                    output_dir = output_directory(cli_input.input_file, cli_input.input_format,
+                                                  cli_input.output_directory, output_language)
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    # TODO make this programmable as well
+                    source_file = Path("./config/.openapi-generator-ignore")
+                    target_file = output_dir / source_file.name
+                    shutil.copy(source_file, target_file)
+                    print(f"output_dir: {output_dir}")
+
+                print(f"running: {command}")
+                await run_command(command)
     else:
         raise RuntimeError()
 
