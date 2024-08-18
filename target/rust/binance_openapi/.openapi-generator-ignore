@@ -1,0 +1,10 @@
+# todo: this still gets generatord
+.openapi-generator
+
+docs/*
+target/*
+.gitignore
+.travis.yml
+Cargo.lock
+git_push.sh
+README.md
