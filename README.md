@@ -25,8 +25,17 @@ I want to streamline the process of integrating multi-exchange API with a new ap
    - AsyncAPI: define event-driven API (websocket)
 1. Set up codegen CI for generating models for L languages
 (effort: constant, codegen is available and just require some initial set up)
-1. Implement trading abstraction or interface per generated model.
+1. Implement minimally opinionated trading interface per generated model.
 (effort: N * L * S)
+
+## structure
+| location   | feature                                                                         |
+| ---------- | ------------------------------------------------------------------------------- |
+| asset      | OpenAPI and AsyncAPI YAML                                                       |
+| config     | codegen config                                                                  |
+| script     | codegen script in python, since CI installing rust every run is :shit:          |
+| target     | generated code in python and rust                                               |
+| index.html | Rapidoc OpenAPI YAML viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
 
 ## current status
 To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I will set up a codegen that generates the rust exchange lib for python and crate for rust.
@@ -55,13 +64,9 @@ install OpenAPI CLI
 ```
 npm install -g @openapitools/openapi-generator-cli
 ```
-#### rust model
+#### model
 ```
-openapi-generator-cli generate -i path/to/your/openapi.yaml -g <language> -o path/to/output/directory
-```
-#### rust model
-```
-openapi-generator-cli generate -i path/to/your/openapi.yaml -g <language> -o path/to/output/directory
+openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
 ```
 
 
@@ -80,17 +85,23 @@ asyncapi generate models rust example_asyncapi.yml -o output/example_rust_model
 ```
 asyncapi generate models python example_asyncapi.yml -o output/example_python_model
 ```
-#### python paho
+#### python paho client (opinionated imo, for reference only)
 ```
 asyncapi generate fromTemplate example_asyncapi.yml @asyncapi/python-paho-template -o output/example_python_paho
 ```
 
 ## todo
-- [x] gather 3+ exchanges in both OpenAPI
-- [ ] gather 3+ exchanges in both AsyncAPI
-- [ ] verify if models can be generated on python/rust, and publish it in
-- [ ] verify if traits could be implemented on top of the generated model
-- [ ] package model with its version
+- [ ] gather assets
+  - [x] gather 3+ exchanges in both OpenAPI
+  - [ ] gather 3+ exchanges in both AsyncAPI
+- [x] set up codegen CI for unopinionated models
+  - [x] verify if the unopinionated models can be generated on python/rust
+  - [ ] package unopinionated model another repo per language
+  - [ ] make it available in pip and crate.io
+- [ ] set up minimally opinionated trading library
+  - [ ] define minimally opinionated trading trait or interface
+  - [ ] verify if opinionated traits could be implemented on top of the generated model
+  - [ ] package models with opinionated trait per language
 
 ## notes
 - the `ag` command seems to be deprecated and cannot generate code properly
