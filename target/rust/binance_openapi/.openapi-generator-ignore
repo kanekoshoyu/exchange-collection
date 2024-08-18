@@ -1,6 +1,5 @@
-# todo: this still gets generatord
-.openapi-generator
-
+# todo: this still gets generated, just gitignore it
+**/.openapi-generator/*
 docs/*
 target/*
 .gitignore
