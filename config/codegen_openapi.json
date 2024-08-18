@@ -1,0 +1,8 @@
+{
+    "apiDocs": false,
+    "modelDocs": false,
+    "supportingFiles": [
+        "README.md",
+        "Cargo.toml"
+    ]
+}
