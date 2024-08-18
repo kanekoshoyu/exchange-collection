@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Hyperliquid API
-  version: 1.0.0
+  version: 1.0.1
   description: |
     Documentation for the Hyperliquid public API 
 
@@ -100,6 +100,49 @@ paths:
                   - $ref: "#/components/schemas/SpotMetaResponse"
                   - $ref: "#/components/schemas/SpotMetaAndAssetCtxsResponse"
                   - $ref: "#/components/schemas/SpotClearinghouseStateResponse"
+        "4XX":
+          description: Error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Error"
+                  - $ref: "#/components/schemas/422Error"
+                  - $ref: "#/components/schemas/errorMessage"
+        "500":
+          description: Internel server error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Error"
+                  - $ref: "#/components/schemas/422Error"
+                  - $ref: "#/components/schemas/errorMessage"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "402":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
   /exchange:
     post:
       summary: Place an order
@@ -158,6 +201,48 @@ paths:
                   - $ref: "#/components/schemas/SpotToPerpTransferErrorResponse"
                   - $ref: "#/components/schemas/VaultTransferResponse"
                   - $ref: "#/components/schemas/VaultTransferErrorResponse"
+        "4XX":
+          description: Error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Error"
+                  - $ref: "#/components/schemas/422Error"
+                  - $ref: "#/components/schemas/errorMessage"
+        "500":
+          description: Internel server error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Error"
+                  - $ref: "#/components/schemas/422Error"
+                  - $ref: "#/components/schemas/errorMessage"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "402":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /ws:
     post:
       tags:
@@ -190,6 +275,48 @@ paths:
                   - $ref: "#/components/schemas/WebSocketPostResponse"
                   - $ref: "#/components/schemas/OrderSignedResponse"
 
+        "4XX":
+          description: Error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Error"
+                  - $ref: "#/components/schemas/422Error"
+                  - $ref: "#/components/schemas/errorMessage"
+        "500":
+          description: Internel server error
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Error"
+                  - $ref: "#/components/schemas/422Error"
+                  - $ref: "#/components/schemas/errorMessage"
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "402":
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   schemas:
     MarketDataRequest:
@@ -3035,3 +3162,34 @@ components:
                                     type: integer
                                     description: Order ID.
                                     example: 88383
+
+    422Error:
+      type: string
+      example: "Failed to deserialize the JSON body into the target type"
+    Error:
+      type: object
+      properties:
+        error_source:
+          type: string
+          example: Order
+        error_type:
+          type: string
+          example: Tick
+          enum:
+            [
+              "Tick",
+              "MinTradeNtl",
+              "Margin",
+              "ReduceOnly",
+              "BadAloPx",
+              "IocCancel",
+              "BadTriggerPx",
+              "MarketOrderNoLiquidity",
+              "MissingOrder",
+            ]
+        error_string:
+          type: string
+          example: "Price must be divisible by tick size."
+    errorMessage:
+      type: string
+      example: "something went wrong"
