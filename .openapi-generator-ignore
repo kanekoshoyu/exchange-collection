@@ -1,0 +1,7 @@
+docs/*
+target/*
+.gitignore
+.travis.yml
+Cargo.lock
+git_push.sh
+README.md
