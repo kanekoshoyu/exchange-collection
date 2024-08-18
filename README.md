@@ -53,7 +53,7 @@ To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I w
 2. AsyncAPI: YAML, v2 (codegen does not work well with v3 apparently)
 3. official codegen support: rust, python
 4. unofficial support: typescript, csharp, golang, java, javascript, dart,kotlin, php, cplusplus, scala
-5. place YAML in follow the naming convension of `{exchange}_{asyncapi/openapi}.yaml`
+5. place YAML in follow the naming convention of `{exchange}_{asyncapi/openapi}.yaml`
 6. codegen scripting in python
 
 ## codegen commands
