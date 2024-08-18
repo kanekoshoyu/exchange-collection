@@ -1,5 +1,5 @@
 # exchange_yaml: list of crypto exchange API doc in OpenAPI/AsyncAPI
-[![doc](https://img.shields.io/badge/doc-rapidoc-blue)](https://example.com)
+[![doc](https://img.shields.io/badge/doc-rapidoc-blue)](https://repoch.co/exchange_yaml)
 [![license](https://img.shields.io/github/license/kanekoshoyu/kucoin_arbitrage)](https://github.com/kanekoshoyu/kucoin_arbitrage/blob/master/LICENSE)
 [![ci](https://img.shields.io/github/actions/workflow/status/kanekoshoyu/kucoin_arbitrage/rust.yml)](https://github.com/kanekoshoyu/kucoin_arbitrage/actions)
 [![issues](https://img.shields.io/github/issues/kanekoshoyu/kucoin_arbitrage)](https://github.com/kanekoshoyu/kucoin_arbitrage/issues)

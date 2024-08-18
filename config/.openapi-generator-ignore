@@ -1,3 +1,4 @@
+# copy this file into the output directory of openapi codegen
 docs/*
 target/*
 .gitignore
