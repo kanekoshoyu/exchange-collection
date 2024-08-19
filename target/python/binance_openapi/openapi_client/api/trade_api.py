@@ -1439,7 +1439,7 @@ class TradeApi:
     ) -> List[ApiV3MyAllocationsGet200ResponseInner]:
         """Query Allocations (USER_DATA)
 
-        Retrieves allocations resulting from SOR order placement.  Weight: 20  Supported parameter combinations: Parameters                            Response symbol                                allocations from oldest to newest symbol + startTime                    oldest allocations since startTime symbol + endTime                      newest allocations until endTime symbol + startTime + endTime          allocations within the time range symbol + fromAllocationId            allocations by allocation ID symbol + orderId                      allocations related to an order starting with oldest symbol + orderId + fromAllocationId  allocations related to an order by allocation ID  Note: The time between startTime and endTime can't be longer than 24 hours.
+        Retrieves allocations resulting from SOR order placement.  Weight: 20  Supported parameter combinations: Parameters                             Response symbol                                 allocations from oldest to newest symbol + startTime                     oldest allocations since startTime symbol + endTime                       newest allocations until endTime symbol + startTime + endTime           allocations within the time range symbol + fromAllocationId             allocations by allocation ID symbol + orderId                       allocations related to an order starting with oldest symbol + orderId + fromAllocationId   allocations related to an order by allocation ID  Note: The time between startTime and endTime can't be longer than 24 hours.
 
         :param symbol: Trading symbol, e.g. BNBUSDT (required)
         :type symbol: str
@@ -1540,7 +1540,7 @@ class TradeApi:
     ) -> ApiResponse[List[ApiV3MyAllocationsGet200ResponseInner]]:
         """Query Allocations (USER_DATA)
 
-        Retrieves allocations resulting from SOR order placement.  Weight: 20  Supported parameter combinations: Parameters                            Response symbol                                allocations from oldest to newest symbol + startTime                    oldest allocations since startTime symbol + endTime                      newest allocations until endTime symbol + startTime + endTime          allocations within the time range symbol + fromAllocationId            allocations by allocation ID symbol + orderId                      allocations related to an order starting with oldest symbol + orderId + fromAllocationId  allocations related to an order by allocation ID  Note: The time between startTime and endTime can't be longer than 24 hours.
+        Retrieves allocations resulting from SOR order placement.  Weight: 20  Supported parameter combinations: Parameters                             Response symbol                                 allocations from oldest to newest symbol + startTime                     oldest allocations since startTime symbol + endTime                       newest allocations until endTime symbol + startTime + endTime           allocations within the time range symbol + fromAllocationId             allocations by allocation ID symbol + orderId                       allocations related to an order starting with oldest symbol + orderId + fromAllocationId   allocations related to an order by allocation ID  Note: The time between startTime and endTime can't be longer than 24 hours.
 
         :param symbol: Trading symbol, e.g. BNBUSDT (required)
         :type symbol: str
@@ -1641,7 +1641,7 @@ class TradeApi:
     ) -> RESTResponseType:
         """Query Allocations (USER_DATA)
 
-        Retrieves allocations resulting from SOR order placement.  Weight: 20  Supported parameter combinations: Parameters                            Response symbol                                allocations from oldest to newest symbol + startTime                    oldest allocations since startTime symbol + endTime                      newest allocations until endTime symbol + startTime + endTime          allocations within the time range symbol + fromAllocationId            allocations by allocation ID symbol + orderId                      allocations related to an order starting with oldest symbol + orderId + fromAllocationId  allocations related to an order by allocation ID  Note: The time between startTime and endTime can't be longer than 24 hours.
+        Retrieves allocations resulting from SOR order placement.  Weight: 20  Supported parameter combinations: Parameters                             Response symbol                                 allocations from oldest to newest symbol + startTime                     oldest allocations since startTime symbol + endTime                       newest allocations until endTime symbol + startTime + endTime           allocations within the time range symbol + fromAllocationId             allocations by allocation ID symbol + orderId                       allocations related to an order starting with oldest symbol + orderId + fromAllocationId   allocations related to an order by allocation ID  Note: The time between startTime and endTime can't be longer than 24 hours.
 
         :param symbol: Trading symbol, e.g. BNBUSDT (required)
         :type symbol: str
@@ -1841,7 +1841,7 @@ class TradeApi:
     ) -> List[ApiV3MyPreventedMatchesGet200ResponseInner]:
         """Query Prevented Matches
 
-        Displays the list of orders that were expired because of STP.  For additional information on what a Prevented match is, as well as Self Trade Prevention (STP), please refer to our STP FAQ page.  These are the combinations supported:  * symbol + preventedMatchId * symbol + orderId * symbol + orderId + fromPreventedMatchId (limit will default to 500) * symbol + orderId + fromPreventedMatchId + limit  Weight(IP):  Case                            Weight If symbol is invalid:          2 Querying by preventedMatchId:  2 Querying by orderId:            20
+        Displays the list of orders that were expired because of STP.  For additional information on what a Prevented match is, as well as Self Trade Prevention (STP), please refer to our STP FAQ page.  These are the combinations supported:  * symbol + preventedMatchId * symbol + orderId * symbol + orderId + fromPreventedMatchId (limit will default to 500) * symbol + orderId + fromPreventedMatchId + limit  Weight(IP):  Case                             Weight If symbol is invalid:           2 Querying by preventedMatchId:   2 Querying by orderId:             20
 
         :param symbol: Trading symbol, e.g. BNBUSDT (required)
         :type symbol: str
@@ -1938,7 +1938,7 @@ class TradeApi:
     ) -> ApiResponse[List[ApiV3MyPreventedMatchesGet200ResponseInner]]:
         """Query Prevented Matches
 
-        Displays the list of orders that were expired because of STP.  For additional information on what a Prevented match is, as well as Self Trade Prevention (STP), please refer to our STP FAQ page.  These are the combinations supported:  * symbol + preventedMatchId * symbol + orderId * symbol + orderId + fromPreventedMatchId (limit will default to 500) * symbol + orderId + fromPreventedMatchId + limit  Weight(IP):  Case                            Weight If symbol is invalid:          2 Querying by preventedMatchId:  2 Querying by orderId:            20
+        Displays the list of orders that were expired because of STP.  For additional information on what a Prevented match is, as well as Self Trade Prevention (STP), please refer to our STP FAQ page.  These are the combinations supported:  * symbol + preventedMatchId * symbol + orderId * symbol + orderId + fromPreventedMatchId (limit will default to 500) * symbol + orderId + fromPreventedMatchId + limit  Weight(IP):  Case                             Weight If symbol is invalid:           2 Querying by preventedMatchId:   2 Querying by orderId:             20
 
         :param symbol: Trading symbol, e.g. BNBUSDT (required)
         :type symbol: str
@@ -2035,7 +2035,7 @@ class TradeApi:
     ) -> RESTResponseType:
         """Query Prevented Matches
 
-        Displays the list of orders that were expired because of STP.  For additional information on what a Prevented match is, as well as Self Trade Prevention (STP), please refer to our STP FAQ page.  These are the combinations supported:  * symbol + preventedMatchId * symbol + orderId * symbol + orderId + fromPreventedMatchId (limit will default to 500) * symbol + orderId + fromPreventedMatchId + limit  Weight(IP):  Case                            Weight If symbol is invalid:          2 Querying by preventedMatchId:  2 Querying by orderId:            20
+        Displays the list of orders that were expired because of STP.  For additional information on what a Prevented match is, as well as Self Trade Prevention (STP), please refer to our STP FAQ page.  These are the combinations supported:  * symbol + preventedMatchId * symbol + orderId * symbol + orderId + fromPreventedMatchId (limit will default to 500) * symbol + orderId + fromPreventedMatchId + limit  Weight(IP):  Case                             Weight If symbol is invalid:           2 Querying by preventedMatchId:   2 Querying by orderId:             20
 
         :param symbol: Trading symbol, e.g. BNBUSDT (required)
         :type symbol: str
