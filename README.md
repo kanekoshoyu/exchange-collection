@@ -37,33 +37,25 @@ I want to streamline the process of integrating multi-exchange API with a new ap
 | target     | generated code in python and rust                                               |
 | index.html | Rapidoc OpenAPI YAML viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
 
-## current status
-To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I will set up a codegen that generates the rust exchange lib for python and crate for rust.
-| Exchange    | OpenAPI YAML | AsyncAPI YAML |
-| ----------- | ------------ | ------------- |
-| Binance     | Done         | WIP           |
-| Hyperliquid | Done         | planned       |
-| Coinbase    | Done         | planned       |
-| HashKey     | WIP          | planned       |
-| KuCoin      | planned      | planned       |
-| ByBit       | planned      | planned       |
-
 ## guidelines
-1. OpenAPI: YAML, v3+
+1. OpenAPI: YAML, v3.0.1 (convert swagger to OpenAPI [here](https://editor.swagger.io/))
 2. AsyncAPI: YAML, v2 (codegen does not work well with v3 apparently)
 3. official codegen support: rust, python
 4. unofficial support: typescript, csharp, golang, java, javascript, dart,kotlin, php, cplusplus, scala
 5. place YAML in follow the naming convention of `{exchange}_{asyncapi/openapi}.yaml`
-6. codegen scripting in python
+6. codegen scripting in python (for easier GitHub CI)
 
 ## codegen commands
-below are the commands
-### OpenAPI
-#### initial set up
+### initial set up
 install OpenAPI CLI
 ```
 npm install -g @openapitools/openapi-generator-cli
 ```
+install AsyncAPI CLI
+```
+npm install -g @asyncapi/generator
+```
+### OpenAPI
 #### model
 ```
 openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
@@ -71,12 +63,6 @@ openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/e
 
 
 ### AsyncAPI
-#### initial set up
-
-install AsyncAPI CLI
-```
-npm install -g @asyncapi/generator
-```
 #### rust model
 ```
 asyncapi generate models rust example_asyncapi.yml -o output/example_rust_model
@@ -107,3 +93,21 @@ asyncapi generate fromTemplate example_asyncapi.yml @asyncapi/python-paho-templa
 - the `ag` command seems to be deprecated and cannot generate code properly
 - you can install `asyncapi-preview` extension on vs code for preview
 - AsyncAPI `python-sanic-template` was failing
+
+## current status
+To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I will set up a codegen that generates the rust exchange lib for python and crate for rust.
+| Exchange    | Custody | OpenAPI YAML | AsyncAPI YAML |
+| ----------- | ------- | ------------ | ------------- |
+| binance     | yes     | Done         | WIP           |
+| coinbase    | yes     | Done         | planned       |
+| hyperliquid | no      | Done         | planned       |
+| bitwyre     | no      | planned      | planned       |
+| dydx        | no      | planned      | planned       |
+| hashkey     | yes     | WIP          | planned       |
+| bybit       | yes     | planned      | planned       |
+| cryptocom   | yes     | planned      | planned       |
+| kucoin      | yes     | planned      | planned       |
+| okx         | yes     | planned      | planned       |
+
+## partnership
+If you want to get an exchange integrated, I can help get that up for an one-off cost, but as I want this tool to be powerful, I will keep it opensourced with MIT License. Please contact Sho Kaneko at kanekoshoyu@gmail.com
