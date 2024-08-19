@@ -92,12 +92,11 @@ class ExchangeApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ExchangePost200Response",
-            '500': "GetInfoOrOrders4XXResponse",
-            '422': "Error",
             '400': "Error",
             '402': "Error",
             '404': "Error",
-            '4XX': "GetInfoOrOrders4XXResponse",
+            '422': "Error",
+            '500': "GetInfoOrOrders500Response",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -165,12 +164,11 @@ class ExchangeApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ExchangePost200Response",
-            '500': "GetInfoOrOrders4XXResponse",
-            '422': "Error",
             '400': "Error",
             '402': "Error",
             '404': "Error",
-            '4XX': "GetInfoOrOrders4XXResponse",
+            '422': "Error",
+            '500': "GetInfoOrOrders500Response",
         }
         response_data = self.api_client.call_api(
             *_param,
@@ -238,12 +236,11 @@ class ExchangeApi:
 
         _response_types_map: Dict[str, Optional[str]] = {
             '200': "ExchangePost200Response",
-            '500': "GetInfoOrOrders4XXResponse",
-            '422': "Error",
             '400': "Error",
             '402': "Error",
             '404': "Error",
-            '4XX': "GetInfoOrOrders4XXResponse",
+            '422': "Error",
+            '500': "GetInfoOrOrders500Response",
         }
         response_data = self.api_client.call_api(
             *_param,

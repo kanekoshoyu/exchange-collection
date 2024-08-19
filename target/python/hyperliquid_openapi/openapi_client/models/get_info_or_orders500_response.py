@@ -22,11 +22,11 @@ from pydantic import StrictStr, Field
 from typing import Union, List, Set, Optional, Dict
 from typing_extensions import Literal, Self
 
-GETINFOORORDERS4XXRESPONSE_ONE_OF_SCHEMAS = ["Error", "str"]
+GETINFOORORDERS500RESPONSE_ONE_OF_SCHEMAS = ["Error", "str"]
 
-class GetInfoOrOrders4XXResponse(BaseModel):
+class GetInfoOrOrders500Response(BaseModel):
     """
-    GetInfoOrOrders4XXResponse
+    GetInfoOrOrders500Response
     """
     # data type: Error
     oneof_schema_1_validator: Optional[Error] = None
@@ -55,7 +55,7 @@ class GetInfoOrOrders4XXResponse(BaseModel):
 
     @field_validator('actual_instance')
     def actual_instance_must_validate_oneof(cls, v):
-        instance = GetInfoOrOrders4XXResponse.model_construct()
+        instance = GetInfoOrOrders500Response.model_construct()
         error_messages = []
         match = 0
         # validate data type: Error
@@ -77,10 +77,10 @@ class GetInfoOrOrders4XXResponse(BaseModel):
             error_messages.append(str(e))
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when setting `actual_instance` in GetInfoOrOrders4XXResponse with oneOf schemas: Error, str. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when setting `actual_instance` in GetInfoOrOrders500Response with oneOf schemas: Error, str. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when setting `actual_instance` in GetInfoOrOrders4XXResponse with oneOf schemas: Error, str. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when setting `actual_instance` in GetInfoOrOrders500Response with oneOf schemas: Error, str. Details: " + ", ".join(error_messages))
         else:
             return v
 
@@ -122,10 +122,10 @@ class GetInfoOrOrders4XXResponse(BaseModel):
 
         if match > 1:
             # more than 1 match
-            raise ValueError("Multiple matches found when deserializing the JSON string into GetInfoOrOrders4XXResponse with oneOf schemas: Error, str. Details: " + ", ".join(error_messages))
+            raise ValueError("Multiple matches found when deserializing the JSON string into GetInfoOrOrders500Response with oneOf schemas: Error, str. Details: " + ", ".join(error_messages))
         elif match == 0:
             # no match
-            raise ValueError("No match found when deserializing the JSON string into GetInfoOrOrders4XXResponse with oneOf schemas: Error, str. Details: " + ", ".join(error_messages))
+            raise ValueError("No match found when deserializing the JSON string into GetInfoOrOrders500Response with oneOf schemas: Error, str. Details: " + ", ".join(error_messages))
         else:
             return instance
 

@@ -56,7 +56,7 @@ openapi_client/models/frontend_open_orders_response_inner.py
 openapi_client/models/funding_history_request.py
 openapi_client/models/funding_history_response_inner.py
 openapi_client/models/get_info_or_orders200_response.py
-openapi_client/models/get_info_or_orders4_xx_response.py
+openapi_client/models/get_info_or_orders500_response.py
 openapi_client/models/get_info_or_orders_request.py
 openapi_client/models/info_payload.py
 openapi_client/models/initiate_withdrawal_error_response.py

@@ -13,13 +13,13 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
-pub enum GetInfoOrOrders4XxResponse {
+pub enum GetInfoOrOrders500Response {
     Error(Box<models::Error>),
     Model422Error(String),
     ErrorMessage(String),
 }
 
-impl Default for GetInfoOrOrders4XxResponse {
+impl Default for GetInfoOrOrders500Response {
     fn default() -> Self {
         Self::Error(Default::default())
     }

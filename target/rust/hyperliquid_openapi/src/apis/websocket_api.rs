@@ -19,12 +19,11 @@ use super::{Error, configuration};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum WsPostError {
-    Status500(models::GetInfoOrOrders4XxResponse),
-    Status422(models::Error),
     Status400(models::Error),
     Status402(models::Error),
     Status404(models::Error),
-    Status4XX(models::GetInfoOrOrders4XxResponse),
+    Status422(models::Error),
+    Status500(models::GetInfoOrOrders500Response),
     UnknownValue(serde_json::Value),
 }
 
