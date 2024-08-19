@@ -62,7 +62,7 @@ class AddressesApi:
     ) -> AccountsAccountIdAddressesPost201Response:
         """Show an address
 
-        Show an individual address for an account. Regular bitcoin address can be used in place of address_id but the address has to be associated to the correct account.    *Important* Addresses should be considered one time use only.  
+        Show an individual address for an account. Regular bitcoin address can be used in place of address_id but the address has to be associated to the correct account.    *Important* Addresses should be considered one time use only. 
 
         :param account_id: The account id (required)
         :type account_id: str
@@ -133,7 +133,7 @@ class AddressesApi:
     ) -> ApiResponse[AccountsAccountIdAddressesPost201Response]:
         """Show an address
 
-        Show an individual address for an account. Regular bitcoin address can be used in place of address_id but the address has to be associated to the correct account.    *Important* Addresses should be considered one time use only.  
+        Show an individual address for an account. Regular bitcoin address can be used in place of address_id but the address has to be associated to the correct account.    *Important* Addresses should be considered one time use only. 
 
         :param account_id: The account id (required)
         :type account_id: str
@@ -204,7 +204,7 @@ class AddressesApi:
     ) -> RESTResponseType:
         """Show an address
 
-        Show an individual address for an account. Regular bitcoin address can be used in place of address_id but the address has to be associated to the correct account.    *Important* Addresses should be considered one time use only.  
+        Show an individual address for an account. Regular bitcoin address can be used in place of address_id but the address has to be associated to the correct account.    *Important* Addresses should be considered one time use only. 
 
         :param account_id: The account id (required)
         :type account_id: str

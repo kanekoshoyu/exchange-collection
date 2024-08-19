@@ -44,7 +44,7 @@ pub enum AccountsAccountIdAddressesPostError {
 }
 
 
-/// Show an individual address for an account. Regular bitcoin address can be used in place of address_id but the address has to be associated to the correct account.    *Important* Addresses should be considered one time use only.  
+/// Show an individual address for an account. Regular bitcoin address can be used in place of address_id but the address has to be associated to the correct account.    *Important* Addresses should be considered one time use only. 
 pub async fn accounts_account_id_addresses_address_id_get(configuration: &configuration::Configuration, account_id: &str, address_id: &str) -> Result<models::AccountsAccountIdAddressesPost201Response, Error<AccountsAccountIdAddressesAddressIdGetError>> {
     let local_var_configuration = configuration;
 
