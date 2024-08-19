@@ -8,14 +8,18 @@
 
 ## problem with other cross-exchange libraries/frameworks
 Most of the trading bots require data and execution at different exchanges. There are trading libraries that provides abstraction over multiple exchanges.
-- [ccxt](https://github.com/ccxt/ccxt)
-- [hummingbot](https://github.com/hummingbot/hummingbot)
-- [barter_rs](https://github.com/barter-rs/barter-rs)
+
+| library / framework                                    | multi-exchange | primary language | wrapper language    |
+| ------------------------------------------------------ | -------------- | ---------------- | ------------------- |
+| [ccxt](https://github.com/ccxt/ccxt)                   | yes            | js               | python, php, csharp |
+| [hummingbot](https://github.com/hummingbot/hummingbot) | yes            | python, cpp      | n/a                 |
+| [openlimits](https://github.com/nash-io/openlimits)    | yes            | rust             | python, js, go      |
+| [barter_rs](https://github.com/barter-rs/barter-rs)    | yes            | rust             | n/a                 |
 
 However, they often miss support in either exchanges or languages.
-- high marginal effort: there are way too many crypto exchanges and programming languages.  Say there are N crypto exchanges, and L programming language, and the effort to convert those written API doc into exchange library is B, then the overall effort is N * L * B.
-- poor versioning: crypto exchange usually have lots of API updates and takes lots of manual testing, and it comes with inconsistent API doc as well
-- highly opinionated models: these cross-exchange libraries often goes with their bigger project/workspace, and unfortunately there is no thoughts in making them generic, so often you cannot use their models directly to fulfill your actual needs.
+1. high marginal effort: there are way too many crypto exchanges and programming languages.  Say there are N crypto exchanges, and L programming language, and the effort to convert those written API doc into exchange library is B, then the overall effort is N * L * B.
+2. inconsistecy along with updates: crypto exchange have freqent API updates and often leads to inconsistency with API doc.
+3. opinionated models: these cross-exchange libraries often goes with their bigger project/workspace, and unfortunately there is no thoughts in making them generic, so often you cannot use their models directly to fulfill your actual needs. Also they use wrappers, so natually they are under-optimized.
 
 ## solution
 I want to streamline the process of integrating multi-exchange API with a new approach to this problem. The idea is to gather a list of OpenAPI/AsyncAPI from both official and unofficial sources under a few guidelines, and try to generate a bunch of generic code ready for your use.
@@ -105,9 +109,10 @@ To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I w
 | dydx        | no      | planned      | planned       |
 | hashkey     | yes     | WIP          | planned       |
 | bybit       | yes     | planned      | planned       |
-| cryptocom   | yes     | planned      | planned       |
 | kucoin      | yes     | planned      | planned       |
 | okx         | yes     | planned      | planned       |
 
 ## partnership
-If you want to get an exchange integrated, I can help get that up for an one-off cost, but as I want this tool to be powerful, I will keep it opensourced with MIT License. Please contact Sho Kaneko at kanekoshoyu@gmail.com
+I keep this project opensource so that everyone can take part of it. If you have any OpenAPI / AsyncAPI document for a crypto exchange, you are more than welcome to add with a pull request, or I am willing to purchase as well.  
+If you want to get an exchange integrated, I can help get that up for an one-off cost in one week, just enough to pay my freelancing partner to get it done.  
+Please contact [Sho Kaneko](https://github.com/kanekoshoyu) for details.
