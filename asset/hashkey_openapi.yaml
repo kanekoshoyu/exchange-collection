@@ -1,0 +1,4657 @@
+openapi: 3.0.1
+info:
+  title: Hashkey Exchange
+  version: 1.0.0
+  description: |
+    
+servers:
+  - url: https://api-pro.sim.hashkeydev.com
+    description: REST API Url
+  - url: wss://stream-pro.sim.hashkeydev.com
+    description: Public Websocket API
+    
+
+paths:
+  /api/v1/spot/orderTest:
+    post:
+      description: 'Submits a validation request to test endpoint' 
+      tags:
+      - Order Management
+      parameters:
+      - name: symbol
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: side
+        in: query
+        required: true
+        schema:
+          type: string
+          enum: [BUY, SELL]
+      - name: type
+        in: query
+        required: true
+        schema:
+          type: string
+          enum: [LIMIT, MARKET, LIMIT_MAKER]
+      - name: quantity
+        in: query
+        required: true
+        schema:
+          type: number
+          format: decimal
+      - name: price
+        in: query
+        required: true
+        schema:
+          type: number
+          format: decimal
+      - name: newClientOrderId
+        in: query
+        schema:
+          type: string
+      - name: timeInForce
+        in: query
+        schema:
+          type: string
+          enum: [GTC, IOC]
+      - name: recvWindow
+        in: query
+        schema:
+          type: integer
+          format: int64
+      - name: timestamp
+        in: query
+        schema:
+          type: integer
+          format: int64
+      - name: signature
+        in: query
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderTest"
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/spot/order:
+    post:
+      description: 'Creates a single order for Spot Trading on the Exchange. When an order is placed, the required funds from your account will be ringfenced for the duration of the order' 
+      tags:
+      - Order Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpotOrderRequest'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpotOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      description: 'Cancel an existing order. Either orderId or clientOrderId must be sent.' 
+      tags:
+      - Order Management
+      parameters:
+        - in: query
+          name: orderId
+          schema:
+            type: integer
+            format: int64
+            description: Order ID
+            example: 1483370868616793088
+          required: false
+        - in: query
+          name: clientOrderId
+          schema:
+            type: string
+            description: An ID defined by the client for the order
+            example: "123456789"
+          required: false
+        - in: query
+          name: timestamp
+          schema:
+            type: integer
+            format: int64
+            description: Timestamp
+            example: 1707493157004
+          required: true
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      description: 'Check a single order information' 
+      tags:
+      - Order Management
+      parameters:
+        - in: query
+          name: orderId
+          schema:
+            type: integer
+            format: int64
+            description: Order ID
+            example: 1453750674374393344
+          required: false
+        - in: query
+          name: origClientOrderId
+          schema:
+            type: string
+            description: Client order ID
+            example: "168803658506716316"
+          required: false
+        - in: query
+          name: accountId
+          schema:
+            type: string
+            description: Account ID
+            example: "1453450776554918656"
+          required: false
+        - in: query
+          name: timestamp
+          schema:
+            type: integer
+            format: int64
+            description: Millisecond timestamp
+            example: 1707493669694
+          required: true
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1.1/spot/order:
+    post:
+      description: 'Creates a single order for Spot Trading on the Exchange. When an order is placed, the required funds from your account will be ringfenced for the duration of the order' 
+      tags:
+      - Order Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpotOrderRequest'
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpotOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/spot/openOrders:
+    delete:
+      description: 'Cancel all open orders' 
+      tags:
+      - Order Management
+      parameters:
+        - in: query
+          name: symbol
+          schema:
+            type: string
+            description: Name of instrument, e.g., "BTCUSDT", "ETHUSDT"
+            example: "BTCUSDC"
+          required: true
+        - in: query
+          name: side
+          schema:
+            type: string
+            enum:
+              - BUY
+              - SELL
+            description: BUY or SELL
+            example: "BUY"
+          required: false
+        - in: query
+          name: timestamp
+          schema:
+            type: integer
+            format: int64
+            description: Millisecond Timestamp
+            example: 1714311403031
+          required: true
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteAllOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    get:
+      description: 'Query current active orders.In regards to master API key. The request parameters of "side" and "accountId". If "accountId" is passed, it will only query the orders under the current account. If not passed, it will first query the main account, and if the results are less than 500, it will then query the sub-accounts.' 
+      tags:
+      - Order Management
+      parameters:
+        - in: query
+          name: orderId
+          schema:
+            type: integer
+            format: int64
+            description: Order ID
+            example: 1470930457684189696
+          required: false
+        - in: query
+          name: symbol
+          schema:
+            type: string
+            description: Currency pair
+            example: "BTCUSD"
+          required: false
+        - in: query
+          name: side
+          schema:
+            type: string
+            description: Side (BUY or SELL)
+            example: "BUY"
+          required: false
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            format: int32
+            description: Default 500; Maximum 1000
+            example: 20
+          required: false
+        - in: query
+          name: timestamp
+          schema:
+            type: integer
+            format: int64
+            description: Millisecond timestamp
+            example: 1707493971279
+          required: true
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/spot/cancelOrderByIds:
+    delete:
+      description: 'Cancel orders in batches according to order ID (Maximum of 100 orders in a single batch).
+        **Note**:A return code of 0 from the code indicates that the cancel order request has been executed. To determine if it was successful, you need to check the results in the result field. If the result is null, it means all were successful. If it is non empty, theorderId represents the ID of the order that failed to cancel, and code represents the reason for the cancellation failure' 
+      tags:
+      - Order Management
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: string
+            description: Order id (multiple, separated)
+            example: "202212231234567895,202212231234567896"
+          required: true
+        - in: query
+          name: timestamp
+          schema:
+            type: integer
+            format: int64
+            description: Millisecond timestamp
+            example: 1714311403031
+          required: true
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteMultiOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/spot/batchOrders:
+    post:
+      description: 'Create orders in batches up to 20 orders at a time. Currently only support for same symbol' 
+      tags:
+      - Order Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchOrderRequest'
+            
+      responses:
+        '200':
+          description: Orders created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/spot/tradeOrders:
+     get:
+      description: 'Retrieve all traded orders.In regards to master API key. The request parameters of "side" and "accountId". If "accountId" is passed, it will only query the orders under the current account. If not passed, it will first query the main account, and if the results are less than 500, it will then query the sub-accounts' 
+      tags:
+      - Order Management
+      parameters:
+      - name: accountId
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Account ID
+    
+      - name: orderId
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+        description: Order ID
+    
+      - name: symbol
+        in: query
+        required: true
+        schema:
+          type: string
+        description: Currency pair
+    
+      - name: startTime
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+        description: Start Timestamp
+    
+      - name: endTime
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+        description: End Timestamp. Only supports the last 90 days timeframe
+    
+      - name: side
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Side
+    
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 500
+          maximum: 1000
+        description: Default 500, max 1000
+    
+      - name: timestamp
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+        description: Timestamp
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tradeOrderResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/vipInfo:
+     get:
+      description: 'Retrieve VIP Level and Trading fee rates' 
+      tags:
+      - Account
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Trading pair
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1707494885079
+          description: Timestamp query params
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: b07580900f899f21c49bf0ab3486ca8a670b78148b82993d54726322417b18e5
+          description: Signature for the request
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TradingResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account:
+     get:
+      description: 'Retrieve Account balance' 
+      tags:
+      - Account
+      parameters:
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1234567890
+          description: Account ID, for Master Key only
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1707494885079
+          description: Timestamp
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: b07580900f899f21c49bf0ab3486ca8a670b78148b82993d54726322417b18e5
+          description: Signature for the request
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountBalanceResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/trades:
+     get:
+      description: 'Query account history and transaction records <br>
+            <ul>
+            <li>
+            If there is only fromId, It will return trades with IDs bigger than fromId, sorted in descending order.</li>
+            <li>
+      If there is only toId. It will return trades with IDs less than toId, sorted in descending order</li>
+      <li>
+      If both fromId and toId are provided. It will return trades between fromId and toId, sorted in descending order</li>
+      <li>
+      If neither fromId or toId is provided, it will return the latest trade records, sorted in descending order.</li>
+      </ul>' 
+      tags:
+      - Account
+      parameters:
+        - name: symbol
+          in: query
+          required: false
+          schema:
+            type: string
+          description: |
+            Trading pair  
+            *(e.g., BTCUSD)*
+        - name: startTime
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: |
+            Start Timestamp  
+            *(e.g., 1690084620567)*
+        - name: endTime
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: |
+            End Timestamp  
+            *(Only supports the last 30 days timeframe)*
+        - name: clientOrderId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: 99999999980088
+          description: |
+            Client Order ID  
+            *(Defaults to 99999999980088 if not provided)*
+        - name: fromId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: |
+            Starting ID  
+            *(e.g., 1470930841345474561)*
+        - name: toId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: |
+            End ID  
+            *(e.g., 1470930841211329280)*
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+          description: |
+            Limit of records  
+            *(Number of items displayed per page)*
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          description: |
+            Account ID  
+            *(e.g., 1545583349011201280)*
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1707495043379
+          description: |
+            Timestamp  
+            *(Millisecond timestamp)*
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 10b108a6cf8162d70bb644a2a8403cd36bcf92468289f3514582182e20f87813
+          description: |
+            Signature  
+            *(Use HMAC SHA256 to generate the signature)*
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionQueryResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/types:
+     get:
+      description: 'Get account types.' 
+      tags:
+      - Account
+      parameters:
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1707495123486
+          description: |
+            Timestamp  
+            *(Millisecond timestamp)*
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 37b4e53468b64ff5eb28fa71d20f855e87b654c22d471a74672117844bcd1d32
+          description: |
+            Signature  
+            *(Use HMAC SHA256 to generate the signature)*
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountTypesResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/assetTransfer:
+    post:
+      description: 'Internal asset account transfer' 
+      tags:
+      - Account
+      parameters:
+        - name: fromAccountId
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 1467296062716909568
+          description: |
+            Source Account ID  
+            *(Defaults to 1471090223379184386)*
+        - name: toAccountId
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 1473231491689395200
+          description: |
+            Destination Account ID  
+            *(Defaults to 1481989333430941184)*
+        - name: coin
+          in: query
+          required: true
+          schema:
+            type: string
+            example: USDT
+          description: |
+            Coin to be transferred  
+            *(Defaults to USD)*
+        - name: quantity
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+            example: 20
+          description: |
+            Transfer amount  
+            *(Defaults to 0.01)*
+        - name: remark
+          in: query
+          required: false
+          schema:
+            type: string
+            example: TestingRemark
+          description: |
+            Remark  
+            *(Optional)*
+        - name: clientOrderId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: 12345678
+          description: |
+            Client unique order identifier  
+            *(Optional)*
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1712317312973
+          description: |
+            Timestamp  
+            *(Millisecond timestamp, defaults to 1707495335455)*
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: e66e9eda02861b759716ac2553e3e3b30475ee248e6d8ed63e986b53f9a82d5a
+          description: |
+            Signature  
+            *(Use HMAC SHA256 to generate the signature)*
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetTransferRequest'
+            
+      responses:
+        '200':
+          description: Orders created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetTransferResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/checkApiKey:
+     get:
+      description: 'Get API Key Type' 
+      tags:
+      - Account
+      parameters:
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1707495123486
+          description: |
+            Timestamp  
+            *(Millisecond timestamp)*
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CheckApiKeyResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/fiat/history:
+     get:
+      description: 'Get Fiat History' 
+      tags:
+      - Account
+      parameters:
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - deposit
+              - withdraw
+          description: |
+            Transaction type  
+            - "deposit"
+            - "withdraw"
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - under_review
+              - processing
+              - successful
+              - failed
+              - withdraw_return
+              - return
+          description: |
+            Transaction status.  
+            **For deposit:**
+            - "under_review"
+            - "processing"
+            - "successful"
+            - "failed"  
+            **For withdraw:**
+            - "under_review"
+            - "processing"
+            - "successful"
+            - "failed"
+            - "withdraw_return"
+            - "return"
+        - name: startTime
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 16260408000000
+          description: Start timestamp
+        - name: endTime
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 16881408000000
+          description: End timestamp
+        - name: channel
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - auto
+              - manual
+          description: |
+            Transaction channel.  
+            *(Defaults to "auto")*
+            **Note:** For transactions prior to 09/01/2023, please use "manual" channel.
+        - name: remark
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "Optional remark here"
+          description: Remark
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 50
+          description: Limit of records
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 5000
+          description: Recv Window
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1707495506093
+          description: Millisecond timestamp
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: d06ec958490617748bf68e22a2951310bc3ae2437e1f532340076f1970dd350f
+          description: Signature generated using HMAC SHA256
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/balanceFlow:
+     get:
+      description: '<ul> <li>Only master account Master API key can call this interface, sub-accounts will return insufficient prvilege type error code</li><li>All orders returned are final</li><li>
+        Deposit, Withdrawal failed will not be return
+        Query of trade history supports the past 7 days time range. The other types support maximum 30 days. Exceeded amount will return error code "Exceed maximum time range of N days"</li><li>
+        Remark can only support up to 128 characters</li>' 
+      tags:
+      - Account
+      parameters:
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1234567890123456789
+          description: Account ID
+        - name: type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - trade
+              - deposit
+              - fiatDeposit
+              - withdraw
+              - fiatWithdraw
+              - transfer
+          description: |
+            Transaction type:  
+            - "trade"  
+            - "deposit"  
+            - "fiatDeposit"  
+            - "withdraw"  
+            - "fiatWithdraw"  
+            - "transfer"
+        - name: clientOrderId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "abc1234567890"
+          description: 'Corresponds to types: "trade", "fiatWithdraw", "transfer"'
+        - name: remark
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "Optional remark"
+          description: Remark
+        - name: startTime
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1626040800000
+          description: Start timestamp
+        - name: endTime
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1688140800000
+          description: End timestamp
+        - name: beginId
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 0
+          description: |
+            Start record number. Default: 0  
+            E.g., if input ID is 1, return starting from ID 2
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 50
+          description: Limit number of records
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 5000
+          description: Recv window
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1707495506093
+          description: Millisecond timestamp
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: d06ec958490617748bf68e22a2951310bc3ae2437e1f532340076f1970dd350f
+          description: Signature generated using HMAC SHA256
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceFlowResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/deposit/address:
+     get:
+      description: 'Retrieve deposit address generated by the system' 
+      tags:
+      - Wallet
+      parameters:
+      - name: coin
+        in: query
+        required: true
+        schema:
+          type: string
+          default: "USDT"
+        example: "USDT"
+        description: "Coin name"
+        
+      - name: chainType
+        in: query
+        required: true
+        schema:
+          type: string
+          default: "ETH"
+        example: "ETH"
+        description: "Chain Type. ETH is default if not specified. Options: ETH, BTC"
+        
+      - name: walletId
+        in: query
+        required: false
+        schema:
+          type: string
+        example: "124353535"
+        description: "Wallet ID (Current for Omnibus client)"
+        
+      - name: timestamp
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int64
+        example: 1712317312973
+        description: "Millisecond timestamp"
+    
+      - name: signature
+        in: query
+        required: true
+        schema:
+          type: string
+        example: "fea2228153ebb0c578ee32579d3a9c379320d7ae94f5f6baa9e99b75af121e74"
+        description: "Signature"
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepositInformationResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/depositOrders:
+     get:
+      description: 'Get Deposit History' 
+      tags:
+      - Wallet
+      parameters:
+        - name: coin
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "USDT"
+          description: "Coin name"
+      
+        - name: startTime
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          example: 16500121212121
+          description: "Start timestamp"
+      
+        - name: endTime
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+          example: 16600131311313
+          description: "End timestamp"
+      
+        - name: fromId
+          in: query
+          required: false
+          schema:
+            type: integer
+          example: 123456
+          description: "Starting ID (To be released)"
+      
+        - name: walletId
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "1667406048590383617"
+          description: "Wallet ID"
+      
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 500
+          example: 500
+          description: "Default 500; Max 1000"
+      
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1712317312973
+          description: "Millisecond timestamp"
+      
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "fea2228153ebb0c578ee32579d3a9c379320d7ae94f5f6baa9e99b75af121e74"
+          description: "Signature"
+
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepositHistoryResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/withdrawOrders:
+     get:
+      description: 'Retrieve withdrawal history' 
+      tags:
+      - Wallet
+      parameters:
+        - in: query
+          name: coin
+          required: false
+          schema:
+            type: string
+            example: "USDT"
+          description: "Coin symbol"
+        
+        - in: query
+          name: startTime
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1691142675492
+          description: "Start Time in milliseconds"
+        
+        - in: query
+          name: endTime
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1691142679567
+          description: "End Time in milliseconds"
+        
+        - in: query
+          name: remark
+          required: false
+          schema:
+            type: string
+            example: "Test"
+          description: "Remark"
+      
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            example: 10
+          description: "Maximum number of queries. Default is 500, maximum is 1000."
+      
+        - in: query
+          name: timestamp
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1712317312973
+          description: "Timestamp in milliseconds"
+
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/withdrawHistoryResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/withdraw:
+    post:
+      description: 'withdraw request' 
+      tags:
+      - Wallet
+      parameters:
+      - in: query
+        name: coin
+        required: true
+        schema:
+          type: string
+          example: "USDT"
+        description: "Assets"
+    
+      - in: query
+        name: clientOrderId
+        required: true
+        schema:
+          type: string
+          example: "w12912"
+        description: "Custom Withdrawal ID"
+    
+      - in: query
+        name: address
+        required: true
+        schema:
+          type: string
+          example: "0x132346ef629483974879a2e68A3557cA1c494D2E"
+        description: "Withdrawal address"
+    
+      - in: query
+        name: addressExt
+        required: false
+        schema:
+          type: string
+          example: "-"
+        description: "Tag (Not in use)"
+    
+      - in: query
+        name: quantity
+        required: true
+        schema:
+          type: number
+          format: decimal
+          example: 0.2
+        description: "Withdrawal amount"
+    
+      - in: query
+        name: chainType
+        required: true
+        schema:
+          type: string
+          example: "ETH"
+        description: "Chain Type"
+    
+      - in: query
+        name: remark
+        required: false
+        schema:
+          type: string
+          example: "Test"
+        description: "Remark"
+    
+      - in: query
+        name: walletId
+        required: false
+        schema:
+          type: string
+          example: "1667406048590383617"
+        description: "Wallet ID"
+    
+      - in: query
+        name: timestamp
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetTransferRequest'
+            
+      responses:
+        '200':
+          description: Orders created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetTransferResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/fiat/withdraw:
+    post:
+      description: 'Withdraw Fiat' 
+      tags:
+      - Wallet
+      
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawFiatRequest'
+            
+      responses:
+        '200':
+          description: Orders created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WithdrawFiatResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/whitelist/verify:
+     get:
+      description: 'Get Verify Whitelist Address<br>When the request parameter "quantity" is specified as the same value, the deposit random amount (Micropayment) will always remain the same. There will be no change unless the specified "quantity" value is changed' 
+      tags:
+      - Wallet
+      parameters:
+      - name: coin
+        in: query
+        required: true
+        schema:
+          type: string
+          example: "USDT"
+        description: "Coin name."
+      
+      - name: chainType
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+            - "USDT_ETH"
+            - "USDT_BTC"
+          example: "USDT_ETH"
+        description: "Coin chain type."
+      
+      - name: quantity
+        in: query
+        required: true
+        schema:
+          type: string
+          example: "0.1"
+        description: "Deposit amount."
+      
+      - name: walletId
+        in: query
+        schema:
+          type: string
+          example: "1667406048590383617"
+        description: "Wallet ID."
+
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepositResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/whitelist/whitelistAddress:
+     get:
+      description: 'Get Whitelisted Address' 
+      tags:
+      - Wallet
+      parameters:
+      - name: coin
+        in: query
+        required: true
+        schema:
+          type: string
+          example: "USDT_ETH"
+        description: "Coin name. Use BTC for Bitcoin."
+    
+      - name: walletId
+        in: query
+        schema:
+          type: string
+          example: "1667402275755215362"
+        description: "Wallet ID."
+    
+      - name: type
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+            - "Deposit"
+            - "Withdraw"
+          example: "Deposit"
+        description: "Type of the transaction. Deposit or Withdraw."
+
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/whitelistResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/account/depositRefund:
+    post:
+      description: 'Deposit refunds' 
+      tags:
+      - Wallet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/depositRefundRequest'
+            
+      responses:
+        '200':
+          description: Orders created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/successResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/exchangeInfo:
+     get:
+      description: 'Retrieve current exchange trading rules and symbol information' 
+      tags:
+      - Public Market Data
+      parameters:
+      - name: symbol
+        in: query
+        schema:
+          type: string
+          description: "Symbol Name. e.g: 'BTCUSD', 'ETHUSDC'"
+          example: "BTCUSD"
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExchangeInformation'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /qoute/v1/depth:
+     get:
+      description: 'Retrieve the current order book depth' 
+      tags:
+      - Public Market Data
+      parameters:
+      - name: symbol
+        in: query
+        schema:
+          type: string
+          description: "Symbol Name. e.g: 'BTCUSD', 'ETHUSDC'"
+          example: "BTCUSD"
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          description: "Return the number of layers. Maximum value is 200."
+          example: 10
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderBookResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /qoute/v1/trades:
+     get:
+      description: 'Retrieve the recent trade information' 
+      tags:
+      - Public Market Data
+      parameters:
+      - name: symbol
+        in: query
+        schema:
+          type: string
+          description: "Symbol Name. e.g: 'BTCUSD', 'ETHUSDC'"
+          example: "BTCUSD"
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          description: "Return the number of layers. Maximum value is 200."
+          example: 10
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LatestTradesList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /qoute/v1/klines:
+     get:
+      description: 'K-line/candlestick chart interval' 
+      tags:
+      - Public Market Data
+      parameters:
+      - name: symbol
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Currency pair symbol
+      - name: interval
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Time interval
+          enum: ['1m']
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          description: Number of bars to return
+          maximum: 1000
+      - name: startTime
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+          description: Start time in milliseconds since the Unix epoch
+      - name: endTime
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int64
+          description: End time in milliseconds since the Unix epoch
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KlineChart'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /qoute/v1/ticker/24hr:
+    get:
+      description: 'Retrieve the 24 hours rolling price change' 
+      tags:
+      - Public Market Data
+      parameters:
+      - name: symbol
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Currency pair symbol
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tickerResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /qoute/v1/ticker/price:
+    get:
+      description: 'Retrieve the latest price by ticker' 
+      tags:
+      - Public Market Data
+      parameters:
+      - name: symbol
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Currency pair symbol
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tickerPriceResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /qoute/v1/ticker/bookTicker:
+    get:
+      description: 'Retrieve current top order book by symbol' 
+      tags:
+      - Public Market Data
+      parameters:
+      - name: symbol
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Currency pair symbol
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderBookList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /qoute/v1/depth/merged:
+    get:
+      description: 'Query aggregation market depth' 
+      tags:
+      - Public Market Data
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+            description: Currency pair symbol
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            description: Number of results to return
+        - name: scale
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 5
+            description: Level of layers (0-5)
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketDepth'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/ping:
+    get:
+      description: 'Test connectivity to ensure valid Status 200 OK' 
+      tags:
+      - Miscellenous
+      responses:
+        '200':
+          description: Request Successful
+          
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/time:
+    get:
+      description: 'Test the connection and returns the current server time (in UNIX timestamp in milliseconds)' 
+      tags:
+      - Miscellenous
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: integer
+                    example: 1687582384429
+                    description: 'Server Millisecond Timestamp'
+          
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/userDataStream:
+    post:
+      description: "Start a new user data stream. The stream will close after 60 minutes unless a keepalive is sent. It's recommended to send a ping about every 30 minutes." 
+      tags:
+      - Miscellenous
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timestamp:
+                  type: string
+                  example: 1707495988206
+                signature:
+                  type: string
+                  example: f65ed14fdb93b6e265efe3c5f972fbfa91d4a94bafed7246f34dd8625a8f3e2a
+                recvWindow:
+                  type: integer
+                
+      responses:
+        '200':
+          description: Request Successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  listenkey:
+                    type: string
+                    example: MKxPTRoLXBBhlRseAUaDyWyZVjiNxCVqcaUasZidmByckGjUcLBKKcopKbvUfORD
+                    description: 'Key to subscribe websocket feeds'
+          
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /quote/ws/v1:
+    post:
+      tags:
+        - Websockt API
+      summary: WebSocket connection
+      description: Establishes a WebSocket connection for real-time communication
+      requestBody:
+            content:
+              application/json:
+                schema:
+                  oneOf:
+                  - $ref: '#/components/schemas/PingMessage'
+                  - $ref: '#/components/schemas/kline_interval'
+                  - $ref: '#/components/schemas/realtimeRequest'
+                  - $ref: '#/components/schemas/tradeRequest'
+      responses:
+        200:
+          description: Successful ping
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/PongMessage'
+                - $ref: '#/components/schemas/kline_interval_response'
+                - $ref: '#/components/schemas/realtimeResponse'
+                - $ref: '#/components/schemas/tradeResponse'
+                - $ref: '#/components/schemas/accountUpdateResponse'
+                - $ref: '#/components/schemas/orderUpdateResponse'
+                - $ref: '#/components/schemas/ticketPushResponse'
+
+
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        code: 
+          type: integer
+          example: 0
+          default: 0
+        msg:
+          type: string
+          example: 'Invalid Signature OR You are not authorized to execute this request'
+    OrderTest:
+     type: object
+     properties:
+                symbol:
+                  type: string
+                side:
+                  type: string
+                  enum: [BUY, SELL]
+                type:
+                  type: string
+                  enum: [LIMIT, MARKET, LIMIT_MAKER]
+                quantity:
+                  type: number
+                  format: decimal
+                price:
+                  type: number
+                  format: decimal
+                newClientOrderId:
+                  type: string
+                timeInForce:
+                  type: string
+                  enum: [GTC, IOC]
+                recvWindow:
+                  type: integer
+                  format: int64
+                timestamp:
+                  type: integer
+                  format: int64
+                signature:
+                  type: string
+    SpotOrderRequest:
+      type: object
+      properties:
+        newClientOrderId:
+          type: string
+          default: 1234567890
+          description: An ID defined by the client for the order, it will be automatically generated if it is not sent in the request
+        symbol:
+          type: string
+          default: ETHUSD
+          description: Name of instrument (e.g., "BTCUSD", "ETHUSD")
+        price:
+          type: number
+          format: double
+          default: 1800
+          description: Order price (required for LIMIT and LIMIT_MAKER orders)
+        side:
+          type: string
+          default: BUY
+          enum: [BUY, SELL]
+          description: Order Side
+        type:
+          type: string
+          default: LIMIT
+          enum: [LIMIT, MARKET, LIMIT_MAKER]
+          description: Order type
+        quantity:
+          type: number
+          format: double
+          default: 0.01
+          description: Order amount in units of the instrument
+        amount:
+          type: number
+          format: double
+          description: Cash amount in the units of quote asset (required for MARKET orders)
+        recvWindow:
+          type: integer
+          format: int64
+          default: 5000
+          description: Recv Window. Default 5000
+        timestamp:
+          type: integer
+          format: int64
+          default: 1691859891844
+          description: Millisecond Timestamp
+        signature:
+          type: string
+          default: VahCmMGqxOkFWBYVAZqCWDJSe5vryjB5Q2Ve8ssLtXb74aOfNPE0L3UzVe7t1GKl
+          description: Signature
+      required:
+        - symbol
+        - side
+        - type
+        - quantity
+    SpotOrderResponse:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          format: int64
+          description: Account number
+        symbol:
+          type: string
+          description: Trading pair symbol
+        clientOrderId:
+          type: string
+          description: An ID defined by the client for the order
+        orderId:
+          type: integer
+          format: int64
+          description: System-generated order ID
+        transactTime:
+          type: integer
+          format: int64
+          description: Timestamp in milliseconds
+        price:
+          type: number
+          format: decimal
+          description: Price
+        origQty:
+          type: number
+          format: decimal
+          description: Quantity
+        executedQty:
+          type: number
+          format: decimal
+          description: Traded Volume
+        status:
+          type: string
+          description: Order status
+        timeInForce:
+          type: string
+          description: Duration of the order before expiring
+        type:
+          type: string
+          description: Order type
+        side:
+          type: string
+          description: Buy or Sell
+        reqAmount:
+          type: string
+          description: Requested Cash amount
+        concentration:
+          type: string
+          description: Concentration reminder message
+    BatchOrderRequest:
+      type: array
+      items:
+        type: object
+        properties:
+          symbol:
+            type: string
+            description: Name of instrument, e.g., "BTCUSD", "ETHUSD"
+            example: "BTCUSD"
+          side:
+            type: string
+            enum:
+              - BUY
+              - SELL
+            description: "BUY or SELL"
+            example: "SELL"
+          type:
+            type: string
+            enum:
+              - LIMIT
+              - MARKET
+              - LIMIT_MAKER
+            description: |
+              Order type:
+              - `LIMIT` - Limit order
+              - `MARKET` - Market order
+              - `LIMIT_MAKER` - Maker Limit order
+            example: "LIMIT"
+          quantity:
+            type: number
+            format: double
+            description: |
+              Order amount in units of the instrument. Commonly known as "orderQty".
+              *Required if the order type is "MARKET"*
+            example: 0.01
+          amount:
+            type: number
+            format: double
+            description: |
+              Cash amount in the units of quote currency. Market order only.
+              *Required if the order type is "MARKET"*
+            example: 1000
+          price:
+            type: number
+            format: double
+            description: Required for LIMIT and LIMIT_MAKER orders
+            example: 52000
+          newClientOrderId:
+            type: string
+            description: |
+              An ID defined by the client for the order. It will be automatically generated if it is not sent in the request.
+            example: "123456789"
+          timeInForce:
+            type: string
+            enum:
+              - GTC
+              - IOC
+            description: |
+              GTC for Limit order, Limit maker order and IOC for Market order
+            example: "GTC"
+          recvWindow:
+            type: integer
+            format: int64
+            description: Recv Window. Default 5000
+            example: 5000
+          timestamp:
+            type: integer
+            format: int64
+            description: Timestamp
+            example: 1707492562526
+        required:
+          - symbol
+          - side
+          - type
+          - timestamp
+    BatchOrderResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: Error code
+          example: 0
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: integer
+                description: Error code of an order
+                example: 0
+              msg:
+                type: string
+                description: Error message
+                example: "Create order failed"
+              order:
+                $ref: '#/components/schemas/Order'
+        concentration:
+          type: string
+          description: Concentration reminder message
+    Order:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          format: int64
+          description: Account Number
+          example: 1467298646903017216
+        symbol:
+          type: string
+          description: Trading pair
+          example: "BTCUSD"
+        symbolName:
+          type: string
+          description: Trading pair name
+          example: "BTCUSD"
+        clientOrderId:
+          type: string
+          description: |
+            An ID defined by the client for the order. It will be automatically generated if it is not sent in the request.
+          example: "123433"
+        orderId:
+          type: integer
+          format: int64
+          description: |
+            System generated order ID. A maximum of 20 characters.
+          example: 1470929631548869632
+        transactTime:
+          type: integer
+          format: int64
+          description: Millisecond timestamp
+          example: 1690084476357
+        price:
+          type: number
+          format: double
+          description: Price
+          example: 28000
+        origQty:
+          type: number
+          format: double
+          description: Quantity
+          example: 0.01
+        executedQty:
+          type: number
+          format: double
+          description: Traded Volume
+          example: 0
+        status:
+          type: string
+          enum:
+            - FILLED
+            - PARTIALLY_FILLED
+            - CANCELED
+            - REJECTED
+          description: Order status
+          example: "FILLED"
+        timeInForce:
+          type: string
+          enum:
+            - GTC
+            - IOC
+          description: Duration of the order before expiring
+          example: "GTC"
+        type:
+          type: string
+          enum:
+            - LIMIT
+            - MARKET
+            - LIMIT_MAKER
+          description: Order type
+          example: "LIMIT"
+        side:
+          type: string
+          enum:
+            - BUY
+            - SELL
+          description: BUY or SELL
+          example: "SELL"
+        reqAmount:
+          type: string
+          description: Requested Cash amount
+          example: "0"
+    DeleteOrderResponse:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          format: int64
+          description: Account Number
+          example: 1471090223379184384
+        symbol:
+          type: string
+          description: Trading pair
+          example: "BTCUSD"
+        clientOrderId:
+          type: string
+          description: |
+            An ID defined by the client for the order. It will be automatically generated if it is not sent in the request.
+          example: "999999999800023"
+        orderId:
+          type: integer
+          format: int64
+          description: System generated order ID
+          example: 1483370868616793088
+        transactTime:
+          type: string
+          description: Millisecond timestamp
+          example: "1691567587389"
+        price:
+          type: number
+          format: double
+          description: Price
+          example: 28000
+        origQty:
+          type: number
+          format: double
+          description: Quantity
+          example: 0.01
+        executedQty:
+          type: number
+          format: double
+          description: Traded Volume
+          example: 0
+        status:
+          type: string
+          enum:
+            - CANCELED
+            - FILLED
+            - PARTIALLY_FILLED
+          description: Order status
+          example: "CANCELED"
+        timeInForce:
+          type: string
+          enum:
+            - GTC
+            - IOC
+          description: Duration of the order before expiring
+          example: "GTC"
+        type:
+          type: string
+          enum:
+            - LIMIT
+            - MARKET
+            - LIMIT_MAKER
+          description: Order type
+          example: "LIMIT"
+        side:
+          type: string
+          enum:
+            - BUY
+            - SELL
+          description: BUY or SELL
+          example: "BUY"
+        recvWindow:
+          type: integer
+          format: int64
+          description: Recv Window
+          example: 5000
+        timestamp:
+          type: integer
+          format: int64
+          description: Millisecond Timestamp
+          example: 1707493157004
+        signature:
+          type: string
+          description: Signature
+          example: "0f2c207fb1f4ba091c266f5d51ee29b8329bdda9cce866bfa7c7ac0739dc3f7b"
+    DeleteAllOrderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether successful
+          example: true
+        symbol:
+          type: string
+          description: Name of instrument, e.g., "BTCUSDT", "ETHUSDT"
+          example: "BTCUSDC"
+        side:
+          type: string
+          enum:
+            - BUY
+            - SELL
+          description: BUY or SELL
+          example: "BUY"
+        timestamp:
+          type: integer
+          format: int64
+          description: Millisecond Timestamp
+          example: 1707493383987
+        signature:
+          type: string
+          description: Signature
+          example: "61d9773ad708a447b54df3105c09cd151cff75213a37400cb99c65cf022f1a14"
+    DeleteMultiOrderResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: "0000 is executed"
+          example: "0000"
+        result:
+          type: array
+          items:
+            type: object
+            properties:
+              orderId:
+                type: integer
+                format: int64
+                description: Order ID
+                example: 16880363408511681
+              code:
+                type: integer
+                description: Return error code for each order (For unsuccessful order)
+                example: -2013
+        ids:
+          type: string
+          description: Order ID, e.g., 1450885420514687744
+          example: "1616967885904766976"
+        recvWindow:
+          type: integer
+          format: int64
+          description: Recv Window
+          example: 5000
+        timestamp:
+          type: integer
+          format: int64
+          description: Millisecond timestamp
+          example: 1707493605163
+        signature:
+          type: string
+          description: Signature
+          example: "39e02c70f8648321031ee6e3b713bbc49da4c0ea1ff61e9388278cd726bf13de"
+    SingleOrderResponse:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          format: int64
+          description: Account number
+          example: 1453450776554918656
+        exchangeId:
+          type: integer
+          format: int64
+          description: Exchange number
+          example: 301
+        symbol:
+          type: string
+          description: Trading pair
+          example: "BTCUSDT"
+        symbolName:
+          type: string
+          description: Trading pair name
+          example: "BTCUSDT"
+        clientOrderId:
+          type: string
+          description: Client-defined order ID
+          example: "168803658506716316"
+        orderId:
+          type: integer
+          format: int64
+          description: System-generated order ID
+          example: 1453750674374393344
+        price:
+          type: string
+          description: Price
+          example: "28000"
+        origQty:
+          type: string
+          description: Quantity
+          example: "0.01"
+        executedQty:
+          type: string
+          description: Traded volume
+          example: "0"
+        cumulativeQuoteQty:
+          type: string
+          description: Cumulative volume (Transaction Amount)
+          example: "0"
+        avgPrice:
+          type: string
+          description: Average traded price
+          example: "0"
+        status:
+          type: string
+          enum:
+            - NEW
+            - FILLED
+            - CANCELED
+            - EXPIRED
+          description: Order status
+          example: "NEW"
+        timeInForce:
+          type: string
+          enum:
+            - GTC
+            - IOC
+            - FOK
+          description: Duration of the order before expiring
+          example: "GTC"
+        type:
+          type: string
+          enum:
+            - LIMIT
+            - MARKET
+            - STOP_LOSS
+          description: Order type
+          example: "LIMIT"
+        side:
+          type: string
+          enum:
+            - BUY
+            - SELL
+          description: BUY or SELL
+          example: "SELL"
+        stopPrice:
+          type: string
+          description: Stop price (Not used)
+          example: "0.0"
+        icebergQty:
+          type: string
+          description: Iceberg quantity (Not used)
+          example: "0.0"
+        time:
+          type: string
+          format: int64
+          description: Order creation timestamp
+          example: "1688036585077"
+        updateTime:
+          type: string
+          format: int64
+          description: Latest update timestamp
+          example: "1688036585084"
+        isWorking:
+          type: boolean
+          description: Is working (Not used)
+          example: true
+        reqAmount:
+          type: integer
+          format: int64
+          description: Requested cash amount
+          example: 0
+        feeCoin:
+          type: string
+          description: Fee currency name
+          example: "USDT"
+        feeAmount:
+          type: string
+          description: Fee amount
+          example: "0.006"
+        sumFeeAmount:
+          type: string
+          description: Sum fee amount
+          example: "0.006"
+        ordCxlReason:
+          type: string
+          description: Order cancel reason
+          example: ""
+        ids:
+          type: string
+          description: System order ID
+          example: "1616967885904766976"
+        origClientOrderId:
+          type: string
+          description: Original client order ID
+          example: "168803658506716316"
+        recvWindow:
+          type: integer
+          format: int64
+          description: Recv window
+          example: 5000
+        timestamp:
+          type: integer
+          format: int64
+          description: Millisecond timestamp
+          example: 1707493669694
+        signature:
+          type: string
+          description: Signature
+          example: "fe64274ec79a643bb8a9c918819b21959497ee6d9c4a78fa3233283e55e4f474"
+    GetAllOrderResponse:
+      type: object
+      properties:
+        No:
+          type: array
+          description: Query result array
+          items:
+            type: object
+            properties:
+              accountId:
+                type: integer
+                format: int64
+                description: Account number
+                example: 1471090223379184384
+              exchangeId:
+                type: integer
+                format: int64
+                description: Exchange Number
+                example: 301
+              symbol:
+                type: string
+                description: Trading pair
+                example: "BTCUSD"
+              symbolName:
+                type: string
+                description: Trading pair name
+                example: "BTCUSD"
+              clientOrderId:
+                type: string
+                description: Client-defined order ID
+                example: "123456"
+              orderId:
+                type: integer
+                format: int64
+                description: System-generated order ID
+                example: 1470930457684189696
+              price:
+                type: string
+                description: Price
+                example: "28000"
+              origQty:
+                type: string
+                description: Quantity
+                example: "0.01"
+              executedQty:
+                type: string
+                description: Traded volume
+                example: "0"
+              cumulativeQuoteQty:
+                type: string
+                description: Cumulative volume
+                example: "0"
+              avgPrice:
+                type: string
+                description: Average traded price
+                example: "0"
+              status:
+                type: string
+                enum:
+                  - NEW
+                  - FILLED
+                  - CANCELED
+                  - EXPIRED
+                description: Order status
+                example: "NEW"
+              timeInForce:
+                type: string
+                enum:
+                  - GTC
+                  - IOC
+                  - FOK
+                description: Duration of the order before expiring
+                example: "GTC"
+              type:
+                type: string
+                enum:
+                  - LIMIT
+                  - MARKET
+                  - STOP_LOSS
+                description: Order type
+                example: "LIMIT"
+              side:
+                type: string
+                enum:
+                  - BUY
+                  - SELL
+                description: BUY or SELL
+                example: "BUY"
+              stopPrice:
+                type: string
+                description: Stop price (Not used)
+                example: "0.0"
+              icebergQty:
+                type: string
+                description: Iceberg quantity (Not used)
+                example: "0.0"
+              time:
+                type: integer
+                format: int64
+                description: Order creation timestamp
+                example: 1690084574839
+              updateTime:
+                type: integer
+                format: int64
+                description: Order last updated timestamp
+                example: 1690084574843
+              isWorking:
+                type: boolean
+                description: Is working (Not used)
+                example: true
+              reqAmount:
+                type: string
+                description: Requested cash amount
+                example: "0"
+              signature:
+                type: string
+                description: Signature
+                example: "1455db573097b77c825a1276916582159ef445ffa7def7b3c9bb5d264b6dd760"
+              recvWindow:
+                type: integer
+                format: int64
+                description: Recv Window
+                example: 5000
+              timestamp:
+                type: integer
+                format: int64
+                description: Millisecond timestamp
+                example: 1707493971279
+    tradeOrderResponse:
+      type: object
+      properties:
+          No:
+            type: array
+            description: Query result array
+            items:
+              type: object
+              properties:
+                accountId:
+                  type: integer
+                  format: int64
+                  description: Account ID
+                  example: 1464567707961719552
+                exchangeId:
+                  type: integer
+                  format: int64
+                  description: Exchange number
+                  example: 301
+                symbol:
+                  type: string
+                  description: Trading pair
+                  example: "ETHUSD"
+                symbolName:
+                  type: string
+                  description: Trading pair name
+                  example: "ETHUSD"
+                clientOrderId:
+                  type: string
+                  description: Client-defined order ID
+                  example: "9999999998000"
+                orderId:
+                  type: integer
+                  format: int64
+                  description: System-generated order ID
+                  example: 1484664263574306816
+                price:
+                  type: string
+                  description: Price
+                  example: "1860"
+                origQty:
+                  type: string
+                  description: Quantity
+                  example: "10"
+                executedQty:
+                  type: string
+                  description: Traded volume
+                  example: "10"
+                cumulativeQuoteQty:
+                  type: string
+                  description: Cumulative volume
+                  example: "18600"
+                avgPrice:
+                  type: string
+                  description: Average traded price
+                  example: "1860"
+                status:
+                  type: string
+                  enum:
+                    - NEW
+                    - FILLED
+                    - CANCELED
+                    - EXPIRED
+                  description: Order status
+                  example: "FILLED"
+                timeInForce:
+                  type: string
+                  enum:
+                    - GTC
+                    - IOC
+                    - FOK
+                  description: Duration of the order before expiring
+                  example: "GTC"
+                type:
+                  type: string
+                  enum:
+                    - LIMIT
+                    - MARKET
+                    - STOP_LOSS
+                  description: Order type
+                  example: "LIMIT"
+                side:
+                  type: string
+                  enum:
+                    - BUY
+                    - SELL
+                  description: BUY or SELL
+                  example: "SELL"
+                stopPrice:
+                  type: string
+                  description: Stop price (Not used)
+                  example: "0.0"
+                icebergQty:
+                  type: string
+                  description: Iceberg quantity (Not used)
+                  example: "0.0"
+                time:
+                  type: string
+                  description: Current Timestamp
+                  example: "1691721772082"
+                updateTime:
+                  type: string
+                  description: Update Timestamp
+                  example: "1691721796685"
+                isWorking:
+                  type: boolean
+                  description: Is working (Not used)
+                  example: true
+                reqAmount:
+                  type: string
+                  description: Requested cash amount
+                  example: "0"
+                recvWindow:
+                  type: integer
+                  format: int64
+                  description: Recv Window
+                  example: 5000
+                timestamp:
+                  type: integer
+                  format: int64
+                  description: Millisecond timestamp
+                  example: 1707494009813
+                signature:
+                  type: string
+                  description: Signature
+                  example: "2a5442585fd7c38d60e47c44129f68295f28e528eb2e486d7bb5373588ca3ede"
+    TradingResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 0
+          description: Status code
+        msg:
+          type: string
+          example: ''
+          description: Error message (if any)
+        vipLevel:
+          type: string
+          example: '0'
+          description: VIP Level
+        tradeVol30Day:
+          type: string
+          example: '300000000'
+          description: Total trading volume in the last 30 days (USD)
+        totalAssetBal:
+          type: string
+          example: '1000000000'
+          description: Total asset balance (USD)
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductData'
+    ProductData:
+      type: object
+      properties:
+        productType:
+          type: string
+          example: 'Token-Token'
+          description: Product type (Token-Token, Token-Fiat, ST-Token)
+        buyMakerFeeCurrency:
+          type: string
+          example: 'BTC'
+          description: Buy maker fee currency
+        buyTakerFeeCurrency:
+          type: string
+          example: 'BTC'
+          description: Buy taker fee currency
+        sellMakerFeeCurrency:
+          type: string
+          example: 'USD'
+          description: Sell maker fee currency
+        sellTakerFeeCurrency:
+          type: string
+          example: 'USD'
+          description: Sell taker fee currency
+        actualMakerRate:
+          type: string
+          example: '0.015'
+          description: Maker fee including any discount
+        actualTakerRate:
+          type: string
+          example: '0.015'
+          description: Taker fee including any discount
+        updateTimeStamp:
+          type: integer
+          format: int64
+          example: 1709330424013
+          description: Update timestamp of the request (Daily snapshot)
+    AccountBalanceResponse:
+      type: object
+      properties:
+        balances:
+          type: array
+          items:
+            $ref: '#/components/schemas/Balance'
+        userId:
+          type: string
+          example: '4014986192463421361'
+          description: User ID
+    Balance:
+      type: object
+      properties:
+        asset:
+          type: string
+          example: 'BTC'
+          description: Asset type
+        assetId:
+          type: string
+          example: 'BTC'
+          description: Asset ID
+        assetName:
+          type: string
+          example: 'BTC'
+          description: Asset name
+        total:
+          type: string
+          example: '100.63264'
+          description: Total available funds
+        free:
+          type: string
+          example: '100.63264'
+          description: Available funds
+        locked:
+          type: string
+          example: '0'
+          description: Frozen funds
+    TransactionQueryResponse:
+      type: object
+      properties:
+        transactions:
+          type: array
+          description: |
+            Array of transaction details  
+            *(Check transaction results)*
+          items:
+            $ref: '#/components/schemas/Transaction'
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1470930841345474561
+          description: Unique transaction ID (This value is the trade_id in v0 API)
+        clientOrderId:
+          type: integer
+          example: 999999999800021
+          description: |
+            An ID defined by the client for the order  
+            *(It will be automatically generated if not sent in the request)*
+        ticketId:
+          type: integer
+          example: 1478144171272585249
+          description: Execution ID, the execution ID is the same for the direction of a single trade.
+        symbol:
+          type: string
+          example: 'BTCUSD'
+          description: Trading pair
+        symbolName:
+          type: string
+          example: 'BTCUSD'
+          description: Trading pair name
+        orderId:
+          type: integer
+          example: 1470930841211329280
+          description: Order ID
+        matchOrderId:
+          type: integer
+          example: 1470930605684362240
+          description: |
+            Match Order ID  
+            *(Ignore this field)*
+        price:
+          type: string
+          format: decimal
+          example: '29851.03'
+          description: Price of the transaction
+        qty:
+          type: string
+          format: decimal
+          example: '0.0005'
+          description: Quantity traded
+        commission:
+          type: string
+          format: decimal
+          example: '0.02985103'
+          description: Commission fee
+        commissionAsset:
+          type: string
+          example: 'USD'
+          description: Currency of the commission fee
+        time:
+          type: string
+          format: decimal
+          example: '1690084620567'
+          description: Millisecond timestamp of the transaction
+        isBuyer:
+          type: boolean
+          example: false
+          description: Whether the trade is a buyer
+        isMaker:
+          type: boolean
+          example: false
+          description: Whether the trade is a maker
+        fee:
+          $ref: '#/components/schemas/Fee'
+        makerRebate:
+          type: integer
+          example: 0
+          description: Rebate for the maker
+        accountId:
+          type: integer
+          example: 1545583349011201280
+          description: Account ID
+    Fee:
+      type: object
+      properties:
+        feeCoin:
+          type: string
+          example: 'USD'
+          description: Currency for fees
+        feeCoinId:
+          type: string
+          example: 'USD'
+          description: Currency ID for fees
+        feeCoinName:
+          type: string
+          example: 'USD'
+          description: Fee currency name
+        fee:
+          type: string
+          format: decimal
+          example: '0.02985103'
+          description: Transaction fee amount
+        feeAmount:
+          type: string
+          format: decimal
+          example: '0.02985103'
+          description: Amount of transaction fee
+    AccountTypesResponse:
+      type: object
+      properties:
+        subaccounts:
+          type: array
+          description: |
+            Array of subaccount details  
+            *(Query subaccount results)*
+          items:
+            $ref: '#/components/schemas/Subaccount'
+    Subaccount:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          example: 1467298646903017217
+          description: |
+            Account Number  
+            *(Unique identifier for the account)*
+        accountLabel:
+          type: string
+          example: 'Custody Account'
+          description: |
+            Account Label  
+            *(e.g., "Main Trading Account", "Sub Trading Account", "Fiat Account", "Custody Account", "OPT Account")*
+        accountType:
+          type: integer
+          example: 5
+          description: |
+            Account Type  
+            *(1: Trading Account, 5: Custody Account, 6: Fiat Account, 7: OPT Account)*
+        accountIndex:
+          type: integer
+          example: 0
+          description: |
+            Not in use  
+            *(This field is not currently in use)*
+    AssetTransferResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Whether the transfer was successful
+        timestamp:
+          type: integer
+          format: int64
+          example: 1699943911155
+          description: Transfer completion timestamp
+        clientOrderId:
+          type: string
+          example: 12345678
+          description: Client unique order identifier
+        orderId:
+          type: string
+          example: 1555687946987836672
+          description: |
+            Transfer Order ID  
+            *(Same as Fund statement orderId for transfer)*
+    AssetTransferRequest:
+      type: object
+      required:
+        - fromAccountId
+        - toAccountId
+        - coin
+        - quantity
+        - timestamp
+        - signature
+      properties:
+        fromAccountId:
+          type: string
+          example: 1467296062716909568
+          description: |
+            Source Account ID  
+            *(Defaults to 1471090223379184386)*
+        toAccountId:
+          type: string
+          example: 1473231491689395200
+          description: |
+            Destination Account ID  
+            *(Defaults to 1481989333430941184)*
+        coin:
+          type: string
+          example: USDT
+          description: |
+            Coin to be transferred  
+            *(Defaults to USD)*
+        quantity:
+          type: number
+          format: double
+          example: 20
+          description: |
+            Transfer amount  
+            *(Defaults to 0.01)*
+        remark:
+          type: string
+          example: TestingRemark
+          description: |
+            Remark  
+            *(Optional)*
+        clientOrderId:
+          type: string
+          example: 12345678
+          description: |
+            Client unique order identifier  
+            *(Optional)*
+        timestamp:
+          type: integer
+          format: int64
+          example: 1712317312973
+          description: |
+            Timestamp  
+            *(Millisecond timestamp, defaults to 1707495335455)*
+        signature:
+          type: string
+          example: e66e9eda02861b759716ac2553e3e3b30475ee248e6d8ed63e986b53f9a82d5a
+          description: |
+            Signature  
+            *(Use HMAC SHA256 to generate the signature)*
+    CheckApiKeyResponse:
+      type: object
+      properties:
+        accountType:
+          type: string
+          default: 'master'
+    HistoryResponse:
+      type: object
+      properties:
+        records:
+          type: array
+          items:
+            type: object
+            properties:
+              orderId:
+                type: string
+                example: FD467701147384938496
+                description: Fiat Order ID
+              type:
+                type: string
+                example: deposit
+                description: Transaction type
+              remark:
+                type: string
+                example: Bank deposit remark message
+                description: Deposit remark message
+              asset:
+                type: string
+                example: USD
+                description: Asset type (e.g., "USD", "HKD")
+              grossAmount:
+                type: string
+                example: 1000.00
+                description: Deposit/Withdraw order amount
+              netAmount:
+                type: string
+                example: 990.00
+                description: |
+                  Actual fund in amount  
+                  **Deposit:** grossAmount - fee  
+                  **Withdraw:** grossAmount + fee
+              fee:
+                type: string
+                example: 10.00
+                description: Deposit / Withdraw fee
+              status:
+                type: string
+                example: processing
+                description: |
+                  Transaction status:  
+                  **deposit:**
+                  - "under_review"
+                  - "processing"
+                  - "failed"
+                  - "successful"
+                  - "withdraw_return"  
+                  **withdraw:**
+                  - "under_review"
+                  - "processing"
+                  - "failed"
+                  - "successful"
+                  - "return"
+              createdTime:
+                type: integer
+                format: int64
+                example: 1699945506093
+                description: Order Created Timestamp
+              updatedTime:
+                type: integer
+                format: int64
+                example: 1699945507093
+                description: Order Updated Timestamp
+    BalanceFlowResponse:
+      type: array
+      items:
+        oneOf:
+         - $ref: '#/components/schemas/TradeFlow'
+         - $ref: '#/components/schemas/DepositFlow'
+         - $ref: '#/components/schemas/WithdrawResponse'
+         - $ref: '#/components/schemas/TransferFlow'
+    TradeFlow:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "47049"
+          description: Record ID
+        accountId:
+          type: string
+          example: "1617382306753847296"
+          description: Account ID
+        type:
+          type: string
+          example: "trade"
+          description: Transaction type
+        netBaseAmount:
+          type: string
+          example: "0.00015"
+          description: Order Quantity. Buy direction (+ve), Sell direction (-ve)
+        baseCcy:
+          type: string
+          example: "BTC"
+          description: Base currency
+        baseAssetBalance:
+          type: string
+          example: "96.53346265"
+          description: Base asset balance
+        netQuoteAmount:
+          type: string
+          example: "-9.622275"
+          description: Price * Quantity. Buy direction (-ve), Sell direction (+ve)
+        quoteCcy:
+          type: string
+          example: "USDC"
+          description: Quote currency
+        quoteAssetBalance:
+          type: string
+          example: "887623.4732212"
+          description: Quote asset balance
+        direction:
+          type: string
+          example: "BUY"
+          description: Buy or Sell direction
+        fee:
+          type: string
+          example: "0.000000225"
+          description: Trading fee
+        feeCcy:
+          type: string
+          example: "BTC"
+          description: Currency for the fee
+        clientOrderId:
+          type: string
+          example: "99999999980097"
+          description: Client order ID
+        orderId:
+          type: string
+          example: "1733373323360866560"
+          description: Order ID
+        tradeId:
+          type: string
+          example: "1733373323528638720"
+          description: Trade ID
+        transactTime:
+          type: string
+          example: "1721370202000"
+          description: Trade completed time
+    DepositFlow:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "3"
+          description: Record ID
+        accountId:
+          type: string
+          example: "1491920242963768578"
+          description: Account ID
+        type:
+          type: string
+          example: "fiatDeposit"
+          description: Transaction type ("fiatDeposit", "fiatWithdraw")
+        netFiatAmount:
+          type: string
+          example: "100001"
+          description: Fiat Deposit/Withdraw amount. Default Value = 0
+        fiatCcy:
+          type: string
+          example: "USD"
+          description: Fiat currency (e.g., HKD, USD)
+        fiatBalance:
+          type: string
+          example: "897400"
+          description: Fiat balance in the account. Default Value = 0
+        fee:
+          type: string
+          example: "0"
+          description: Fee amount
+        feeCcy:
+          type: string
+          example: "USD"
+          description: Fee currency
+        orderId:
+          type: string
+          example: "FD486905037302665216"
+          description: Fiat Order ID
+        remark:
+          type: string
+          example: ""
+          description: Remark
+        transactTime:
+          type: string
+          example: "1693895601000"
+          description: Fiat Deposit/Withdraw Completed Time
+    WithdrawResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+          description: "Record ID"
+        accountId:
+          type: string
+          example: "1491920242963768577"
+          description: "Account ID"
+        type:
+          type: string
+          enum:
+            - Deposit
+            - Withdraw
+          example: "Deposit"
+          description: "Transaction type (Deposit or Withdraw)"
+        netVaAmount:
+          type: string
+          example: "0.01"
+          description: "Deposit/Withdraw amount. Default Value = 0"
+        vaCcy:
+          type: string
+          example: "ETH"
+          description: "Currency (e.g., ETH, BTC, USDC, etc.)"
+        vaBalance:
+          type: string
+          example: "0.01"
+          description: "Balance in the account. Default Value = 0"
+        fee:
+          type: string
+          example: "0"
+          description: "Deposit/Withdraw Fee. Default Value = 0"
+        feeCcy:
+          type: string
+          example: "ETH"
+          description: "Fee Currency"
+        orderId:
+          type: string
+          example: "D486914664762015744"
+          description: "Deposit/Withdraw Order ID"
+        txnId:
+          type: string
+          example: "0xc018245e58832271207160506fb8c405e1d0447f612755eaaa08ce5169a8cb64"
+          description: "Chain Transaction ID"
+        remark:
+          type: string
+          example: "1234"
+          description: "Remark"
+        transactTime:
+          type: string
+          format: int64
+          example: "1693897504000"
+          description: "Deposit/Withdraw Completed Time (in milliseconds since epoch)"
+    TransferFlow:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "1"
+          description: "Record ID"
+        fromAccountId:
+          type: string
+          example: "1491920242963768578"
+          description: "From Account ID"
+        toAccountId:
+          type: string
+          example: "1491920242963768576"
+          description: "To Account ID"
+        type:
+          type: string
+          enum:
+            - transfer
+          example: "transfer"
+          description: "Transaction type, which is 'transfer' in this context"
+        netTransferAmount:
+          type: string
+          example: "10000"
+          description: "Transfer Amount. Default Value = 0"
+        transferCcy:
+          type: string
+          example: "USD"
+          description: "Currency (e.g., ETH, BTC, USDC, etc.)"
+        fromAccountBalance:
+          type: string
+          example: "987400"
+          description: "Balance of the From Account. Default Value = 0"
+        toAccountBalance:
+          type: string
+          example: "111559.9813547"
+          description: "Balance of the To Account. Default Value = 0"
+        orderId:
+          type: string
+          example: "1502924239170215680"
+          description: "Transfer Order ID"
+        remark:
+          type: string
+          example: ""
+          description: "Remark"
+        transactTime:
+          type: string
+          format: int64
+          example: "1693898531000"
+          description: "Transfer Completed Time (in milliseconds since epoch)"
+    DepositInformationResponse:
+      type: object
+      properties:
+        canDeposit:
+          type: boolean
+          example: true
+          description: "Can be deposited"
+        address:
+          type: string
+          example: "-"
+          description: "Deposit Address"
+        addressExt:
+          type: string
+          example: "-"
+          description: "Tag (Not in use)"
+        minQuantity:
+          type: string
+          example: "10"
+          description: "Minimum Amount to be deposited"
+        needAddressTag:
+          type: boolean
+          example: false
+          description: "Is address tag required (Not in use)"
+        requiredConfirmTimes:
+          type: integer
+          example: 70
+          description: "Credit to account block confirmation (Reference only)"
+        canWithdrawConfirmTimes:
+          type: integer
+          example: 70
+          description: "Withdrawal block confirmation (Reference only)"
+        coinType:
+          type: string
+          enum:
+            - CHAIN_TOKEN
+          example: "CHAIN_TOKEN"
+          description: "Coin Type"
+    DepositHistoryResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "1691048298420"
+          description: "Deposit order created timestamp"
+    
+        depositOrderId:
+          type: string
+          example: "D578755281141776384"
+          description: "Deposit order ID"
+    
+        coin:
+          type: string
+          example: "ETH"
+          description: "Coin symbol"
+    
+        coinName:
+          type: string
+          example: "ETH"
+          description: "Coin name"
+    
+        address:
+          type: string
+          example: "0xa0D6AD420C440de473980117877DEC0a89DAFbeF"
+          description: "Deposit address"
+    
+        quantity:
+          type: string
+          format: decimal
+          example: "0.05000000000000000000"
+          description: "Deposit amount"
+    
+        status:
+          type: integer
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+          example: 4
+          description: "Deposit status. Possible values are:
+            1: Pending address authentication,
+            2: Under review,
+            3: Deposit failed,
+            4: Deposit successful,
+            5: Refunding,
+            6: Refund completed,
+            7: Refund failed,
+            8: In the account,
+            9: The first address verification of personal address fails,
+            10: RMS failed"
+    
+        statusCode:
+          type: integer
+          enum:
+            - 1
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - 10
+          example: 4
+          description: "Same as status"
+    
+        txId:
+          type: string
+          example: "0xbd40b38543767a7d441c87c676"
+          description: "Transaction ID"
+    withdrawHistoryResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/withdrawItem'
+    withdrawItem:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "1691053667700"
+          description: "Timestamp of the withdrawal order"
+
+        id:
+          type: string
+          example: "W474986756938121216"
+          description: "Withdrawal order ID"
+
+        coin:
+          type: string
+          example: "ETH"
+          description: "Coin symbol"
+
+        coinId:
+          type: string
+          example: "ETH"
+          description: "Coin ID"
+
+        coinName:
+          type: string
+          example: "ETH"
+          description: "Coin Name"
+
+        address:
+          type: string
+          example: "0xa0d6ad420c440de473980117877dec0a89dafbef"
+          description: "Withdrawal address"
+
+        quantity:
+          type: string
+          format: decimal
+          example: "0.05000000"
+          description: "Withdrawal amount entered by the user"
+
+        arriveQuantity:
+          type: string
+          format: decimal
+          example: "0.05000000"
+          description: "Net amount received after deductions"
+
+        status:
+          type: string
+          example: "successful"
+          description: "Status of the withdrawal"
+
+        failedReason:
+          type: string
+          example: "KYT_FAILED, ASSET_FROZEN_FAILED, ONCHAIN_FAILED"
+          description: "Reason for failure, if applicable"
+
+        txId:
+          type: string
+          example: "0x448345d7d95614e19ad2c499be451cdec8d9fa109889f4dab201e3e50f0a06b4"
+          description: "Transaction ID on the blockchain"
+
+        addressUrl:
+          type: string
+          example: "0xa0d6ad420c440de473980117877dec0a89dafbef"
+          description: "Withdrawal address URL (same as address)"
+
+        feeCoinId:
+          type: string
+          example: "USDT"
+          description: "Fee currency ID"
+
+        feeCoinName:
+          type: string
+          example: "USDT"
+          description: "Fee currency name"
+
+        fee:
+          type: string
+          format: decimal
+          example: "0.00600000"
+          description: "Handling fee"
+
+        remark:
+          type: string
+          example: ""
+          description: "Remark or additional information"
+    WithdrawFiatResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: "Indicates if the request was successful"
+        orderId:
+          type: string
+          example: "FW480049635179401216"
+          description: "Fiat Order ID"
+        clientOrderId:
+          type: string
+          example: "12345678"
+          description: "An ID defined by the client for the withdrawal order"
+    WithdrawFiatRequest:
+      type: object
+      properties:
+        bankAccount:
+          type: string
+          example: "12345678"
+          description: "The bank account number of the designated bank, must be from the added bank list in your account."
+        asset:
+          type: string
+          example: "HKD"
+          description: "Currency type, e.g., 'USD', 'HKD'."
+        amount:
+          type: string
+          example: "1000"
+          description: "Withdrawal amount."
+        remark:
+          type: string
+          example: "Test"
+          description: "Remark field (length limit: 128 characters)."
+        clientOrderId:
+          type: string
+          example: "12345678"
+          description: "An ID defined by the client for the withdrawal order."
+        timestamp:
+          type: integer
+          format: int64
+          example: 1712317312973
+          description: "Timestamp in milliseconds."
+      required:
+        - bankAccount
+        - asset
+        - amount
+        - timestamp
+    DepositResponse:
+      type: object
+      properties:
+        coin:
+          type: string
+          example: "BTC"
+          description: "Coin name."
+        depositAddress:
+          type: string
+          example: "0x7c07adb0D2DE76241b262595860b16Cf90615aa0"
+          description: "Deposit address (To)."
+        depositAmount:
+          type: string
+          example: "0.0004"
+          description: "Deposit amount."
+    whitelistResponse:
+      type: object
+      properties:
+        fromAddress:
+          type: string
+          example: "0x5507D17587310aD5e71408BDD494003c7D3d0947"
+          description: "Whitelisted address."
+      
+        coin:
+          type: string
+          example: "ETH"
+          description: "Coin name."
+        
+        chainType:
+          type: string
+          enum:
+            - "USDT_ETH"
+            - "USDT_BTC"
+          example: "USDT_ETH"
+          description: "Coin chain type."
+    successResponse:
+      type: boolean
+      example: true
+      description: "Indicates whether the refund request was successful. True for success."
+    depositRefundRequest:
+      type: object
+      properties:
+        depositOrderId:
+          type: string
+          example: "D578755281141776384"
+          description: "Deposit Order ID."
+      
+        walletId:
+          type: string
+          example: "1667406048590383617"
+          description: "Wallet ID."
+    ExchangeInformation:
+      type: object
+      properties:
+        timezone:
+          type: string
+          description: "Time zone"
+          example: "UTC"
+
+        serverTime:
+          type: integer
+          description: "Server Millisecond Timestamp"
+          example: 1690084771517
+
+        symbols:
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleSymbol'
+        coins:
+          type: array
+          items:
+            $ref: '#/components/schemas/coin'
+
+        chainTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/chainType'
+        brokerFilters:
+          type: array
+          items:
+            type: object
+            description: "Not currently in use"
+
+        contracts:
+          type: array
+          items:
+            type: object
+            description: "Not currently in use"
+
+        options:
+          type: array
+          items:
+            type: object
+            description: "Options available"
+    chainType:
+      type: object
+      properties:
+        chainType:
+          type: string
+          description: "Chain Type"
+          example: "BTC"
+
+        withdrawFee:
+          type: string
+          description: "Withdrawal fee"
+          example: "0"
+
+        minWithdrawQuantity:
+          type: string
+          description: "Minimum withdrawal amount"
+          example: "0.0001"
+
+        maxWithdrawQuantity:
+          type: string
+          description: "Maximum withdrawal amount"
+          example: "100"
+
+        DepositQuantity:
+          type: string
+          description: "Minimum deposit quantity"
+          example: "0.0001"
+
+        allowDeposit:
+          type: boolean
+          description: "Whether to allow deposit"
+          example: true
+
+        allowWithdraw:
+          type: boolean
+          description: "Whether to allow withdrawal"
+          example: true
+    coin:
+      type: object
+      properties:
+        orgId:
+          type: string
+          description: "Institution ID"
+          example: "6002"
+
+        coinId:
+          type: string
+          description: "Coin ID"
+          example: "BTC"
+
+        coinName:
+          type: string
+          description: "Coin name"
+          example: "BTC"
+
+        allowWithdraw:
+          type: boolean
+          description: "Whether to allow withdrawal"
+          example: true
+
+        allowDeposit:
+          type: boolean
+          description: "Whether to allow deposit"
+          example: true
+    filter:
+      type: object
+      properties:
+        filterType:
+          type: string
+          description: "Trading restriction type"
+          example: "PRICE_FILTER"
+          enum: ["PRICE_FILTER","LOT_SIZE","MIN_NOTIONAL","TRADE_AMOUNT","LIMIT_TRADING","MARKET_TRADING","OPEN_QOUTE"]
+
+        minPrice:
+          type: string
+          description: "Deprecated, no longer in-use"
+          example: "0.01"
+
+        maxPrice:
+          type: string
+          description: "Deprecated, no longer in-use"
+          example: "100000.00000000"
+
+        tickSize:
+          type: string
+          description: "Minimum price change, only for PRICE_FILTER types"
+          example: "0.01"
+
+        minQty:
+          type: string
+          description: "Minimum number of transactions, only for LOT_SIZE types"
+          example: "0.0003"
+
+        maxQty:
+          type: string
+          description: "Maximum number of transactions, only for LOT_SIZE types"
+          example: "4"
+
+        stepSize:
+          type: string
+          description: "Minimal change in quantity, only used for LOT_SIZE types"
+          example: "0.00001"
+
+        minNotional:
+          type: string
+          description: "Minimum notional turnover, only for MIN_NOTIONAL types"
+          example: "10"
+
+        minAmount:
+          type: string
+          description: "Minimum turnover, only for TRADE_AMOUNT types"
+          example: "10"
+
+        maxAmount:
+          type: string
+          description: "Maximum turnover, only for TRADE_AMOUNT types"
+          example: "100000"
+
+        minBuyPrice:
+          type: string
+          description: "Minimum purchase price, only for TRADE_AMOUNT types"
+          example: "6000"
+
+        maxSellPrice:
+          type: string
+          description: "Limit maximum sell price, only for LIMIT_TRADING types"
+          example: "150000"
+
+        marketOrderMinAmount:
+          type: string
+          description: "Minimum cash notional required for Market order"
+          example: "10"
+
+        marketOrderMaxAmount:
+          type: string
+          description: "Minimum cash notional required for Market order"
+          example: "200000"
+
+        buyPriceUpRate:
+          type: string
+          description: "Limit Buy cannot be higher than the mark price, only for LIMIT_TRADING types"
+          example: "0.2"
+
+        sellPriceDownRate:
+          type: string
+          description: "Limit Sell cannot be lower than the mark price, only for LIMIT_TRADING type"
+          example: "0.2"
+
+        noAllowMarketStartTime:
+          type: string
+          description: "Market order start time is not allowed, only for OPEN_QUOTE types"
+          example: "1668483032058"
+
+        noAllowMarketEndTime:
+          type: string
+          description: "Market order end time is not allowed, only for OPEN_QUOTE types"
+          example: "1668483032058"
+
+        limitOrderStartTime:
+          type: string
+          description: "Time limit order start time, only for OPEN_QUOTE types"
+          example: "1668483032058"
+
+        limitOrderEndTime:
+          type: string
+          description: "Time limit order end time, only for OPEN_QUOTE types"
+          example: "1668483032058"
+
+        limitMinPrice:
+          type: string
+          description: "Lowest price for a limited time limit order, only for OPEN_QUOTE types"
+          example: "0.1"
+
+        limitMaxPrice:
+          type: string
+          description: "Limit order maximum price, only for OPEN_QUOTE types"
+          example: "1000"
+    SingleSymbol:
+       type: object
+       properties:
+        exchangeId:
+          type: string
+          description: "Exchange ID"
+          example: "301"
+
+        symbol:
+          type: string
+          description: "Currency pair"
+          example: "BTCUSD"
+
+        status:
+          type: string
+          enum:
+            - TRADING
+            - HALT
+            - BREAK
+          description: "Trading pair status"
+          example: "TRADING"
+
+        baseAsset:
+          type: string
+          description: "Base Asset"
+          example: "BTC"
+
+        baseAssetName:
+          type: string
+          description: "Name of base asset"
+          example: "BTC"
+
+        baseAssetPrecision:
+          type: string
+          description: "Precision of base asset"
+          example: "0.00001"
+
+        quoteAsset:
+          type: string
+          description: "Quoted Asset"
+          example: "USD"
+
+        quoteAssetName:
+          type: string
+          description: "Name of quoted asset"
+          example: "USD"
+
+        quotePrecision:
+          type: string
+          description: "Precision of quoted asset"
+          example: "0.00000001"
+
+        retailAllowed:
+          type: boolean
+          description: "Whether retail client is allowed"
+          example: false
+
+        piAllowed:
+          type: boolean
+          description: "Whether PI client is allowed"
+          example: false
+
+        corporateAllowed:
+          type: boolean
+          description: "Whether Corporate client is allowed"
+          example: false
+
+        omnibusAllowed:
+          type: boolean
+          description: "Whether Omnibus client is allowed"
+          example: true
+
+        icebergAllowed:
+          type: string
+          description: "Currently not in use"
+          example: "FALSE"
+
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/filter'
+    OrderBookResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp of the order
+        buyingDirection:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+          description: Buying direction details
+        bidPrice:
+          type: string
+          description: Bid price
+        bidQuantity:
+          type: string
+          description: Bid quantity
+        sellingDirection:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+          description: Selling direction details
+        askPrice:
+          type: string
+          description: Ask price
+        askQuantity:
+          type: string
+          description: Ask quantity
+    Trade:
+      type: object
+      properties:
+        t:
+          type: integer
+          format: int64
+          description: Timestamp of the trade
+        p:
+          type: string
+          description: Traded price
+        q:
+          type: string
+          description: Volume of the trade
+        ibm:
+          type: boolean
+          description: Whether it is a buyer's maker order
+    LatestTradesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/Trade'
+    KlineChart:
+      type: array
+      items:
+        $ref: '#/components/schemas/klineData'
+    klineData:
+      type: object
+      properties:
+        klineOpenTime:
+          type: integer
+          format: int64
+          description: Opening timestamp
+        openPrice:
+          type: string
+          description: Open Price
+        highPrice:
+          type: string
+          description: High Price
+        lowPrice:
+          type: string
+          description: Low Price
+        closePrice:
+          type: string
+          description: Close Price
+        volume:
+          type: string
+          description: Trading volume
+        klineCloseTime:
+          type: string
+          description: Closing timestamp
+        quoteAssetVolume:
+          type: string
+          description: Quote Asset Volume
+        numberOfTrades:
+          type: integer
+          description: Number of Trades
+        takerBuyBaseAssetVolume:
+          type: string
+          description: Taker buy base asset volume
+        takerBuyQuoteAssetVolume:
+          type: string
+          description: Taker buy quote asset volume
+    tickerResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/ticker'
+    ticker:
+      type: object
+      properties:
+        t:
+          type: integer
+          format: int64
+          description: Millisecond timestamp
+        s:
+          type: string
+          description: Symbol (e.g., BTCUSD)
+        c:
+          type: string
+          description: Latest traded price
+        h:
+          type: string
+          description: Highest price
+        l:
+          type: string
+          description: Lowest price
+        o:
+          type: string
+          description: Opening price
+        b:
+          type: string
+          description: Highest bid price
+        a:
+          type: string
+          description: Highest selling price
+        v:
+          type: string
+          description: Total trade volume (in base asset)
+        qv:
+          type: string
+          description: Total trade volume (in quote asset)
+    tickerPriceResponse:
+      type: array
+      items:
+        type: object
+        properties:
+          symbol:
+            type: string
+            description: Symbol (e.g., BTCUSD)
+          price:
+            type: string
+            description: Latest traded price
+    OrderBook:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Symbol (e.g., BTCUSD)
+        bidPrice:
+          type: string
+          description: Top of book Bid Price
+        bidQuantity:
+          type: string
+          description: Top of book Bid Quantity
+        askPrice:
+          type: string
+          description: Top of book Ask Price
+        askQuantity:
+          type: string
+          description: Top of book Ask Quantity
+        timestamp:
+          type: integer
+          format: int64
+          description: Timestamp
+    OrderBookList:
+      type: array
+      items:
+        $ref: '#/components/schemas/OrderBook'
+    MarketDepth:
+      type: object
+      properties:
+        t:
+          type: integer
+          format: int64
+          description: Timestamp
+        b:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+          description: Buying direction details
+        bidPrice:
+          type: string
+          description: Bid price
+        bidQuantity:
+          type: string
+          description: Bid quantity
+        sellingDirection:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+          description: Selling direction details
+        a:
+          type: string
+          description: Ask price
+        askQuantity:
+          type: string
+          description: Ask quantity
+    PingMessage:
+      type: object
+      properties:
+        ping:
+          type: integer
+          example: 1691473241907
+    PongMessage:
+      type: object
+      properties:
+        pong:
+          type: integer
+          example: 1691473283965
+    kline_interval:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: BTCUSDT
+        topic:
+          type: string
+          example: kline_1m
+        event:
+          type: string
+          example: sub
+        params:
+          type: object
+          properties:
+            binary:
+              type: boolean
+              example: false
+        id:
+          type: integer
+          example: 1
+    kline_interval_response:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: BTCUSDT
+        symbolName:
+          type: string
+          example: BTCUSDT
+        topic:
+          type: string
+          example: kline
+        params:
+          type: object
+          properties:
+            realtimeInterval:
+              type: string
+              example: 24h
+            klineType:
+              type: string
+              example: 1m
+            binary:
+              type: boolean
+              example: false
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              t:
+                type: integer
+                format: int64
+                example: 1688199660000
+              s:
+                type: string
+                example: BTCUSDT
+              sn:
+                type: string
+                example: BTCUSDT
+              c:
+                type: string
+                example: 10002
+              h:
+                type: string
+                example: 10002
+              l:
+                type: string
+                example: 10002
+              o:
+                type: string
+                example: 10002
+              v:
+                type: string
+                example: 0
+        f:
+          type: boolean
+          example: true
+        sendTime:
+          type: integer
+          format: int64
+          example: 1688199705619
+        shared:
+          type: boolean
+          example: false
+        id:
+          type: string
+          example: 1
+    realtimeRequest:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Currency pair symbol
+        topic:
+          type: string
+          description: Topic to subscribe to (e.g., realtimes)
+        event:
+          type: string
+          description: Event type (e.g., sub)
+        params:
+          type: object
+          properties:
+            realtimeInterval:
+              type: string
+              description: Realtime interval
+            binary:
+              type: boolean
+              description: Whether to receive data in binary format
+        id:
+          type: integer
+          description: Unique identifier for the subscription
+    realtimeResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Currency pair symbol
+        symbolName:
+          type: string
+          description: Currency pair symbol name
+        topic:
+          type: string
+          description: Topic to subscribe to (e.g., realtimes)
+        params:
+          type: object
+          properties:
+            realtimeInterval:
+              type: string
+              description: Realtime interval
+            binary:
+              type: boolean
+              description: Whether to receive data in binary format
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              t:
+                type: integer
+                format: int64
+                description: Event Time
+              s:
+                type: string
+                description: Symbol
+              sn:
+                type: string
+                description: Symbol Name
+              c:
+                type: string
+                description: Close Price
+              h:
+                type: string
+                description: High Price
+              l:
+                type: string
+                description: Low Price
+              o:
+                type: string
+                description: Open Price
+              v:
+                type: string
+                description: Total traded base asset volume
+              qv:
+                type: string
+                description: Total traded quote asset volume
+              m:
+                type: string
+                description: 24H Range
+              e:
+                type: integer
+                description: Trade Id
+        f:
+          type: boolean
+          description: Is it the first return
+        sendTime:
+          type: integer
+          format: int64
+          description: Send time
+        shared:
+          type: boolean
+          description: Shared flag
+        id:
+          type: string
+          description: Unique identifier
+    tradeRequest:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Currency pair symbol
+        topic:
+          type: string
+          description: Topic to subscribe to (e.g., trade)
+        event:
+          type: string
+          description: Event type (e.g., sub)
+        params:
+          type: object
+          properties:
+            binary:
+              type: boolean
+              description: Whether to receive data in binary format
+        id:
+          type: integer
+          description: Unique identifier for the subscription
+    tradeResponse:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Currency pair symbol
+        symbolName:
+          type: string
+          description: Currency pair symbol name
+        topic:
+          type: string
+          description: Topic to subscribe to (e.g., trade)
+        params:
+          type: object
+          properties:
+            realtimeInterval:
+              type: string
+              description: Realtime interval
+            binary:
+              type: boolean
+              description: Whether to receive data in binary format
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              v:
+                type: string
+                description: Transaction ID
+              t:
+                type: integer
+                format: int64
+                description: Time
+              p:
+                type: string
+                description: Price
+              q:
+                type: string
+                description: Quantity
+              m:
+                type: boolean
+                description: Buy or sell flag (true = buy, false = sell)
+        f:
+          type: boolean
+          description: Is it the first return
+        sendTime:
+          type: integer
+          format: int64
+          description: Send time
+        shared:
+          type: boolean
+          description: Shared flag
+        id:
+          type: string
+          description: Unique identifier
+    accountUpdateResponse:
+      type: object
+      properties:
+        e:
+          type: string
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          description: Event time
+        T:
+          type: boolean
+          description: Can trade
+        W:
+          type: boolean
+          description: Can withdraw
+        D:
+          type: boolean
+          description: Can deposit
+        B:
+          type: array
+          items:
+            type: object
+            properties:
+              a:
+                type: string
+                description: Asset
+              f:
+                type: string
+                description: Free amount
+              l:
+                type: string
+                description: Locked amount
+    orderUpdateResponse:
+      type: object
+      properties:
+        e:
+          type: string
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          description: Event time
+        s:
+          type: string
+          description: Symbol
+        c:
+          type: integer
+          description: Client order ID
+        S:
+          type: string
+          description: Side (BUY or SELL)
+        o:
+          type: string
+          description: Order type
+        f:
+          type: string
+          description: Time in force
+        q:
+          type: string
+          description: Order quantity
+        p:
+          type: string
+          description: Order price
+        reqAmt:
+          type: string
+          description: Requested cash amount
+        X:
+          type: string
+          description: Current order status
+        d:
+          type: string
+          description: Execution ID
+        i:
+          type: integer
+          description: Order ID
+        l:
+          type: string
+          description: Last executed quantity
+        r:
+          type: integer
+          description: Unfilled quantity
+        z:
+          type: string
+          description: Cumulative filled quantity
+        L:
+          type: string
+          description: Last executed price
+        V:
+          type: string
+          description: Average executed price
+        n:
+          type: string
+          description: Commission amount
+        N:
+          type: string
+          description: Commission asset
+        u:
+          type: boolean
+          description: Is the trade normal
+        w:
+          type: boolean
+          description: Is the order working?
+        m:
+          type: boolean
+          description: Is this trade the maker side?
+        O:
+          type: integer
+          format: int64
+          description: Order creation time
+        Z:
+          type: string
+          description: Cumulative quote asset transacted quantity
+        x:
+          type: string
+          description: Order cancel reject reason
+    ticketPushResponse:
+      type: object
+      properties:
+        e:
+          type: string
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          description: Event time
+        s:
+          type: string
+          description: Symbol
+        q:
+          type: string
+          description: Quantity
+        t:
+          type: integer
+          format: int64
+          description: Time
+        p:
+          type: string
+          description: Price
+        T:
+          type: string
+          description: Ticket ID
+        o:
+          type: string
+          description: Order ID
+        c:
+          type: integer
+          description: Client order ID
+        O:
+          type: string
+          description: Match order ID
+        a:
+          type: string
+          description: Account ID
+        A:
+          type: integer
+          description: Ignore
+        m:
+          type: boolean
+          description: Is maker
+        S:
+          type: string
+          description: Side (SELL or BUY)
+  
