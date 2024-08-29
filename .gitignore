@@ -1,3 +1,4 @@
 .DS_Store
 openapitools.json
 # **/.openapi-generator/*
+/target/debug

@@ -223,7 +223,8 @@ async def main():
                                                   cli_input.output_directory, output_language)
                     output_dir.mkdir(parents=True, exist_ok=True)
                     # TODO make this programmable as well
-                    source_file = Path("./config/.openapi-generator-ignore")
+                    source_file = Path(
+                        "./script/config/.openapi-generator-ignore")
                     target_file = output_dir / source_file.name
                     shutil.copy(source_file, target_file)
 

@@ -1,0 +1,10 @@
+[package]
+name = "exchange-collection"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+src = "lib.rs"
+
+[dependencies]
+exchange-collection-binance = { path = "binance", version = "0.1.0" }
