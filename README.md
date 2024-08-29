@@ -1,4 +1,6 @@
-# exchange_yaml: list of crypto exchange API doc in OpenAPI/AsyncAPI
+# exchange-collection
+> Crypto Exchange OpenAPI and Generated Models
+
 [![doc](https://img.shields.io/badge/doc-rapidoc-blue)](https://repoch.co/exchange_yaml)
 [![license](https://img.shields.io/github/license/kanekoshoyu/kucoin_arbitrage)](https://github.com/kanekoshoyu/kucoin_arbitrage/blob/master/LICENSE)
 [![ci](https://img.shields.io/github/actions/workflow/status/kanekoshoyu/kucoin_arbitrage/rust.yml)](https://github.com/kanekoshoyu/kucoin_arbitrage/actions)
@@ -84,13 +86,13 @@ asyncapi generate fromTemplate example_asyncapi.yml @asyncapi/python-paho-templa
 - [ ] gather assets
   - [x] gather 3+ exchanges in both OpenAPI
   - [ ] gather 3+ exchanges in both AsyncAPI
-- [x] set up codegen CI for unopinionated models
+- [x] set up CI for codegen models
   - [x] verify if the unopinionated models can be generated on python/rust
-  - [ ] package unopinionated model another repo per language
+  - [x] package unopinionated model another repo per language
   - [ ] make it available in pip and crate.io
-- [ ] set up minimally opinionated trading library
-  - [ ] define minimally opinionated trading trait or interface
-  - [ ] verify if opinionated traits could be implemented on top of the generated model
+- [x] set up unopinionated trading library
+  - [x] define trading traits
+  - [ ] implement traits on top of the codegen model
   - [ ] package models with opinionated trait per language
 
 ## notes
