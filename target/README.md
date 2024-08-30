@@ -1,3 +1,3 @@
-# `exchange-collection` package
-- rust
+# [exchange-collection](../README.md) package
+- [rust](./rust/README.md)
 - python

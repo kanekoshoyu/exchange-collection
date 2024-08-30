@@ -1,4 +1,5 @@
 .DS_Store
 openapitools.json
 # **/.openapi-generator/*
-/target/debug
+target/debug
+target/.rustc_info.json
