@@ -8,3 +8,5 @@ src = "lib.rs"
 
 [dependencies]
 exchange-collection-binance = { path = "binance", version = "0.1.0" }
+exchange-collection-hyperliquid = { path = "coinbase", version = "0.1.0" }
+exchange-collection-coinbase = { path = "coincase", version = "0.1.0" }

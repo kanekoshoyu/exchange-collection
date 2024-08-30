@@ -35,20 +35,20 @@ I propose a more streamlined integration of exchange API with a new approach to 
 (effort: N * L * S)
 
 ## structure
-| location   | feature                                                                         |
-| ---------- | ------------------------------------------------------------------------------- |
-| [asset](./asset/)      | OpenAPI and AsyncAPI YAML                                                       |
-| script     | codegen script in python, since CI installing rust every run is :shit:          |
-| [target](./target/README.md)     | generated code in python and rust                                               |
-| [index.html](./index.html) | Rapidoc OpenAPI YAML viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
+| location                     | feature                                                                         |
+| ---------------------------- | ------------------------------------------------------------------------------- |
+| [asset](./asset/)            | OpenAPI and AsyncAPI YAML                                                       |
+| script                       | codegen script in python, since CI installing rust every run is :shit:          |
+| [target](./target/README.md) | generated code in python and rust                                               |
+| [index.html](./index.html)   | Rapidoc OpenAPI YAML viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
 
 ## guidelines
 1. OpenAPI: YAML, v3.0.1 (convert swagger to OpenAPI [here](https://editor.swagger.io/))
 2. AsyncAPI: YAML, v2 (codegen does not work well with v3 apparently)
-3. place YAML in follow the naming convention of `{exchange}_{asyncapi/openapi}.yaml`
+3. place YAML in follow the naming convention of `{exchange}_{rest/ws}_{openapi/asyncapi}.yaml`
 4. codegen scripting in python (for easier GitHub CI)
 5. official codegen support: rust, python
-4. unofficial support: typescript, csharp, golang, java, dart, kotlin, php, cplusplus, scala
+6. unofficial support: typescript, csharp, golang, java, dart, kotlin, php, cplusplus, scala
 
 ## codegen commands
 ### initial set up
@@ -79,21 +79,23 @@ asyncapi generate fromTemplate example_asyncapi.yml @asyncapi/python-paho-templa
 
 ## current status
 To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I will set up a codegen that generates the rust exchange lib for python and crate for rust.
-| Exchange    | Custody | OpenAPI YAML | AsyncAPI YAML |
-| ----------- | ------- | ------------ | ------------- |
-| hyperliquid | no      | done         | planned       |
-| binance     | yes     | done         | WIP           |
-| coinbase    | yes     | done         | planned       |
-| hashkey     | yes     | done         | planned       |
-| bitwyre     | no      | planned      | planned       |
-| dydx        | no      | planned      | planned       |
-| gmx         | no      | planned      | planned       |
-| bybit       | yes     | planned      | planned       |
-| kucoin      | yes     | planned      | planned       |
-| okx         | yes     | planned      | planned       |
+| Exchange    | Custody | REST (OpenAPI) | WS (AsyncAPI) |
+| ----------- | ------- | -------------- | ------------- |
+| hyperliquid | no      | done           | planned       |
+| binance     | yes     | done           | WIP           |
+| coinbase    | yes     | done           | planned       |
+| hashkey     | yes     | done           | planned       |
+| bitwyre     | no      | planned        | planned       |
+| dydx        | no      | planned        | planned       |
+| gmx         | no      | planned        | planned       |
+| bybit       | yes     | planned        | planned       |
+| kucoin      | yes     | planned        | planned       |
+| okx         | yes     | planned        | planned       |
+
+I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix/) due to limited number of supported exchanges. But it is definitely an interesting one to try in the future.
 
 
-## todo
+## TODO
 - [ ] gather assets
   - [x] gather 3 exchanges in OpenAPI
   - [ ] gather 3 exchanges in AsyncAPI
