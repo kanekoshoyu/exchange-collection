@@ -8,13 +8,17 @@ use strum_macros::{Display, EnumIter, EnumString};
 
 #[derive(Parser, Debug)]
 struct CliInput {
-    #[arg(short, long)]
+    #[arg(long)]
     /// Some when batch
     input_directory: Option<PathBuf>,
     /// None when batch, Some when we convert one file only
+    #[arg(long)]
     input_filename: Option<PathBuf>,
-    output_directory: Option<PathBuf>,
     // None when batch, Some when select one
+    #[arg(long)]
+    output_directory: Option<PathBuf>,
+    // Empty when all all languages are in target
+    #[arg(long)]
     output_language: Vec<ProgrammingLanguage>,
 }
 impl Default for CliInput {
@@ -235,10 +239,7 @@ fn codegen_command(
     let sub_path = PathBuf::from_str(&sub_path_str).map_err(|_| ())?;
     // append subpath into the output_directory
     let mut output_directory = output_directory.as_ref().to_path_buf();
-    println!("subpath: {}", sub_path.display());
-    println!("output_directory: {}", output_directory.display());
     output_directory.push(sub_path);
-    println!("output_directory: {}", output_directory.display());
 
     let output_directory = Path::new(&output_directory);
     // let output_directory = output_directory.canonicalize().unwrap();
@@ -267,17 +268,17 @@ fn codegen_command(
 
 pub fn main() {
     match run() {
-        Ok(_) => todo!(),
+        Ok(_) => println!("success"),
         Err(e) => println!("error detected, {e:?}"),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::{path::PathBuf, str::FromStr};
+    use std::{ffi::OsStr, path::PathBuf, str::FromStr};
 
     #[test]
-    fn test_codegen_command_str() {
+    fn test_codegen_command() {
         use super::*;
         let input_filename = PathBuf::from_str("../asset/binance_ws_asyncapi.yaml").unwrap();
         let output_directory = PathBuf::from_str("target").unwrap();
@@ -286,10 +287,20 @@ mod tests {
             Ok(command) => command,
             Err(e) => panic!("{e:?}"),
         };
+        // TODO come up with a way to compare the command
+        let args: Vec<&OsStr> = command.get_args().collect();
+        let program = command.get_program();
+        assert_eq!(program, "asyncapi");
         assert_eq!(
-            command,
-            "asyncapi generate models rust ../asset/binance_ws_asyncapi.yaml -o target/rust/binance/src/ws"
-        )
+            args,
+            [
+                "generate models",
+                "rust",
+                "-i ../asset/binance_ws_asyncapi.yaml",
+                "-o target/rust/binance/src/ws"
+            ]
+            .to_vec()
+        );
     }
 
     #[test]
