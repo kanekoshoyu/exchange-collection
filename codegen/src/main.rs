@@ -126,19 +126,19 @@ impl InputFileParameter {
     pub fn from_filename(filename: impl AsRef<Path>) -> Result<Self, ()> {
         let filename = filename.as_ref();
         if !filename.is_file() {
-            return Err(());
-        }
-        // "assets/binance_ws_asyncapi.yaml"
-        if !filename.ends_with(".yaml") {
-            println!("invalid format");
+            println!("file does not exist");
             return Err(());
         }
 
         // "binance_ws_asyncapi.yaml"
         let filename = filename.file_name().unwrap();
+        let filename = filename.to_str().unwrap();
 
         // "binance_ws_asyncapi"
-        let rest = format!("{:?}", filename).replace(".yaml", "");
+        if !filename.contains(".yaml") {
+            return Err(());
+        }
+        let rest = format!("{}", filename).replace(".yaml", "");
 
         // "binance", "ws", "asyncapi"
         let str_vec: Vec<&str> = rest.split("_").collect();
@@ -148,8 +148,6 @@ impl InputFileParameter {
             return Err(());
         }
 
-        println!("str_vec: {:?}", str_vec);
-
         // Ok(InputFileParameter {
         //     exchange: str_vec[0].to_string(),
         //     protocol: str_vec[1].parse::<Protocol>().map_err(|_e| ())?,
@@ -157,8 +155,8 @@ impl InputFileParameter {
         // })
         Ok(InputFileParameter {
             exchange: str_vec[0].to_string(),
-            protocol: str_vec[1].parse::<Protocol>().map_err(|_e| ())?,
-            format: str_vec[2].parse::<ApiFileFormat>().map_err(|_e| ())?,
+            protocol: Protocol::from_str(str_vec[1]).map_err(|_| ())?,
+            format: ApiFileFormat::from_str(str_vec[2]).map_err(|_| ())?,
         })
     }
 }
@@ -212,44 +210,47 @@ fn run() -> Result<(), ()> {
     Ok(())
 }
 
+/// openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
+/// asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
 fn codegen_command_str(
-    input_filename: PathBuf,
-    output_directory: PathBuf,
+    input_filename: impl AsRef<Path>,
+    output_directory: impl AsRef<Path>,
     language: ProgrammingLanguage,
 ) -> Result<String, ()> {
-    // openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
-    // asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
     let param = InputFileParameter::from_filename(&input_filename)?;
     let exchange = param.exchange;
     let protocol = param.protocol;
     let format = param.format;
-    let output_directory = match language {
-        ProgrammingLanguage::Rust => format!(
-            "{}/{}/{}/src/{}",
-            output_directory.display(),
-            language,
-            exchange,
-            protocol
-        ),
-        ProgrammingLanguage::Python => format!(
-            "{}/{}/{}/{}",
-            output_directory.display(),
-            language,
-            exchange,
-            protocol
-        ),
+
+    // define subpath under output_directory to output
+    let sub_path_str = match language {
+        ProgrammingLanguage::Rust => format!("{}/{}/src/{}", language, exchange, protocol),
+        ProgrammingLanguage::Python => format!("{}/{}/{}", language, exchange, protocol),
     };
+    let sub_path = PathBuf::from_str(&sub_path_str).map_err(|_| ())?;
+    // append subpath into the output_directory
+    let mut output_directory = output_directory.as_ref().to_path_buf();
+    println!("subpath: {}", sub_path.display());
+    println!("output_directory: {}", output_directory.display());
+    output_directory.push(sub_path);
+    println!("output_directory: {}", output_directory.display());
+
     let output_directory = Path::new(&output_directory);
+    // let output_directory = output_directory.canonicalize().unwrap();
+
+    // output
+    let input_filename = input_filename.as_ref();
     Ok(match format {
         ApiFileFormat::OpenApi => format!(
             "openapi-generator-cli generate -g {language} -i {} -o {}",
             input_filename.display(),
+            // input_filename.canonicalize().unwrap().display(),
             output_directory.display()
         ),
-
         ApiFileFormat::AsyncApi => format!(
             "asyncapi generate models {language} {} -o {}",
             input_filename.display(),
+            // input_filename.canonicalize().unwrap().display(),
             output_directory.display()
         ),
     })
@@ -269,8 +270,8 @@ mod tests {
     #[test]
     fn test_codegen_command_str() {
         use super::*;
-        let input_filename = PathBuf::from_str("binance_ws_asyncapi.yaml").unwrap();
-        let output_directory = PathBuf::from_str("./").unwrap();
+        let input_filename = PathBuf::from_str("../asset/binance_ws_asyncapi.yaml").unwrap();
+        let output_directory = PathBuf::from_str("target").unwrap();
         let output_language = ProgrammingLanguage::Rust;
         let command = match codegen_command_str(input_filename, output_directory, output_language) {
             Ok(command) => command,
@@ -278,7 +279,7 @@ mod tests {
         };
         assert_eq!(
             command,
-            "asyncapi generate models rust binance_ws_asyncapi.yaml -o ./rust/binance/src/ws"
+            "asyncapi generate models rust ../asset/binance_ws_asyncapi.yaml -o target/rust/binance/src/ws"
         )
     }
 
@@ -317,5 +318,14 @@ mod tests {
         let path = PathBuf::from_str(str_path).unwrap();
         let canonical = path.canonicalize().unwrap();
         assert!(canonical.is_file());
+    }
+
+    #[test]
+    fn test_format() {
+        let str_path = "../asset/binance_ws_asyncapi.yaml";
+        assert!(str_path.ends_with(".yaml"));
+        // pathbuf we cannot use ends_with
+        // let str_path = PathBuf::from(str_path);
+        // assert!(!str_path.ends_with(".yaml"));
     }
 }
