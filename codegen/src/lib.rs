@@ -1,5 +1,6 @@
 use clap::Parser;
 use serde::{Deserialize, Deserializer, Serialize};
+use std::fmt::Display;
 use std::ops::Add;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
@@ -183,6 +184,11 @@ impl<'de> Deserialize<'de> for Version {
         }
 
         deserializer.deserialize_str(VersionVisitor)
+    }
+}
+impl Display for Version {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }
 

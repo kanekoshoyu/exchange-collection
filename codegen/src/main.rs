@@ -27,7 +27,7 @@ fn run() -> Result<(), ()> {
             let output_directory = cli.output_directory.unwrap();
             for input_filename in filenames {
                 for output_language in cli.output_language.clone() {
-                    codegen(
+                    codegen_module(
                         input_filename.clone(),
                         output_directory.clone(),
                         output_language,
@@ -40,7 +40,7 @@ fn run() -> Result<(), ()> {
             println!("single load");
             let output_directory = cli.output_directory.unwrap();
             for output_language in cli.output_language.clone() {
-                codegen(
+                codegen_module(
                     input_filename.clone(),
                     output_directory.clone(),
                     output_language,
@@ -50,7 +50,8 @@ fn run() -> Result<(), ()> {
         _ => unreachable!(),
     }
 
-    // post-generate
+    // post-codegen, i.e. package level things like version of a module and package
+    
     Ok(())
 }
 
@@ -75,6 +76,7 @@ fn codegen_output_directory(
 
     PathBuf::from(&output_directory)
 }
+
 /// openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
 /// asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
 fn codegen_command(
@@ -109,15 +111,17 @@ fn codegen_command(
     })
 }
 
-fn codegen(
-    input_filename: impl AsRef<Path> + Clone,
-    output_directory: impl AsRef<Path>,
+/// codegen for single module, e.g. Binance WS
+fn codegen_module(
+    input_filename: impl AsRef<Path>,
+    output_directory_base: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
 ) -> Result<(), ()> {
+    let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let output_directory =
-        codegen_output_directory(input_filename.clone(), output_directory, output_language);
+        codegen_output_directory(&input_filename, &output_directory_base, output_language);
 
-    // precodegen
+    // pre-codegen (any thing that codegen requires)
     {
         // create dir
         if let Err(e) = std::fs::create_dir_all(&output_directory) {
@@ -134,7 +138,7 @@ fn codegen(
 
     // codegen
     {
-        let mut command = codegen_command(input_filename, output_directory, output_language)?;
+        let mut command = codegen_command(input_filename, &output_directory, output_language)?;
         println!("{:?}", command);
         match command.output() {
             Ok(o) => println!("codegen success\n{o:?}"),
@@ -142,12 +146,30 @@ fn codegen(
         }
     }
 
-    // post_codegen
+    // post-codegen (anything that wraps the codegen material as package)
     {
         // add package info
         match output_language {
             ProgrammingLanguage::Rust => {
-                todo!("add mod.rs and Cargo.toml based on the version")
+                // todo!("add mod.rs and Cargo.toml based on the version");
+                let cargo_toml = output_directory.join(PathBuf::from_str("Cargo.toml").unwrap());
+                let contents = format!(
+                    r#"
+                [package]
+                name = "exchange-collection-{}"
+                version = "{}"
+                edition = "2021"
+
+                [lib]
+                "#,
+                    param.exchange, param.version
+                );
+                std::fs::write(cargo_toml, contents).map_err(|_| ())?;
+
+                let lib_rs = output_directory.join(PathBuf::from_str("lib.rs").unwrap());
+                let contents = format!("pub use {};", param.protocol);
+                std::fs::write(lib_rs, contents).map_err(|_| ())?;
+                // anything other than the single codegen should go to overall_codegen
             }
             ProgrammingLanguage::Python => {}
         }
