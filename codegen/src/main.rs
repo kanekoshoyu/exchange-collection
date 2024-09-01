@@ -1,10 +1,8 @@
-use std::{
-    path::{Path, PathBuf},
-    str::FromStr,
-};
-
 use clap::Parser;
 use serde::{Deserialize, Serialize};
+use std::path::{Path, PathBuf};
+use std::process::Command;
+use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
@@ -35,7 +33,9 @@ impl CliInput {
     pub fn load() -> Result<Self, ()> {
         let default = CliInput::default();
         let mut input: CliInput = CliInput::parse();
-        // default set to all
+        if input.output_directory.is_none() {
+            input.output_directory = default.output_directory;
+        }
         if input.output_language.is_empty() {
             input.output_language = default.output_language;
         }
@@ -169,6 +169,7 @@ fn run() -> Result<(), ()> {
     match (cli.input_filename, cli.input_directory) {
         (None, Some(input_dir)) => {
             // batch load from input_dir
+            println!("batch load");
 
             let files = std::fs::read_dir(input_dir.clone()).unwrap();
             // gather all filenames
@@ -183,21 +184,25 @@ fn run() -> Result<(), ()> {
             let output_directory = cli.output_directory.unwrap();
             for input_filename in filenames {
                 for output_language in cli.output_language.clone() {
-                    let command = codegen_command_str(
+                    let mut command = codegen_command(
                         input_filename.clone(),
                         output_directory.clone(),
                         output_language,
-                    );
+                    )?;
                     println!("{:?}", command);
+                    match command.output() {
+                        Ok(o) => println!("codegen success\n{o:?}"),
+                        Err(e) => println!("codegen fail, {e}"),
+                    }
                 }
             }
         }
         (Some(input_filename), None) => {
             // single load
-
+            println!("single load");
             let output_directory = cli.output_directory.unwrap();
             for output_language in cli.output_language.clone() {
-                let command = codegen_command_str(
+                let command = codegen_command(
                     input_filename.clone(),
                     output_directory.clone(),
                     output_language,
@@ -212,11 +217,11 @@ fn run() -> Result<(), ()> {
 
 /// openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
 /// asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
-fn codegen_command_str(
+fn codegen_command(
     input_filename: impl AsRef<Path>,
     output_directory: impl AsRef<Path>,
     language: ProgrammingLanguage,
-) -> Result<String, ()> {
+) -> Result<Command, ()> {
     let param = InputFileParameter::from_filename(&input_filename)?;
     let exchange = param.exchange;
     let protocol = param.protocol;
@@ -241,18 +246,22 @@ fn codegen_command_str(
     // output
     let input_filename = input_filename.as_ref();
     Ok(match format {
-        ApiFileFormat::OpenApi => format!(
-            "openapi-generator-cli generate -g {language} -i {} -o {}",
-            input_filename.display(),
-            // input_filename.canonicalize().unwrap().display(),
-            output_directory.display()
-        ),
-        ApiFileFormat::AsyncApi => format!(
-            "asyncapi generate models {language} {} -o {}",
-            input_filename.display(),
-            // input_filename.canonicalize().unwrap().display(),
-            output_directory.display()
-        ),
+        ApiFileFormat::OpenApi => {
+            let mut cmd = Command::new("openapi-generator-cli");
+            cmd.arg("generate");
+            cmd.arg(format!("-g {}", language));
+            cmd.arg(format!("-i {}", input_filename.display()));
+            cmd.arg(format!("-o {}", output_directory.display()));
+            cmd
+        }
+        ApiFileFormat::AsyncApi => {
+            let mut cmd = Command::new("asyncapi");
+            cmd.arg("generate models");
+            cmd.arg(format!("{}", language));
+            cmd.arg(format!("-i {}", input_filename.display()));
+            cmd.arg(format!("-o {}", output_directory.display()));
+            cmd
+        }
     })
 }
 
@@ -273,7 +282,7 @@ mod tests {
         let input_filename = PathBuf::from_str("../asset/binance_ws_asyncapi.yaml").unwrap();
         let output_directory = PathBuf::from_str("target").unwrap();
         let output_language = ProgrammingLanguage::Rust;
-        let command = match codegen_command_str(input_filename, output_directory, output_language) {
+        let command = match codegen_command(input_filename, output_directory, output_language) {
             Ok(command) => command,
             Err(e) => panic!("{e:?}"),
         };
