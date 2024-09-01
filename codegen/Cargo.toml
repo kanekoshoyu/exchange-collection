@@ -3,6 +3,8 @@ name = "exchange-collection-codegen"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+
 [dependencies]
 clap.workspace = true
 serde.workspace = true

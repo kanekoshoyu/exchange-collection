@@ -1,256 +1,17 @@
-use clap::Parser;
-use serde::{Deserialize, Deserializer, Serialize};
-use std::ops::Add;
+use exchange_collection_codegen::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
-use strum::IntoEnumIterator;
-use strum_macros::{Display, EnumIter, EnumString};
-
-#[derive(Deserialize, Debug, Clone)]
-struct AsyncApiInfo {
-    #[serde(rename = "asyncapi")]
-    version: Version,
-}
-#[derive(Deserialize, Debug, Clone)]
-struct OpenApiInfo {
-    #[serde(rename = "openapi")]
-    version: Version,
-}
-
-#[derive(Parser, Debug)]
-struct CliInput {
-    #[arg(long)]
-    /// Some when batch
-    input_directory: Option<PathBuf>,
-    /// None when batch, Some when we convert one file only
-    #[arg(long)]
-    input_filename: Option<PathBuf>,
-    // None when batch, Some when select one
-    #[arg(long)]
-    output_directory: Option<PathBuf>,
-    // Empty when all all languages are in target
-    #[arg(long)]
-    output_language: Vec<ProgrammingLanguage>,
-}
-impl Default for CliInput {
-    fn default() -> Self {
-        Self {
-            input_directory: Some(PathBuf::from_str("asset").unwrap()),
-            input_filename: None,
-            output_directory: Some(PathBuf::from_str("target").unwrap()),
-            output_language: ProgrammingLanguage::iter().collect(),
-        }
-    }
-}
-
-impl CliInput {
-    /// gives the legal input
-    pub fn load() -> Result<Self, ()> {
-        let default = CliInput::default();
-        let mut input: CliInput = CliInput::parse();
-        if input.output_directory.is_none() {
-            input.output_directory = default.output_directory;
-        }
-        if input.output_language.is_empty() {
-            input.output_language = default.output_language;
-        }
-        match (&input.input_filename, &input.input_directory) {
-            (None, None) => {
-                input.input_directory = default.input_directory;
-            }
-            (Some(_), Some(_)) => return Err(()),
-            _ => {}
-        }
-
-        Ok(input)
-    }
-}
-
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Display,
-    Deserialize,
-    Serialize,
-    EnumIter,
-    EnumString,
-    PartialEq,
-    PartialOrd,
-    Eq,
-    Ord,
-)]
-enum ProgrammingLanguage {
-    #[strum(serialize = "rust")]
-    Rust,
-    #[strum(serialize = "python")]
-    Python,
-}
-
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Display,
-    Deserialize,
-    Serialize,
-    EnumIter,
-    EnumString,
-    PartialEq,
-    PartialOrd,
-    Eq,
-    Ord,
-)]
-enum ApiFileFormat {
-    #[strum(serialize = "openapi")]
-    OpenApi,
-    #[strum(serialize = "asyncapi")]
-    AsyncApi,
-}
-
-#[derive(
-    Clone,
-    Copy,
-    Debug,
-    Display,
-    Deserialize,
-    Serialize,
-    EnumIter,
-    EnumString,
-    PartialEq,
-    PartialOrd,
-    Eq,
-    Ord,
-)]
-enum Protocol {
-    #[strum(serialize = "rest")]
-    Rest,
-    #[strum(serialize = "ws")]
-    Ws,
-    #[strum(serialize = "fix")]
-    Fix,
-}
-
-#[derive(Clone, Copy, Debug, Serialize)]
-struct Version {
-    major: usize,
-    minor: usize,
-    patch: usize,
-}
-impl Add for Version {
-    type Output = Version;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        Version {
-            major: self.major + rhs.major,
-            minor: self.minor + rhs.minor,
-            patch: self.patch + rhs.patch,
-        }
-    }
-}
-impl<'de> Deserialize<'de> for Version {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        struct VersionVisitor;
-
-        impl<'de> serde::de::Visitor<'de> for VersionVisitor {
-            type Value = Version;
-
-            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("a string representing a Rust type, like Vec<i64>")
-            }
-
-            fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<Version, E> {
-                let values: Vec<&str> = value.split(".").collect();
-                let error = serde::de::Error::custom("failed parsing");
-                if values.len() != 3 {
-                    return Err(error);
-                }
-                Ok(Version {
-                    major: values[0]
-                        .parse::<usize>()
-                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
-                    minor: values[0]
-                        .parse::<usize>()
-                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
-                    patch: values[0]
-                        .parse::<usize>()
-                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
-                })
-            }
-        }
-
-        deserializer.deserialize_str(VersionVisitor)
-    }
-}
-
-struct InputFileParameter {
-    /// we keep adding exchanges, no enum
-    exchange: String,
-    protocol: Protocol,
-    format: ApiFileFormat,
-    version: Version,
-}
-impl InputFileParameter {
-    pub fn from_filename(filename: impl AsRef<Path>) -> Result<Self, ()> {
-        let filename = filename.as_ref();
-        if !filename.is_file() {
-            println!("file does not exist");
-            return Err(());
-        }
-
-        // "binance_ws_asyncapi.yaml"
-        let filename = filename.file_name().unwrap();
-        let filename = filename.to_str().unwrap();
-
-        // "binance_ws_asyncapi"
-        if !filename.contains(".yaml") {
-            return Err(());
-        }
-        let rest = filename.to_string().replace(".yaml", "");
-
-        // "binance", "ws", "asyncapi"
-        let str_vec: Vec<&str> = rest.split("_").collect();
-
-        if str_vec.len() != 3 {
-            println!("invalid format");
-            return Err(());
-        }
-        let exchange = str_vec[0].to_string();
-        let protocol = Protocol::from_str(str_vec[1]).map_err(|_| ())?;
-        let format = ApiFileFormat::from_str(str_vec[2]).map_err(|_| ())?;
-
-        let file_content = std::fs::read_to_string(filename).expect("Failed to read YAML file");
-        let version = match format {
-            ApiFileFormat::OpenApi => {
-                let info: OpenApiInfo =
-                    serde_yaml::from_str(&file_content).expect("Failed to parse YAML");
-                info.version
-            }
-            ApiFileFormat::AsyncApi => {
-                let info: AsyncApiInfo =
-                    serde_yaml::from_str(&file_content).expect("Failed to parse YAML");
-                info.version
-            }
-        };
-
-        Ok(InputFileParameter {
-            exchange,
-            protocol,
-            format,
-            version,
-        })
-    }
-}
 
 fn run() -> Result<(), ()> {
     // load
     let cli: CliInput = CliInput::load()?;
     println!("{:#?}", cli);
 
+    // Set up directory
+    // copy openapi-generate-ignore file into the target directory
+    // Set up Cargo.toml
+    // generate
     match (cli.input_filename, cli.input_directory) {
         (None, Some(input_dir)) => {
             // batch load from input_dir
@@ -269,69 +30,75 @@ fn run() -> Result<(), ()> {
             let output_directory = cli.output_directory.unwrap();
             for input_filename in filenames {
                 for output_language in cli.output_language.clone() {
-                    let mut command = codegen_command(
+                    codegen(
                         input_filename.clone(),
                         output_directory.clone(),
                         output_language,
                     )?;
-                    println!("{:?}", command);
-                    match command.output() {
-                        Ok(o) => println!("codegen success\n{o:?}"),
-                        Err(e) => println!("codegen fail, {e}"),
-                    }
                 }
             }
         }
         (Some(input_filename), None) => {
             // single load
             println!("single load");
+            // pre-generate
+
             let output_directory = cli.output_directory.unwrap();
             for output_language in cli.output_language.clone() {
-                let command = codegen_command(
+                codegen(
                     input_filename.clone(),
                     output_directory.clone(),
                     output_language,
-                );
-                println!("{:?}", command);
+                )?;
             }
         }
         _ => unreachable!(),
     }
+
+    // post-generate
     Ok(())
 }
 
+fn codegen_output_directory(
+    input_filename: impl AsRef<Path>,
+    output_directory: impl AsRef<Path>,
+    output_language: ProgrammingLanguage,
+) -> PathBuf {
+    let param = InputFileParameter::from_filename(&input_filename).unwrap();
+    let exchange = param.exchange;
+    let protocol = param.protocol;
+
+    // define subpath under output_directory to output
+    let sub_path_str = match output_language {
+        ProgrammingLanguage::Rust => format!("{}/{}/src/{}", output_language, exchange, protocol),
+        ProgrammingLanguage::Python => format!("{}/{}/{}", output_language, exchange, protocol),
+    };
+    let sub_path = PathBuf::from_str(&sub_path_str).map_err(|_| ()).unwrap();
+    // append subpath into the output_directory
+    let mut output_directory = output_directory.as_ref().to_path_buf();
+    output_directory.push(sub_path);
+
+    PathBuf::from(&output_directory)
+}
 /// openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
 /// asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
 fn codegen_command(
     input_filename: impl AsRef<Path>,
     output_directory: impl AsRef<Path>,
-    language: ProgrammingLanguage,
+    output_language: ProgrammingLanguage,
 ) -> Result<Command, ()> {
-    let param = InputFileParameter::from_filename(&input_filename)?;
-    let exchange = param.exchange;
-    let protocol = param.protocol;
-    let format = param.format;
-
-    // define subpath under output_directory to output
-    let sub_path_str = match language {
-        ProgrammingLanguage::Rust => format!("{}/{}/src/{}", language, exchange, protocol),
-        ProgrammingLanguage::Python => format!("{}/{}/{}", language, exchange, protocol),
-    };
-    let sub_path = PathBuf::from_str(&sub_path_str).map_err(|_| ())?;
-    // append subpath into the output_directory
-    let mut output_directory = output_directory.as_ref().to_path_buf();
-    output_directory.push(sub_path);
-
-    let output_directory = Path::new(&output_directory);
+    let param = InputFileParameter::from_filename(&input_filename).unwrap();
+    let output_directory =
+        codegen_output_directory(&input_filename, &output_directory, output_language);
     // let output_directory = output_directory.canonicalize().unwrap();
 
     // output
     let input_filename = input_filename.as_ref();
-    Ok(match format {
+    Ok(match param.format {
         ApiFileFormat::OpenApi => {
             let mut cmd = Command::new("openapi-generator-cli");
             cmd.arg("generate");
-            cmd.arg(format!("-g {}", language));
+            cmd.arg(format!("-g {}", output_language));
             cmd.arg(format!("-i {}", input_filename.display()));
             cmd.arg(format!("-o {}", output_directory.display()));
             cmd
@@ -339,12 +106,60 @@ fn codegen_command(
         ApiFileFormat::AsyncApi => {
             let mut cmd = Command::new("asyncapi");
             cmd.arg("generate models");
-            cmd.arg(format!("{}", language));
+            cmd.arg(format!("{}", output_language));
             cmd.arg(format!("-i {}", input_filename.display()));
             cmd.arg(format!("-o {}", output_directory.display()));
             cmd
         }
     })
+}
+
+fn codegen(
+    input_filename: impl AsRef<Path> + Clone,
+    output_directory: impl AsRef<Path>,
+    output_language: ProgrammingLanguage,
+) -> Result<(), ()> {
+    let output_directory =
+        codegen_output_directory(input_filename.clone(), output_directory, output_language);
+
+    // precodegen
+    {
+        // create dir
+        match std::fs::create_dir_all(&output_directory) {
+            Ok(_) => todo!(),
+            Err(e) => println!("failed creating directory, {e}"),
+        }
+
+        // copy the ignore script
+        let from = PathBuf::from_str(".openapi-generate-ignore").map_err(|_| ())?;
+        let to = output_directory.clone();
+        match std::fs::copy(from, to) {
+            Ok(_) => todo!(),
+            Err(e) => println!("failed copying ignore file, {e}"),
+        }
+    }
+
+    // codegen
+    {
+        let mut command = codegen_command(input_filename, output_directory, output_language)?;
+        println!("{:?}", command);
+        match command.output() {
+            Ok(o) => println!("codegen success\n{o:?}"),
+            Err(e) => println!("codegen fail, {e}"),
+        }
+    }
+
+    // post_codegen
+    {
+        // add package info
+        match output_language {
+            ProgrammingLanguage::Rust => {
+                todo!("add mod.rs and Cargo.toml based on the version")
+            }
+            ProgrammingLanguage::Python => {}
+        }
+    }
+    Ok(())
 }
 
 pub fn main() {
@@ -364,7 +179,7 @@ mod tests {
         let input_filename = PathBuf::from_str("../asset/binance_ws_asyncapi.yaml").unwrap();
         let output_directory = PathBuf::from_str("target").unwrap();
         let output_language = ProgrammingLanguage::Rust;
-        let command = match codegen_command(input_filename, output_directory, output_language) {
+        let mut command = match codegen_command(input_filename, output_directory, output_language) {
             Ok(command) => command,
             Err(e) => panic!("{e:?}"),
         };
@@ -382,6 +197,11 @@ mod tests {
             ]
             .to_vec()
         );
+        let res = command.output();
+        match res {
+            Ok(_) => todo!(),
+            Err(_) => todo!(),
+        }
     }
 
     #[test]
