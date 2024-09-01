@@ -210,7 +210,7 @@ impl InputFileParameter {
         if !filename.contains(".yaml") {
             return Err(());
         }
-        let rest = format!("{}", filename).replace(".yaml", "");
+        let rest = filename.to_string().replace(".yaml", "");
 
         // "binance", "ws", "asyncapi"
         let str_vec: Vec<&str> = rest.split("_").collect();
