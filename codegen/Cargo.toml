@@ -1,0 +1,11 @@
+[package]
+name = "exchange-collection-codegen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap.workspace = true
+serde.workspace = true
+serde_yaml.workspace = true
+strum.workspace = true
+strum_macros.workspace = true

@@ -35,16 +35,16 @@ I propose a more streamlined integration of exchange API with a new approach to 
 (effort: N * L * S)
 
 ## structure
-| location                     | feature                                                                         |
-| ---------------------------- | ------------------------------------------------------------------------------- |
-| [asset](./asset/)            | OpenAPI and AsyncAPI YAML                                                       |
-| script                       | codegen script in python, since CI installing rust every run is :shit:          |
-| [target](./target/README.md) | generated code in python and rust                                               |
-| [index.html](./index.html)   | Rapidoc OpenAPI YAML viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
+| location                       | feature                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------- |
+| [asset](./asset/)              | OpenAPI and AsyncAPI YAML                                                       |
+| [codegen](./codegen/README.md) | codegen script in rust, run locally to generate and push                        |
+| [target](./target/README.md)   | generated code in python and rust                                               |
+| [index.html](./index.html)     | Rapidoc OpenAPI YAML viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
 
 ## guidelines
 1. OpenAPI: YAML, v3.0.1 (convert swagger to OpenAPI [here](https://editor.swagger.io/))
-2. AsyncAPI: YAML, v2 (codegen does not work well with v3 apparently)
+2. AsyncAPI: YAML, v2.3.0 (codegen does not work well with v3 apparently)
 3. place YAML in follow the naming convention of `{exchange}_{rest/ws}_{openapi/asyncapi}.yaml`
 4. codegen scripting in python (for easier GitHub CI)
 5. official codegen support: rust, python
@@ -60,21 +60,17 @@ install AsyncAPI CLI
 ```
 npm install -g @asyncapi/generator
 ```
-### OpenAPI
-#### model
+### OpenAPI model
 ```
 openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
 ```
-
-
-### AsyncAPI
-#### model
+### AsyncAPI model
 ```
-asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
+asyncapi generate models <language> example_asyncapi.yaml -o output/example_<language>>_model
 ```
-#### python paho client (opinionated imo, for reference only)
+#### AsyncAPI python paho client
 ```
-asyncapi generate fromTemplate example_asyncapi.yml @asyncapi/python-paho-template -o output/example_python_paho
+asyncapi generate fromTemplate example_asyncapi.yaml @asyncapi/python-paho-template -o output/example_python_paho
 ```
 
 ## current status
