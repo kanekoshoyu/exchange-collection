@@ -1,10 +1,22 @@
 use clap::Parser;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
+use std::ops::Add;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
+
+#[derive(Deserialize, Debug, Clone)]
+struct AsyncApiInfo {
+    #[serde(rename = "asyncapi")]
+    version: Version,
+}
+#[derive(Deserialize, Debug, Clone)]
+struct OpenApiInfo {
+    #[serde(rename = "openapi")]
+    version: Version,
+}
 
 #[derive(Parser, Debug)]
 struct CliInput {
@@ -120,11 +132,67 @@ enum Protocol {
     Fix,
 }
 
+#[derive(Clone, Copy, Debug, Serialize)]
+struct Version {
+    major: usize,
+    minor: usize,
+    patch: usize,
+}
+impl Add for Version {
+    type Output = Version;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Version {
+            major: self.major + rhs.major,
+            minor: self.minor + rhs.minor,
+            patch: self.patch + rhs.patch,
+        }
+    }
+}
+impl<'de> Deserialize<'de> for Version {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct VersionVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for VersionVisitor {
+            type Value = Version;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a string representing a Rust type, like Vec<i64>")
+            }
+
+            fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<Version, E> {
+                let values: Vec<&str> = value.split(".").collect();
+                let error = serde::de::Error::custom("failed parsing");
+                if values.len() != 3 {
+                    return Err(error);
+                }
+                Ok(Version {
+                    major: values[0]
+                        .parse::<usize>()
+                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
+                    minor: values[0]
+                        .parse::<usize>()
+                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
+                    patch: values[0]
+                        .parse::<usize>()
+                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
+                })
+            }
+        }
+
+        deserializer.deserialize_str(VersionVisitor)
+    }
+}
+
 struct InputFileParameter {
     /// we keep adding exchanges, no enum
     exchange: String,
     protocol: Protocol,
     format: ApiFileFormat,
+    version: Version,
 }
 impl InputFileParameter {
     pub fn from_filename(filename: impl AsRef<Path>) -> Result<Self, ()> {
@@ -151,16 +219,29 @@ impl InputFileParameter {
             println!("invalid format");
             return Err(());
         }
+        let exchange = str_vec[0].to_string();
+        let protocol = Protocol::from_str(str_vec[1]).map_err(|_| ())?;
+        let format = ApiFileFormat::from_str(str_vec[2]).map_err(|_| ())?;
 
-        // Ok(InputFileParameter {
-        //     exchange: str_vec[0].to_string(),
-        //     protocol: str_vec[1].parse::<Protocol>().map_err(|_e| ())?,
-        //     format: str_vec[2].parse::<ApiFileFormat>().map_err(|_e| ())?,
-        // })
+        let file_content = std::fs::read_to_string(filename).expect("Failed to read YAML file");
+        let version = match format {
+            ApiFileFormat::OpenApi => {
+                let info: OpenApiInfo =
+                    serde_yaml::from_str(&file_content).expect("Failed to parse YAML");
+                info.version
+            }
+            ApiFileFormat::AsyncApi => {
+                let info: AsyncApiInfo =
+                    serde_yaml::from_str(&file_content).expect("Failed to parse YAML");
+                info.version
+            }
+        };
+
         Ok(InputFileParameter {
-            exchange: str_vec[0].to_string(),
-            protocol: Protocol::from_str(str_vec[1]).map_err(|_| ())?,
-            format: ApiFileFormat::from_str(str_vec[2]).map_err(|_| ())?,
+            exchange,
+            protocol,
+            format,
+            version,
         })
     }
 }
