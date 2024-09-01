@@ -8,17 +8,14 @@ fn run() -> Result<(), ()> {
     let cli: CliInput = CliInput::load()?;
     println!("{:#?}", cli);
 
-    // Set up directory
-    // copy openapi-generate-ignore file into the target directory
-    // Set up Cargo.toml
-    // generate
+    //TODO check internet connection, as nodejs requires internet
+
+    // pick input/output files accordingly
     match (cli.input_filename, cli.input_directory) {
         (None, Some(input_dir)) => {
             // batch load from input_dir
             println!("batch load");
-
             let files = std::fs::read_dir(input_dir.clone()).unwrap();
-            // gather all filenames
             let mut filenames = Vec::new();
             for file in files {
                 let file = file.map_err(|_| ())?;
@@ -41,8 +38,6 @@ fn run() -> Result<(), ()> {
         (Some(input_filename), None) => {
             // single load
             println!("single load");
-            // pre-generate
-
             let output_directory = cli.output_directory.unwrap();
             for output_language in cli.output_language.clone() {
                 codegen(
@@ -245,8 +240,19 @@ mod tests {
     fn test_format() {
         let str_path = "../asset/binance_ws_asyncapi.yaml";
         assert!(str_path.ends_with(".yaml"));
-        // pathbuf we cannot use ends_with
-        // let str_path = PathBuf::from(str_path);
-        // assert!(!str_path.ends_with(".yaml"));
+        // ends_with() does not work well with PathBuf
+    }
+
+    #[test]
+    fn test_copy() {
+        // TODO use a temp dir
+        // input is a file
+        let str_path = "../asset/binance_ws_asyncapi.yaml";
+        // output has to be a file as well, do not pass directory
+        let to = PathBuf::from_str("./").unwrap();
+        let to = to.join(PathBuf::from(str_path).file_name().unwrap());
+        if let Err(e) = std::fs::copy(str_path, to) {
+            panic!("error: {e}");
+        }
     }
 }
