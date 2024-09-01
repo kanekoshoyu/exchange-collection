@@ -120,17 +120,15 @@ fn codegen(
     // precodegen
     {
         // create dir
-        match std::fs::create_dir_all(&output_directory) {
-            Ok(_) => todo!(),
-            Err(e) => println!("failed creating directory, {e}"),
+        if let Err(e) = std::fs::create_dir_all(&output_directory) {
+            println!("failed creating directory, {e}");
         }
 
-        // copy the ignore script
+        // copy the ignore script into target directory, keep the same filename
         let from = PathBuf::from_str(".openapi-generate-ignore").map_err(|_| ())?;
-        let to = output_directory.clone();
-        match std::fs::copy(from, to) {
-            Ok(_) => todo!(),
-            Err(e) => println!("failed copying ignore file, {e}"),
+        let to = output_directory.clone().join(from.file_name().unwrap());
+        if let Err(e) = std::fs::copy(from, to) {
+            println!("failed copying ignore file, {e}");
         }
     }
 
