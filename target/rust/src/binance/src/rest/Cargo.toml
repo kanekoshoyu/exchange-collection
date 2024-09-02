@@ -1,0 +1,4 @@
+[package]
+name = "exchange-collection-binance-rest"
+version = "3.0.2"
+edition = "2021"

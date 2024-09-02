@@ -13,49 +13,49 @@ fn run() -> Result<()> {
 
     //TODO check internet connection, as nodejs requires internet
 
-    // // exchange-protocol level generation
-    // match (cli.input_filename, cli.input_directory) {
-    //     (None, Some(input_dir)) => {
-    //         // batch load from input_dir
-    //         println!("batch load");
-    //         let files = std::fs::read_dir(input_dir.clone()).unwrap();
-    //         let mut filenames = Vec::new();
-    //         for file in files {
-    //             let file = file?;
-    //             let mut filename = input_dir.clone();
-    //             filename.push(file.file_name());
-    //             filenames.push(filename);
-    //         }
-    //         let output_directory = cli.output_directory.unwrap();
-    //         for input_filename in filenames {
-    //             for output_language in cli.output_language.clone() {
-    //                 println!(
-    //                     "generating {} from {:?}",
-    //                     output_language,
-    //                     input_filename.file_name().unwrap()
-    //                 );
-    //                 codegen_module(
-    //                     input_filename.clone(),
-    //                     output_directory.clone(),
-    //                     output_language,
-    //                 )?;
-    //             }
-    //         }
-    //     }
-    //     (Some(input_filename), None) => {
-    //         // single load
-    //         println!("single load");
-    //         let output_directory = cli.output_directory.unwrap();
-    //         for output_language in cli.output_language.clone() {
-    //             codegen_module(
-    //                 input_filename.clone(),
-    //                 output_directory.clone(),
-    //                 output_language,
-    //             )?;
-    //         }
-    //     }
-    //     _ => unreachable!(),
-    // }
+    // exchange-protocol level generation
+    match (cli.input_filename, cli.input_directory) {
+        (None, Some(input_dir)) => {
+            // batch load from input_dir
+            println!("batch load");
+            let files = std::fs::read_dir(input_dir.clone()).unwrap();
+            let mut filenames = Vec::new();
+            for file in files {
+                let file = file?;
+                let mut filename = input_dir.clone();
+                filename.push(file.file_name());
+                filenames.push(filename);
+            }
+            let output_directory = cli.output_directory.unwrap();
+            for input_filename in filenames {
+                for output_language in cli.output_language.clone() {
+                    println!(
+                        "generating {} from {:?}",
+                        output_language,
+                        input_filename.file_name().unwrap()
+                    );
+                    codegen_module(
+                        input_filename.clone(),
+                        output_directory.clone(),
+                        output_language,
+                    )?;
+                }
+            }
+        }
+        (Some(input_filename), None) => {
+            // single load
+            println!("single load");
+            let output_directory = cli.output_directory.unwrap();
+            for output_language in cli.output_language.clone() {
+                codegen_module(
+                    input_filename.clone(),
+                    output_directory.clone(),
+                    output_language,
+                )?;
+            }
+        }
+        _ => unreachable!(),
+    }
 
     // exchange level generation
     for language in ProgrammingLanguage::iter() {
@@ -94,7 +94,7 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn codegen_module_output_directory(
+fn codegen_protocol_module_output_directory(
     input_filename: impl AsRef<Path>,
     output_directory_base: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
@@ -105,7 +105,7 @@ fn codegen_module_output_directory(
 
     // define subpath under output_directory to output
     let sub_path_str = match output_language {
-        ProgrammingLanguage::Rust => format!("{}/{}/src/{}", output_language, exchange, protocol),
+        ProgrammingLanguage::Rust => format!("{}/src/{}/src/{}", output_language, exchange, protocol),
         ProgrammingLanguage::Python => format!("{}/{}/{}", output_language, exchange, protocol),
     };
     let sub_path = PathBuf::from_str(&sub_path_str).unwrap();
@@ -125,7 +125,7 @@ fn codegen_module_command(
 ) -> Result<Command> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let output_directory =
-        codegen_module_output_directory(&input_filename, &output_directory_base, output_language);
+        codegen_protocol_module_output_directory(&input_filename, &output_directory_base, output_language);
 
     // output
     let input_filename = input_filename.as_ref();
@@ -157,7 +157,7 @@ fn codegen_module(
 ) -> Result<()> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let output_directory =
-        codegen_module_output_directory(&input_filename, &output_directory_base, output_language);
+        codegen_protocol_module_output_directory(&input_filename, &output_directory_base, output_language);
     println!("codegen_output_directory: {}", output_directory.display());
     // pre-codegen (any thing that codegen requires)
     {
@@ -280,7 +280,7 @@ mod tests {
                 "generate models",
                 "rust",
                 "-i ../asset/binance_ws_asyncapi.yaml",
-                "-o target/rust/binance/src/ws"
+                "-o target/rust/src/binance/src/ws"
             ]
             .to_vec()
         );
