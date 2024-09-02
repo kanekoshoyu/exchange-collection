@@ -1,28 +1,20 @@
 # [exchange-collection](../README.md)-codegen
 codegen for exchange collection
 
-## TODO
-- [ ] <module_version>
-  - [x] get version
-  - [ ] sum up both asyncapi and openapi version (e.g. binance WS)
-- [ ] <package_version>
-  - [ ] sum up all exchange version for a single package (e.g. binance)
-- [ ] <collection_version>
-  - [ ] sum up all exchange version for a single module (i.e. exchange-collection)
-
-- [ ] target/rust/Cargo.toml
-  - [ ] version = "<overall_version>"
-  - [ ] exchange-collection-<exchange> = { path = "<exchange>", version = "<document_version>" }
-
-- target/rust/<exchage>
-- target/rust/<exchage>/Cargo.toml
-  - name = "exchange-collection-<exchange>"
-  - version = "document_version"
-- [x] target/rust/<exchange>/src/rest/
-- [x] target/rust/<exchange>/src/rest/apis
-- [x] target/rust/<exchange>/src/rest/models
-- [x] target/rust/<exchange>/src/rest/lib
-- [x] target/rust/<exchange>/src/ws/models
-- [ ] target/rust/<exchange>/src/lib.rs
-  - [ ] pub use ws; (has to be genearative, append when missing)
-  - [ ] pub use rest; (has to be genearative, append when missing)
+## TODO (take bottom up approach)
+- [ ] protocol crate (e.g. rust, binance, rest)
+  - [x] target/rust/binance/src/rest/src/[api/model]
+  - [x] target/rust/binance/src/rest/Cargo.toml
+    - [ ] exchange-collection-binance-rest = { path = "rest", version = "0.1.0" }
+    - [ ] version = "0.1.0" // from the version in the doc, current one is wrong
+- [ ] exchange crate (e.g. rust, binance)
+  - [ ] target/rust/biannce/Cargo.toml // based on the generated protocols
+    - [ ] name = "exchange-collection-binance"
+    - [ ] version = "0.2.0" // sum of protocols under the exchange
+    - [ ] exchange-collection-binance-rest = { path = "rest", version = "0.1.0" }
+  - [x] target/rust/binance/src/lib.rs
+    - [x] pub mod rest; (has to be generative, append when missing)
+- [ ] collection crate (e.g. rust)
+  - target/rust/Cargo.toml
+  - name = "exchange-collection-binance"
+  - version = "document_version" // sum of exchanges under the collection
