@@ -59,7 +59,7 @@ fn run() -> Result<()> {
 
 fn codegen_output_directory(
     input_filename: impl AsRef<Path>,
-    output_directory: impl AsRef<Path>,
+    output_directory_base: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
 ) -> PathBuf {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
@@ -73,7 +73,7 @@ fn codegen_output_directory(
     };
     let sub_path = PathBuf::from_str(&sub_path_str).unwrap();
     // append subpath into the output_directory
-    let mut output_directory = output_directory.as_ref().to_path_buf();
+    let mut output_directory = output_directory_base.as_ref().to_path_buf();
     output_directory.push(sub_path);
 
     PathBuf::from(&output_directory)
@@ -83,14 +83,13 @@ fn codegen_output_directory(
 /// asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
 fn codegen_command(
     input_filename: impl AsRef<Path>,
-    output_directory: impl AsRef<Path>,
+    output_directory_base: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
 ) -> Result<Command> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let output_directory =
-        codegen_output_directory(&input_filename, &output_directory, output_language);
-    // let output_directory = output_directory.canonicalize().unwrap();
-
+        codegen_output_directory(&input_filename, &output_directory_base, output_language);
+    
     // output
     let input_filename = input_filename.as_ref();
     Ok(match param.format {
@@ -141,7 +140,7 @@ fn codegen_module(
 
     // codegen
     {
-        let mut command = codegen_command(input_filename, &output_directory, output_language)?;
+        let mut command = codegen_command(input_filename, &output_directory_base, output_language)?;
         println!("{:?}", command);
         match command.output() {
             Ok(_) => println!("codegen success"),
