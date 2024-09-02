@@ -1,9 +1,10 @@
 use exchange_collection_codegen::*;
+use eyre::Result;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
 
-fn run() -> Result<(), ()> {
+fn run() -> Result<()> {
     // load
     let cli: CliInput = CliInput::load()?;
     println!("{:#?}", cli);
@@ -18,7 +19,7 @@ fn run() -> Result<(), ()> {
             let files = std::fs::read_dir(input_dir.clone()).unwrap();
             let mut filenames = Vec::new();
             for file in files {
-                let file = file.map_err(|_| ())?;
+                let file = file?;
                 let mut filename = input_dir.clone();
                 filename.push(file.file_name());
                 filenames.push(filename);
@@ -51,7 +52,7 @@ fn run() -> Result<(), ()> {
     }
 
     // post-codegen, i.e. package level things like version of a module and package
-    
+
     Ok(())
 }
 
@@ -69,7 +70,7 @@ fn codegen_output_directory(
         ProgrammingLanguage::Rust => format!("{}/{}/src/{}", output_language, exchange, protocol),
         ProgrammingLanguage::Python => format!("{}/{}/{}", output_language, exchange, protocol),
     };
-    let sub_path = PathBuf::from_str(&sub_path_str).map_err(|_| ()).unwrap();
+    let sub_path = PathBuf::from_str(&sub_path_str).unwrap();
     // append subpath into the output_directory
     let mut output_directory = output_directory.as_ref().to_path_buf();
     output_directory.push(sub_path);
@@ -83,7 +84,7 @@ fn codegen_command(
     input_filename: impl AsRef<Path>,
     output_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
-) -> Result<Command, ()> {
+) -> Result<Command> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let output_directory =
         codegen_output_directory(&input_filename, &output_directory, output_language);
@@ -116,7 +117,7 @@ fn codegen_module(
     input_filename: impl AsRef<Path>,
     output_directory_base: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
-) -> Result<(), ()> {
+) -> Result<()> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let output_directory =
         codegen_output_directory(&input_filename, &output_directory_base, output_language);
@@ -129,7 +130,7 @@ fn codegen_module(
         }
 
         // copy the ignore script into target directory, keep the same filename
-        let from = PathBuf::from_str(".openapi-generate-ignore").map_err(|_| ())?;
+        let from = PathBuf::from_str(".openapi-generate-ignore")?;
         let to = output_directory.clone().join(from.file_name().unwrap());
         if let Err(e) = std::fs::copy(from, to) {
             println!("failed copying ignore file, {e}");
@@ -164,11 +165,11 @@ fn codegen_module(
                 "#,
                     param.exchange, param.version
                 );
-                std::fs::write(cargo_toml, contents).map_err(|_| ())?;
+                std::fs::write(cargo_toml, contents)?;
 
                 let lib_rs = output_directory.join(PathBuf::from_str("lib.rs").unwrap());
                 let contents = format!("pub use {};", param.protocol);
-                std::fs::write(lib_rs, contents).map_err(|_| ())?;
+                std::fs::write(lib_rs, contents)?;
                 // anything other than the single codegen should go to overall_codegen
             }
             ProgrammingLanguage::Python => {}
@@ -186,11 +187,11 @@ pub fn main() {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use std::{ffi::OsStr, path::PathBuf, str::FromStr};
 
     #[test]
     fn test_codegen_command() {
-        use super::*;
         let input_filename = PathBuf::from_str("../asset/binance_ws_asyncapi.yaml").unwrap();
         let output_directory = PathBuf::from_str("target").unwrap();
         let output_language = ProgrammingLanguage::Rust;
@@ -221,7 +222,6 @@ mod tests {
 
     #[test]
     fn test_deserialize_language() {
-        use super::*;
         match ProgrammingLanguage::from_str("python") {
             Ok(language) => assert_eq!(language, ProgrammingLanguage::Python),
             Err(e) => panic!("{}", e),
@@ -230,14 +230,12 @@ mod tests {
 
     #[test]
     fn test_serialize_language() {
-        use super::*;
         let language = ProgrammingLanguage::Python;
         assert_eq!(format!("{language}"), "python");
     }
 
     #[test]
     fn test_parse_input_file() {
-        use super::*;
         match InputFileParameter::from_filename("../asset/binance_ws_asyncapi.yaml") {
             Ok(parameter) => {
                 assert_eq!(parameter.exchange, "binance");
@@ -274,5 +272,32 @@ mod tests {
         if let Err(e) = std::fs::copy(str_path, to) {
             panic!("error: {e}");
         }
+    }
+
+    #[test]
+    fn test_deserialize_version() {
+        // Test a valid version string
+        let input_yaml_str = "
+            openapi: 3.0.1
+            asyncapi: 2.3.0
+        ";
+        let openapi: OpenApiInfo = serde_yaml::from_str(&input_yaml_str).unwrap();
+        let asyncapi: AsyncApiInfo = serde_yaml::from_str(&input_yaml_str).unwrap();
+        assert_eq!(
+            openapi.version,
+            Version {
+                major: 3,
+                minor: 0,
+                patch: 1
+            }
+        );
+        assert_eq!(
+            asyncapi.version,
+            Version {
+                major: 2,
+                minor: 3,
+                patch: 0
+            }
+        );
     }
 }

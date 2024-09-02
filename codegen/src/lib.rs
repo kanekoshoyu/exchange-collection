@@ -1,21 +1,20 @@
 use clap::Parser;
+use eyre::{eyre, Result};
 use serde::{Deserialize, Deserializer, Serialize};
-use std::fmt::Display;
 use std::ops::Add;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
-
 #[derive(Deserialize, Debug, Clone)]
 pub struct AsyncApiInfo {
     #[serde(rename = "asyncapi")]
-    version: Version,
+    pub version: Version,
 }
 #[derive(Deserialize, Debug, Clone)]
 pub struct OpenApiInfo {
     #[serde(rename = "openapi")]
-    version: Version,
+    pub version: Version,
 }
 
 #[derive(Parser, Debug)]
@@ -43,10 +42,9 @@ impl Default for CliInput {
         }
     }
 }
-
 impl CliInput {
     /// gives the legal input
-    pub fn load() -> Result<Self, ()> {
+    pub fn load() -> Result<Self> {
         let default = CliInput::default();
         let mut input: CliInput = CliInput::parse();
         if input.output_directory.is_none() {
@@ -59,7 +57,11 @@ impl CliInput {
             (None, None) => {
                 input.input_directory = default.input_directory;
             }
-            (Some(_), Some(_)) => return Err(()),
+            (Some(_), Some(_)) => {
+                return Err(eyre!(
+                    "both input_filename and input_directory are provided, please pick one"
+                ))
+            }
             _ => {}
         }
 
@@ -132,11 +134,11 @@ pub enum Protocol {
     Fix,
 }
 
-#[derive(Clone, Copy, Debug, Serialize)]
+#[derive(Clone, Copy, Debug, Serialize, PartialEq, PartialOrd, Eq, Ord)]
 pub struct Version {
-    major: usize,
-    minor: usize,
-    patch: usize,
+    pub major: usize,
+    pub minor: usize,
+    pub patch: usize,
 }
 impl Add for Version {
     type Output = Version;
@@ -149,49 +151,59 @@ impl Add for Version {
         }
     }
 }
+impl std::fmt::Display for Version {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
+    }
+}
 impl<'de> Deserialize<'de> for Version {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: Deserializer<'de>,
     {
-        pub struct VersionVisitor;
+        // Define a custom visitor to handle deserialization
+        struct VersionVisitor;
 
         impl<'de> serde::de::Visitor<'de> for VersionVisitor {
             type Value = Version;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
-                formatter.write_str("a string representing a Rust type, like Vec<i64>")
+                formatter.write_str("a version string in the format 'major.minor.patch'")
             }
 
-            fn visit_str<E: serde::de::Error>(self, value: &str) -> Result<Version, E> {
-                let values: Vec<&str> = value.split(".").collect();
-                let error = serde::de::Error::custom("failed parsing");
-                if values.len() != 3 {
-                    return Err(error);
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                // Split the version string by dots
+                let parts: Vec<&str> = v.split('.').collect();
+                if parts.len() != 3 {
+                    return Err(serde::de::Error::custom("invalid version string format"));
                 }
+
+                // Parse each part into an integer
+                let major = parts[0]
+                    .parse::<usize>()
+                    .map_err(serde::de::Error::custom)?;
+                let minor = parts[1]
+                    .parse::<usize>()
+                    .map_err(serde::de::Error::custom)?;
+                let patch = parts[2]
+                    .parse::<usize>()
+                    .map_err(serde::de::Error::custom)?;
+
                 Ok(Version {
-                    major: values[0]
-                        .parse::<usize>()
-                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
-                    minor: values[0]
-                        .parse::<usize>()
-                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
-                    patch: values[0]
-                        .parse::<usize>()
-                        .map_err(|_| serde::de::Error::custom("failed parsing"))?,
+                    major,
+                    minor,
+                    patch,
                 })
             }
         }
 
+        // Use the custom visitor to deserialize the string
         deserializer.deserialize_str(VersionVisitor)
     }
 }
-impl Display for Version {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        todo!()
-    }
-}
-
 pub struct InputFileParameter {
     /// we keep adding exchanges, no pub enum
     pub exchange: String,
