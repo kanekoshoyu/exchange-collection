@@ -29,6 +29,11 @@ fn run() -> Result<()> {
             let output_directory = cli.output_directory.unwrap();
             for input_filename in filenames {
                 for output_language in cli.output_language.clone() {
+                    println!(
+                        "generating {} from {:?}",
+                        output_language,
+                        input_filename.file_name().unwrap()
+                    );
                     codegen_module(
                         input_filename.clone(),
                         output_directory.clone(),
@@ -112,7 +117,7 @@ fn codegen_command(
     })
 }
 
-/// codegen for single module, e.g. Binance WS
+/// codegen for single module, e.g. Binance WS Rust
 fn codegen_module(
     input_filename: impl AsRef<Path>,
     output_directory_base: impl AsRef<Path>,
@@ -121,29 +126,34 @@ fn codegen_module(
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let output_directory =
         codegen_output_directory(&input_filename, &output_directory_base, output_language);
-
+    println!("codegen_output_directory: {}", output_directory.display());
     // pre-codegen (any thing that codegen requires)
     {
         // create dir
         if let Err(e) = std::fs::create_dir_all(&output_directory) {
             return Err(eyre::eyre!("failed creating directory, {e}"));
         }
-
-        // copy the ignore script into target directory, keep the same filename
-        let from = PathBuf::from_str("codegen/.openapi-generate-ignore")?;
-        let to = output_directory.clone().join(from.file_name().unwrap());
-        println!("copying from: {:?}, to: {:?}", from, to);
-        if let Err(e) = std::fs::copy(from, to) {
-            return Err(eyre::eyre!("failed copying ignore file, {e}"));
+        match param.format {
+            ApiFileFormat::OpenApi => {
+                // copy the ignore script into target directory, keep the same filename
+                let from = PathBuf::from_str("codegen/.openapi-generator-ignore")?;
+                let to = output_directory.clone().join(from.file_name().unwrap());
+                // println!("copying from: {:?}, to: {:?}", from, to);
+                if let Err(e) = std::fs::copy(from, to) {
+                    return Err(eyre::eyre!("failed copying ignore file, {e}"));
+                }
+            }
+            ApiFileFormat::AsyncApi => {
+                // TODO add asyncapi ignore file etc
+            }
         }
     }
 
     // codegen
     {
         let mut command = codegen_command(input_filename, &output_directory_base, output_language)?;
-        println!("{:?}", command);
+        // println!("{:?}", command);
         command.output()?;
-        println!("codegen success");
     }
 
     // post-codegen (anything that wraps the codegen material as package)
@@ -153,7 +163,7 @@ fn codegen_module(
             ProgrammingLanguage::Rust => {
                 // todo!("add mod.rs and Cargo.toml based on the version");
 
-                // Create a new Manifest object, which represents the contents of Cargo.toml
+                // create a new Manifest object, which represents the contents of Cargo.toml
                 let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
                 let mut package = cargo_toml::Package::default();
                 package.name = format!("exchange-collection-{}", param.exchange);
@@ -163,11 +173,12 @@ fn codegen_module(
                 let manifest_str = toml::to_string(&manifest)?;
                 let cargo_toml = output_directory.join(PathBuf::from_str("Cargo.toml").unwrap());
                 std::fs::write(cargo_toml, manifest_str)?;
-                println!("Cargo.toml");
+
+                // create lib.rs with list of its protocols
                 let lib_rs = output_directory.join(PathBuf::from_str("lib.rs").unwrap());
                 append_if_missing(&lib_rs, &format!("pub use {};", param.protocol))?;
-                println!("lib.rs");
-                // anything other than the single codegen should go to overall_codegen
+
+                // anything other than the single module codegen should go to overall_codegen, e.g.
             }
             ProgrammingLanguage::Python => {}
         }

@@ -3,8 +3,8 @@ resolver = "2"
 members = [
     # code generator
     "codegen",
-    # generated rust `exchange-collection` crate
-    "target/rust",
+    # generated rust `exchange-collection` crate, only enable after codegen for sanity check.
+    # "target/rust",
 ]
 
 [workspace.dependencies]
