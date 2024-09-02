@@ -89,7 +89,7 @@ fn codegen_command(
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let output_directory =
         codegen_output_directory(&input_filename, &output_directory_base, output_language);
-    
+
     // output
     let input_filename = input_filename.as_ref();
     Ok(match param.format {
@@ -142,10 +142,8 @@ fn codegen_module(
     {
         let mut command = codegen_command(input_filename, &output_directory_base, output_language)?;
         println!("{:?}", command);
-        match command.output() {
-            Ok(_) => println!("codegen success"),
-            Err(e) => println!("codegen fail, {e}"),
-        }
+        command.output()?;
+        println!("codegen success");
     }
 
     // post-codegen (anything that wraps the codegen material as package)
@@ -165,9 +163,10 @@ fn codegen_module(
                 let manifest_str = toml::to_string(&manifest)?;
                 let cargo_toml = output_directory.join(PathBuf::from_str("Cargo.toml").unwrap());
                 std::fs::write(cargo_toml, manifest_str)?;
-
+                println!("Cargo.toml");
                 let lib_rs = output_directory.join(PathBuf::from_str("lib.rs").unwrap());
                 append_if_missing(&lib_rs, &format!("pub use {};", param.protocol))?;
+                println!("lib.rs");
                 // anything other than the single codegen should go to overall_codegen
             }
             ProgrammingLanguage::Python => {}
@@ -176,21 +175,32 @@ fn codegen_module(
     Ok(())
 }
 
-/// only append `line_to_append` when it is missing
-fn append_if_missing(lib_rs_path: &Path, line_to_append: &str) -> std::io::Result<()> {
-    // Read the contents of the file
-    let content = std::fs::read_to_string(lib_rs_path)?;
+/// Appends `line_to_append` to `lib_rs_path` if the line is missing.
+fn append_if_missing(lib_rs_path: impl AsRef<Path>, line_to_append: &str) -> std::io::Result<()> {
+    let lib_rs_path = lib_rs_path.as_ref();
 
-    // Check if the line is already present
-    if !content.contains(line_to_append) {
-        // If not, open the file in append mode and write the line
-        let mut file = std::fs::OpenOptions::new().append(true).open(lib_rs_path)?;
+    // Check if the file exists
+    if lib_rs_path.exists() {
+        // If the file exists, read the contents of the file
+        let content = std::fs::read_to_string(lib_rs_path)?;
+
+        // Check if the line is already present
+        if !content.contains(line_to_append) {
+            // If not, open the file in append mode and write the line
+            let mut file = std::fs::OpenOptions::new().append(true).open(lib_rs_path)?;
+            writeln!(file, "{}", line_to_append)?;
+        }
+    } else {
+        // If the file does not exist, create it and write the line
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(lib_rs_path)?;
         writeln!(file, "{}", line_to_append)?;
     }
 
     Ok(())
 }
-
 pub fn main() {
     match run() {
         Ok(_) => println!("success"),
