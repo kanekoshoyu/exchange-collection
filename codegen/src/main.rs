@@ -166,7 +166,7 @@ fn codegen_module(
                 // create a new Manifest object, which represents the contents of Cargo.toml
                 let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
                 let mut package = cargo_toml::Package::default();
-                package.name = format!("exchange-collection-{}", param.exchange);
+                package.name = format!("exchange-collection-{}-{}", param.exchange, param.protocol);
                 package.version = cargo_toml::Inheritable::Set(param.version.to_string());
                 package.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2021);
                 manifest.package = Some(package);
@@ -175,8 +175,11 @@ fn codegen_module(
                 std::fs::write(cargo_toml, manifest_str)?;
 
                 // create lib.rs with list of its protocols
-                let lib_rs = output_directory.join(PathBuf::from_str("lib.rs").unwrap());
-                append_if_missing(&lib_rs, &format!("pub use {};", param.protocol))?;
+                let lib_rs = output_directory
+                    .parent()
+                    .unwrap()
+                    .join(PathBuf::from_str("lib.rs").unwrap());
+                append_if_missing(&lib_rs, &format!("pub mod {};", param.protocol))?;
 
                 // anything other than the single module codegen should go to overall_codegen, e.g.
             }

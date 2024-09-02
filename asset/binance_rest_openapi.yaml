@@ -7,7 +7,7 @@ info:
     API documents:
       - [https://github.com/binance/binance-spot-api-docs](https://github.com/binance/binance-spot-api-docs)
       - [https://binance-docs.github.io/apidocs/spot/en](https://binance-docs.github.io/apidocs/spot/en)
-  version: '1.0'
+  version: 1.0.0
 servers:
   - url: https://api.binance.com
   - url: https://testnet.binance.vision
