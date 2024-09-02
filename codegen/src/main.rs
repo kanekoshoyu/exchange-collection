@@ -127,14 +127,15 @@ fn codegen_module(
     {
         // create dir
         if let Err(e) = std::fs::create_dir_all(&output_directory) {
-            println!("failed creating directory, {e}");
+            return Err(eyre::eyre!("failed creating directory, {e}"));
         }
 
         // copy the ignore script into target directory, keep the same filename
-        let from = PathBuf::from_str(".openapi-generate-ignore")?;
+        let from = PathBuf::from_str("codegen/.openapi-generate-ignore")?;
         let to = output_directory.clone().join(from.file_name().unwrap());
+        println!("copying from: {:?}, to: {:?}", from, to);
         if let Err(e) = std::fs::copy(from, to) {
-            println!("failed copying ignore file, {e}");
+            return Err(eyre::eyre!("failed copying ignore file, {e}"));
         }
     }
 
@@ -143,7 +144,7 @@ fn codegen_module(
         let mut command = codegen_command(input_filename, &output_directory, output_language)?;
         println!("{:?}", command);
         match command.output() {
-            Ok(o) => println!("codegen success\n{o:?}"),
+            Ok(_) => println!("codegen success"),
             Err(e) => println!("codegen fail, {e}"),
         }
     }
@@ -208,7 +209,7 @@ mod tests {
         let input_filename = PathBuf::from_str("../asset/binance_ws_asyncapi.yaml").unwrap();
         let output_directory = PathBuf::from_str("target").unwrap();
         let output_language = ProgrammingLanguage::Rust;
-        let mut command = match codegen_command(input_filename, output_directory, output_language) {
+        let command = match codegen_command(input_filename, output_directory, output_language) {
             Ok(command) => command,
             Err(e) => panic!("{e:?}"),
         };
@@ -226,11 +227,6 @@ mod tests {
             ]
             .to_vec()
         );
-        let res = command.output();
-        match res {
-            Ok(_) => todo!(),
-            Err(_) => todo!(),
-        }
     }
 
     #[test]
