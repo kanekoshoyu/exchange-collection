@@ -1,5 +1,6 @@
 use exchange_collection_codegen::*;
 use eyre::Result;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
@@ -153,28 +154,40 @@ fn codegen_module(
         match output_language {
             ProgrammingLanguage::Rust => {
                 // todo!("add mod.rs and Cargo.toml based on the version");
-                let cargo_toml = output_directory.join(PathBuf::from_str("Cargo.toml").unwrap());
-                let contents = format!(
-                    r#"
-                [package]
-                name = "exchange-collection-{}"
-                version = "{}"
-                edition = "2021"
 
-                [lib]
-                "#,
-                    param.exchange, param.version
-                );
-                std::fs::write(cargo_toml, contents)?;
+                // Create a new Manifest object, which represents the contents of Cargo.toml
+                let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
+                let mut package = cargo_toml::Package::default();
+                package.name = format!("exchange-collection-{}", param.exchange);
+                package.version = cargo_toml::Inheritable::Set(param.version.to_string());
+                package.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2021);
+                manifest.package = Some(package);
+                let manifest_str = toml::to_string(&manifest)?;
+                let cargo_toml = output_directory.join(PathBuf::from_str("Cargo.toml").unwrap());
+                std::fs::write(cargo_toml, manifest_str)?;
 
                 let lib_rs = output_directory.join(PathBuf::from_str("lib.rs").unwrap());
-                let contents = format!("pub use {};", param.protocol);
-                std::fs::write(lib_rs, contents)?;
+                append_if_missing(&lib_rs, &format!("pub use {};", param.protocol))?;
                 // anything other than the single codegen should go to overall_codegen
             }
             ProgrammingLanguage::Python => {}
         }
     }
+    Ok(())
+}
+
+/// only append `line_to_append` when it is missing
+fn append_if_missing(lib_rs_path: &Path, line_to_append: &str) -> std::io::Result<()> {
+    // Read the contents of the file
+    let content = std::fs::read_to_string(lib_rs_path)?;
+
+    // Check if the line is already present
+    if !content.contains(line_to_append) {
+        // If not, open the file in append mode and write the line
+        let mut file = std::fs::OpenOptions::new().append(true).open(lib_rs_path)?;
+        writeln!(file, "{}", line_to_append)?;
+    }
+
     Ok(())
 }
 

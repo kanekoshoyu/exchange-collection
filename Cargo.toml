@@ -8,9 +8,11 @@ members = [
 ]
 
 [workspace.dependencies]
+cargo_toml = "0.20.4"
 clap = { version = "4.5.16", features = ["derive"] }
+eyre = "0.6.12"
 serde = { version = "1.0.209", features = ["derive"] }
 serde_yaml = "0.9.33"
 strum = "0.26.3"
 strum_macros = "0.26.3"
-eyre = "0.6.12"
+toml = "0.8.19"
