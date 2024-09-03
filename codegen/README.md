@@ -17,6 +17,6 @@ codegen for exchange collection
     - [x] pub mod rest; (has to be generative, append when missing)
 - [ ] collection crate (e.g. target/rust)
   - [ ] target/rust/Cargo.toml
-    - [ ] name = "exchange-collection-binance"
+    - [x] name = "exchange-collection"
     - [ ] version = "document_version" // sum of exchanges under the collection
     - [ ] exchange-collection-binance = { path = "binance", version = "0.1.0" }

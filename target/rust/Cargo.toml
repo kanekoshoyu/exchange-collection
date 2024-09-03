@@ -1,12 +1,4 @@
 [package]
 name = "exchange-collection"
-version = "0.1.0"
+version = ""
 edition = "2021"
-
-[lib]
-
-[dependencies]
-serde = "1.0.209"
-exchange-collection-binance = { path = "binance" }
-# exchange-collection-hyperliquid = { path = "coinbase", version = "0.1.0" }
-# exchange-collection-coinbase = { path = "coincase", version = "0.1.0" }

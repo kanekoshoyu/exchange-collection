@@ -1,7 +1,7 @@
 use clap::Parser;
 use eyre::{eyre, Result};
 use serde::{Deserialize, Deserializer, Serialize};
-use std::ops::Add;
+use std::ops::{Add, AddAssign};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use strum::IntoEnumIterator;
@@ -149,6 +149,13 @@ impl Add for Version {
             minor: self.minor + rhs.minor,
             patch: self.patch + rhs.patch,
         }
+    }
+}
+impl AddAssign for Version {
+    fn add_assign(&mut self, rhs: Self) {
+        self.major += rhs.major;
+        self.minor += rhs.minor;
+        self.patch += rhs.patch;
     }
 }
 impl std::fmt::Display for Version {

@@ -62,20 +62,23 @@ fn run() -> Result<()> {
     for language in ProgrammingLanguage::iter() {
         match language {
             ProgrammingLanguage::Rust => {
+                let unified_package_name = "exchange-collection";
                 let base_dir = PathBuf::from_str("target/rust")?;
                 let base_src_dir = base_dir.join("src");
 
-                // list out all the exchanges
-                let paths: Vec<PathBuf> = std::fs::read_dir(&base_src_dir)
+                // list out all the exchange paths
+                let exchange_paths: Vec<PathBuf> = std::fs::read_dir(&base_src_dir)
                     .unwrap()
                     .filter_map(Result::ok)
                     .filter(|entry| entry.path().is_dir())
                     .map(|entry| entry.path())
                     .collect();
-                println!("paths: {:?}", paths);
 
-                // go check target/rust/src/binance
-                for exchange_path in paths {
+                //
+                let mut cross_exchange_cumulative_version = Version::default();
+
+                for exchange_path in exchange_paths {
+                    // exchange level generation
                     let exchange = exchange_path.file_name().unwrap().to_str().unwrap();
                     let exchange_src_dir = exchange_path.join("src");
 
@@ -97,8 +100,8 @@ fn run() -> Result<()> {
                     }
 
                     // go check target/rust/src/binance/src/ws
-                    let exchange_package_name = format!("exchange-collection-{}", exchange);
-                    let mut cumulative_version = Version::default();
+                    let exchange_package_name = format!("{}-{}", unified_package_name, exchange);
+                    let mut cross_protocol_cumulative_version = Version::default();
 
                     // construct manifest
                     let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
@@ -108,8 +111,7 @@ fn run() -> Result<()> {
                             format!("{}-{}", exchange_package_name, protocol.to_string());
                         // TODO obtain version
                         let version = Version::default();
-                        // TODO accumulate version
-                        // cumulative_version
+                        cross_protocol_cumulative_version += version;
                         let dependency_detail = cargo_toml::DependencyDetail {
                             path: Some(protocol.to_string()),
                             version: Some(version.to_string()),
@@ -125,36 +127,33 @@ fn run() -> Result<()> {
                         cargo_toml::Package::default();
                     exchange_package.name = exchange_package_name;
                     exchange_package.version =
-                        cargo_toml::Inheritable::Set(cumulative_version.to_string());
+                        cargo_toml::Inheritable::Set(cross_protocol_cumulative_version.to_string());
                     manifest.package = Some(exchange_package);
                     // output into a file
                     let manifest_str = toml::to_string(&manifest)?;
                     let cargo_toml =
                         exchange_src_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
                     std::fs::write(cargo_toml, manifest_str)?;
+                    // accumulate exchange version
+                    cross_exchange_cumulative_version += cross_protocol_cumulative_version;
                 }
+
+                // package generation
+                let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
+                let mut package = cargo_toml::Package::default();
+                package.name = unified_package_name.to_string();
+                manifest.package = Some(package);
+
+                // output to a file
+                let manifest_str = toml::to_string(&manifest)?;
+                let cargo_toml = base_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
+                std::fs::write(cargo_toml, manifest_str)?;
             }
             ProgrammingLanguage::Python => {
                 // please implemnent here
             }
         }
     }
-
-    // // crate level generation
-    // for language in ProgrammingLanguage::iter() {
-    //     match language {
-    //         ProgrammingLanguage::Rust => {
-    //             // list out all the exchanges
-    //             let directories = std::fs::read_dir("target/rust/src")?.into_iter();
-    //             for x in directories {
-    //                 let x = x?;
-    //             }
-    //         }
-    //         ProgrammingLanguage::Python => {
-    //             // please implemnent here
-    //         }
-    //     }
-    // }
     Ok(())
 }
 
