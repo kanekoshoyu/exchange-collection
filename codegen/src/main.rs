@@ -1,3 +1,4 @@
+use cargo_toml::{DependencyDetail, InheritedDependencyDetail};
 use exchange_collection_codegen::*;
 use eyre::Result;
 use std::io::Write;
@@ -61,14 +62,72 @@ fn run() -> Result<()> {
     for language in ProgrammingLanguage::iter() {
         match language {
             ProgrammingLanguage::Rust => {
+                let base_dir = PathBuf::from_str("target/rust")?;
+                let base_src_dir = base_dir.join("src");
+
                 // list out all the exchanges
-                let paths: Vec<PathBuf> = std::fs::read_dir("target/rust/src")
+                let paths: Vec<PathBuf> = std::fs::read_dir(&base_src_dir)
                     .unwrap()
                     .filter_map(Result::ok)
                     .filter(|entry| entry.path().is_dir())
                     .map(|entry| entry.path())
                     .collect();
                 println!("paths: {:?}", paths);
+
+                // go check target/rust/src/binance
+                for exchange_path in paths {
+                    let exchange = exchange_path.file_name().unwrap().to_str().unwrap();
+                    let exchange_src_dir = exchange_path.join("src");
+
+                    let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(&base_src_dir)
+                        .unwrap()
+                        .filter_map(Result::ok)
+                        .filter(|entry| entry.path().is_dir())
+                        .map(|entry| entry.path())
+                        .collect();
+                    // obtain the protocol data generate lib.rs and Cargo.toml file
+                    let mut exchange_crate_version = Version::default();
+                    let mut protocols: Vec<Protocol> = Vec::new();
+                    // go check target/rust/src/binance/src/rest
+                    for protocol_dir in protocol_dirs {
+                        let protocol = protocol_dir.file_name().unwrap().to_str().unwrap();
+                        protocols.push(Protocol::from_str(protocol)?);
+                        // TODO read the version
+                        // exchange_crate_version+=;
+                    }
+
+                    // go check target/rust/src/binance/src/ws
+                    let package_exchange_name = format!("exchange-collection-{}", exchange);
+                    let mut cumulative_version = Version::default();
+
+                    // construct manifest
+                    let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
+                    // for every protocol, add a dependencies and accumulate their version
+                    for protocol in protocols {
+                        let name = format!("{}-{}", package_exchange_name, protocol.to_string());
+                        // TODO obtain version
+                        let version = Version::default();
+                        // TODO accumulate version
+                        // cumulative_version
+                        let dependency_detail = cargo_toml::DependencyDetail {
+                            path: Some(protocol.to_string()),
+                            version: Some(version.to_string()),
+                            ..Default::default()
+                        };
+                        let dependency_detail = Box::new(dependency_detail);
+                        let dependency_detail = cargo_toml::Dependency::Detailed(dependency_detail);
+                        manifest.dependencies.insert(name, dependency_detail);
+                    }
+                    let mut package_exchange: cargo_toml::Package<()> =
+                        cargo_toml::Package::default();
+                    package_exchange.name = package_exchange_name;
+
+                    // output into a file
+                    let manifest_str = toml::to_string(&manifest)?;
+                    let cargo_toml =
+                        exchange_src_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
+                    std::fs::write(cargo_toml, manifest_str)?;
+                }
             }
             ProgrammingLanguage::Python => {
                 // please implemnent here
@@ -105,7 +164,9 @@ fn codegen_protocol_module_output_directory(
 
     // define subpath under output_directory to output
     let sub_path_str = match output_language {
-        ProgrammingLanguage::Rust => format!("{}/src/{}/src/{}", output_language, exchange, protocol),
+        ProgrammingLanguage::Rust => {
+            format!("{}/src/{}/src/{}", output_language, exchange, protocol)
+        }
         ProgrammingLanguage::Python => format!("{}/{}/{}", output_language, exchange, protocol),
     };
     let sub_path = PathBuf::from_str(&sub_path_str).unwrap();
@@ -124,8 +185,11 @@ fn codegen_module_command(
     output_language: ProgrammingLanguage,
 ) -> Result<Command> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
-    let output_directory =
-        codegen_protocol_module_output_directory(&input_filename, &output_directory_base, output_language);
+    let output_directory = codegen_protocol_module_output_directory(
+        &input_filename,
+        &output_directory_base,
+        output_language,
+    );
 
     // output
     let input_filename = input_filename.as_ref();
@@ -156,8 +220,11 @@ fn codegen_module(
     output_language: ProgrammingLanguage,
 ) -> Result<()> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
-    let output_directory =
-        codegen_protocol_module_output_directory(&input_filename, &output_directory_base, output_language);
+    let output_directory = codegen_protocol_module_output_directory(
+        &input_filename,
+        &output_directory_base,
+        output_language,
+    );
     println!("codegen_output_directory: {}", output_directory.display());
     // pre-codegen (any thing that codegen requires)
     {
@@ -203,6 +270,18 @@ fn codegen_module(
                 package.version = cargo_toml::Inheritable::Set(param.version.to_string());
                 package.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2021);
                 manifest.package = Some(package);
+
+                let dependencies = ["reqwest", "serde", "serde_json", "serde_yaml", "url"];
+                for dependecy in dependencies {
+                    manifest.dependencies.insert(
+                        dependecy.to_string(),
+                        cargo_toml::Dependency::Inherited(InheritedDependencyDetail {
+                            workspace: true,
+                            ..Default::default()
+                        }),
+                    );
+                }
+                // output as a file
                 let manifest_str = toml::to_string(&manifest)?;
                 let cargo_toml = output_directory.join(PathBuf::from_str("Cargo.toml").unwrap());
                 std::fs::write(cargo_toml, manifest_str)?;

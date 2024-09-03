@@ -7,6 +7,7 @@ codegen for exchange collection
   - [x] target/rust/src/binance/src/rest/Cargo.toml
     - [x] exchange-collection-binance-rest
     - [ ] version = "0.1.0" // from the version in the doc, current one is wrong
+    - [ ] dependencies (serde, serde_repr, serde_json, reqwest, url)
 - [ ] exchange crate (e.g. target/rust/src/binance)
   - [ ] target/rust/src/binance/Cargo.toml // based on the generated protocols
     - [ ] name = "exchange-collection-binance"

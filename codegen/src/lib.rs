@@ -134,7 +134,7 @@ pub enum Protocol {
     Fix,
 }
 
-#[derive(Clone, Copy, Debug, Serialize, PartialEq, PartialOrd, Eq, Ord)]
+#[derive(Clone, Copy, Debug, Serialize, PartialEq, PartialOrd, Eq, Ord, Default)]
 pub struct Version {
     pub major: usize,
     pub minor: usize,
