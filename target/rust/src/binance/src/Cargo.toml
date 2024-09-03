@@ -1,0 +1,8 @@
+[package]
+name = "exchange-collection-binance"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies.exchange-collection-binance-rest]
+version = "0.0.0"
+path = "rest"

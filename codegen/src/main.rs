@@ -97,14 +97,15 @@ fn run() -> Result<()> {
                     }
 
                     // go check target/rust/src/binance/src/ws
-                    let package_exchange_name = format!("exchange-collection-{}", exchange);
+                    let exchange_package_name = format!("exchange-collection-{}", exchange);
                     let mut cumulative_version = Version::default();
 
                     // construct manifest
                     let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
                     // for every protocol, add a dependencies and accumulate their version
                     for protocol in protocols {
-                        let name = format!("{}-{}", package_exchange_name, protocol.to_string());
+                        let protocol_package_name =
+                            format!("{}-{}", exchange_package_name, protocol.to_string());
                         // TODO obtain version
                         let version = Version::default();
                         // TODO accumulate version
@@ -116,12 +117,16 @@ fn run() -> Result<()> {
                         };
                         let dependency_detail = Box::new(dependency_detail);
                         let dependency_detail = cargo_toml::Dependency::Detailed(dependency_detail);
-                        manifest.dependencies.insert(name, dependency_detail);
+                        manifest
+                            .dependencies
+                            .insert(protocol_package_name, dependency_detail);
                     }
-                    let mut package_exchange: cargo_toml::Package<()> =
+                    let mut exchange_package: cargo_toml::Package<()> =
                         cargo_toml::Package::default();
-                    package_exchange.name = package_exchange_name;
-
+                    exchange_package.name = exchange_package_name;
+                    exchange_package.version =
+                        cargo_toml::Inheritable::Set(cumulative_version.to_string());
+                    manifest.package = Some(exchange_package);
                     // output into a file
                     let manifest_str = toml::to_string(&manifest)?;
                     let cargo_toml =
