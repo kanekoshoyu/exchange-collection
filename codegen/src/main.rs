@@ -79,7 +79,7 @@ fn run() -> Result<()> {
                     let exchange = exchange_path.file_name().unwrap().to_str().unwrap();
                     let exchange_src_dir = exchange_path.join("src");
 
-                    let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(&base_src_dir)
+                    let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(&exchange_src_dir)
                         .unwrap()
                         .filter_map(Result::ok)
                         .filter(|entry| entry.path().is_dir())

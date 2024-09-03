@@ -15,7 +15,7 @@ eyre = "0.6.12"
 serde = { version = "1.0.209", features = ["derive"] }
 serde_repr = "0.1.19"
 serde_json = "1.0.127"
-serde_yaml = "0.9.33"
+serde_yaml = "0.9.34+deprecated"
 strum = "0.26.3"
 strum_macros = "0.26.3"
 toml = "0.8.19"
