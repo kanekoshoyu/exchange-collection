@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Exchange YAML RapiDoc</title>
+        <title>Exchange API Viewer</title>
         <script type="module" src="https://unpkg.com/rapidoc"></script>
         <style>
         body {
@@ -15,7 +15,7 @@
             height: 100vh;
             overflow: hidden;
         }
-    
+
         #spec-selector {
             background-color: #333537;
             color: #ecf0f1;
@@ -26,14 +26,14 @@
             position: relative;
             z-index: 1000;
         }
-    
+
         #spec-selector label {
             font-size: 1em;
             margin-right: 10px;
             color: #ecf0f1;
         }
-    
-        #specs {
+
+        #specs, #protocols {
             font-size: 1em;
             padding: 3px 10px;
             border-radius: 4px;
@@ -43,65 +43,121 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             cursor: pointer;
             transition: background-color 0.3s ease;
+            margin-right: 10px;
         }
-    
-        #specs:hover {
+
+        #specs:hover, #protocols:hover {
             background-color: #bdc3c7;
         }
-    
-        rapi-doc {
+
+        rapi-doc, iframe {
             flex-grow: 1;
             width: 100%;
+            height: 90vh;
+            border: none;
         }
         </style>
     </head>
     <body>
         <div id="spec-selector">
-            <label for="specs">Choose an Exchange API:</label>
-            <select id="specs" onchange="loadSpec()"></select>
+            <label for="specs">Choose an Exchange:</label>
+            <select id="specs" onchange="populateProtocols()"></select>
+            <label for="protocols">Choose a Protocol:</label>
+            <select id="protocols" onchange="loadSpec()"></select>
         </div>
-        <rapi-doc id="rapidoc" spec-url=""></rapi-doc>
+        <rapi-doc id="rapidoc" spec-url="" style="display:none;"></rapi-doc>
+        <iframe id="asyncapi-iframe" style="display:none;"></iframe>
         <script>
         const githubApiUrl = "https://api.github.com/repos/kanekoshoyu/exchange_yaml/contents/asset";
+        let exchanges = [];
 
         async function fetchExchanges() {
             try {
                 const response = await fetch(githubApiUrl);
                 const files = await response.json();
-                const exchanges = files
-                    .filter(file => file.name.endsWith('_openapi.yaml'))
-                    .map(file => file.name.replace('_openapi.yaml', ''));
-                return exchanges;
+                const exchangeMap = {};
+
+                files.forEach(file => {
+                    const match = file.name.match(/(.*?)_(rest|ws)_(openapi|asyncapi)\.yaml$/);
+                    if (match) {
+                        const [_, exchangeName, protocolType, apiType] = match;
+                        if (!exchangeMap[exchangeName]) {
+                            exchangeMap[exchangeName] = [];
+                        }
+                        exchangeMap[exchangeName].push({
+                            protocolType,
+                            apiType,
+                            url: `https://raw.githubusercontent.com/kanekoshoyu/exchange_yaml/main/asset/${file.name}`
+                        });
+                    }
+                });
+                
+                return exchangeMap;
             } catch (error) {
                 console.error("Error fetching exchange files:", error);
-                return [];
+                return {};
             }
         }
 
-        function loadSpec() {
-            const specUrl = document.getElementById('specs').value;
-            document.getElementById('rapidoc').setAttribute('spec-url', specUrl);
-        }
+        function populateProtocols() {
+            const exchangeName = document.getElementById('specs').value;
+            const protocolDropdown = document.getElementById('protocols');
+            protocolDropdown.innerHTML = ''; // Clear existing options
 
-        async function populateDropdown() {
-            const dropdown = document.getElementById('specs');
-            const exchanges = await fetchExchanges();
-
-            exchanges.forEach(exchange => {
+            const protocols = exchanges[exchangeName] || [];
+            protocols.forEach(protocol => {
                 const option = document.createElement('option');
-                option.value = `https://raw.githubusercontent.com/kanekoshoyu/exchange_yaml/main/asset/${exchange}_openapi.yaml`;
-                option.text = exchange.charAt(0).toUpperCase() + exchange.slice(1);
-                dropdown.add(option);
+                option.value = protocol.url;
+                option.text = `${protocol.protocolType.toUpperCase()} - ${protocol.apiType.toUpperCase()}`;
+                option.setAttribute('data-type', protocol.apiType);
+                protocolDropdown.add(option);
             });
 
-            // Automatically load the first exchange's spec by default
-            if (exchanges.length > 0) {
-                dropdown.selectedIndex = 0;
+            // Automatically load the first protocol's spec by default
+            if (protocols.length > 0) {
+                protocolDropdown.selectedIndex = 0;
                 loadSpec();
             }
         }
 
-        // Populate the dropdown on page load
+        function loadSpec() {
+            const specUrl = document.getElementById('protocols').value;
+            const selectedOption = document.getElementById('protocols').selectedOptions[0];
+            const type = selectedOption.getAttribute('data-type');
+
+            const rapiDoc = document.getElementById('rapidoc');
+            const asyncApiIframe = document.getElementById('asyncapi-iframe');
+
+            if (type === 'openapi') {
+                rapiDoc.setAttribute('spec-url', specUrl);
+                rapiDoc.style.display = 'block';
+                asyncApiIframe.style.display = 'none';
+            } else if (type === 'asyncapi') {
+                asyncApiIframe.src = `https://studio.asyncapi.com/?url=${specUrl}`;
+                asyncApiIframe.style.display = 'block';
+                rapiDoc.style.display = 'none';
+            }
+        }
+
+        async function populateDropdown() {
+            const exchangeDropdown = document.getElementById('specs');
+            exchanges = await fetchExchanges();
+
+            Object.keys(exchanges).forEach(exchangeName => {
+                const option = document.createElement('option');
+                option.value = exchangeName;
+                option.text = exchangeName.charAt(0).toUpperCase() + exchangeName.slice(1);
+                exchangeDropdown.add(option);
+            });
+
+            // Automatically populate protocols for the first exchange by default
+            if (Object.keys(exchanges).length > 0) {
+                exchangeDropdown.selectedIndex = 0;
+                populateProtocols();
+            }
+        }
+
+        // Populate the exchange dropdown on page load
         window.onload = populateDropdown;
         </script>
     </body>
