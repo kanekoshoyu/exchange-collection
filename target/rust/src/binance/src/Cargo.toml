@@ -6,3 +6,7 @@ edition = "2021"
 [dependencies.exchange-collection-binance-rest]
 version = "0.0.0"
 path = "rest"
+
+[dependencies.exchange-collection-binance-ws]
+version = "0.0.0"
+path = "ws"

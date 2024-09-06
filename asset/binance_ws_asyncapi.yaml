@@ -1,246 +1,1038 @@
-asyncapi: 2.6.0
+asyncapi: 2.1.0
 info:
-  title: Binance WebSocket API
+  title: Binance Websocket API
   version: 1.0.0
   description: >
-    The base endpoint is: `wss://ws-api.binance.com:443/ws-api/v3`
-
-    If you experience issues with the standard 443 port, alternative port 9443
-    is also available.
-
-    The base endpoint for testnet is: `wss://testnet.binance.vision/ws-api/v3`
-
-    A single connection to the API is only valid for 24 hours; expect to be
-    disconnected after the 24-hour mark.
-
-    WebSocket server will send a ping frame every 3 minutes.
-
-    If the WebSocket server does not receive a pong frame back from the
-    connection within a 10 minute period, the connection will be disconnected.
-
-    When you receive a ping, you must send a pong with a copy of ping's payload
-    as soon as possible.
-
+    The base endpoint is: wss://stream.binance.com:9443 or
+    wss://stream.binance.com:443.Streams can be accessed either in a single raw
+    stream or in a combined stream Raw streams are accessed at /ws/<streamName>
+    <br> Combined streams are accessed at
+    /stream?streams={streamName1}/{streamName2}/{streamName3} <br>Combined
+    stream events are wrapped as follows: {
+    "stream":"{streamName}","data":{rawPayload}} <br> All symbols for streams
+    are lowercase <br> A single connection to stream.binance.com is only valid
+    for 24 hours; expect to be disconnected at the 24 hour mark <br> Websocket
+    server will send a ping frame every 3 minutes.<br> If the websocket server
+    does not receive a pong frame back from the connection within a 10 minute
+    period, the connection will be disconnected.<br> When you receive a ping,
+    you must send a pong with a copy of ping's payload as soon as possible.<br>
     Unsolicited pong frames are allowed, but will not prevent disconnection. It
-    is recommended that the payload for these pong frames are empty.
-
-    Lists are returned in chronological order, unless noted otherwise.
-
-    All timestamps are in milliseconds in UTC, unless noted otherwise.
-
-    All field names and values are case-sensitive, unless noted otherwise.
+    is recommended that the payload for these pong frames are empty.<br> The
+    base endpoint wss://data-stream.binance.vision can be subscribed to receive
+    only market data messages.<br>User data stream is NOT available from this
+    URL.<br> <h2>Websocket Limits</h2><br>WebSocket connections have a limit of
+    5 incoming messages per second. A message is considered:<br>A PING
+    frame<br>A PONG frame<br>A JSON controlled message (e.g. subscribe,
+    unsubscribe)<br>A connection that goes beyond the limit will be
+    disconnected; IPs that are repeatedly disconnected may be banned.<br>A
+    single connection can listen to a maximum of 1024 streams.<br>There is a
+    limit of 300 connections per attempt every 5 minutes per IP.<br>Live
+    Subscribing/Unsubscribing to streams.The following data can be sent through
+    the websocket instance in order to subscribe/unsubscribe from streams.
+    Examples can be seen below.<br>The id is used as an identifier to uniquely
+    identify the messages going back and forth. The following formats are
+    accepted:<br>64-bit signed integer<br>alphanumeric strings; max length
+    36<br>null<br>In the response, if the result received is null this means the
+    request sent was a success for non-query requests (e.g.
+    Subscribing/Unsubscribing).
+tags:
+  - name: subscription
+    description: Operations related to subscribing to streams
+  - name: unsubscription
+    description: Operations related to unsubscribing from streams
+  - name: listSubscriptions
+    description: Operations related to listing current subscriptions
+  - name: setProperty
+    description: >-
+      Operations related to setting properties, such as enabling combined stream
+      payloads
+  - name: errorHandling
+    description: Operations related to handling errors and invalid requests
+  - name: aggregateTrade
+    description: Real-time aggregated trade data for a single taker order
+  - name: trade
+    description: Real-time trade data with unique buyer and seller information
+  - name: klineWithTimezoneOffset
+    description: Real-time kline/candlestick chart updates with a UTC+8 timezone offset
+  - name: individualSymbolMiniTicker
+    description: 24hr rolling window mini-ticker statistics for an individual symbol
+  - name: allMarketMiniTickers
+    description: 24hr rolling window mini-ticker statistics for all symbols that changed
+  - name: individualSymbolTicker
+    description: 24hr rolling window ticker statistics for a single symbol
+  - name: allMarketTickers
+    description: 24hr rolling window ticker statistics for all symbols
+  - name: individualSymbolRollingWindowStatistics
+    description: >-
+      Rolling window ticker statistics for a single symbol, computed over
+      multiple windows
+  - name: allMarketRollingWindowStatistics
+    description: >-
+      Rolling window ticker statistics for all market symbols, computed over
+      multiple windows
+  - name: individualSymbolBookTicker
+    description: >-
+      Updates to the best bid or ask price or quantity in real-time for a
+      specified symbol
+  - name: averagePrice
+    description: Changes in the average price over a fixed time interval
+  - name: partialBookDepth
+    description: "Top bids and asks for a symbol, updated every second or 100ms"
+  - name: diffDepth
+    description: Order book price and quantity depth updates used to manage an order book
 servers:
   production:
-    url: "wss://ws-api.binance.com:443/ws-api/v3"
+    url: "stream.binance.com:9443/ws"
     protocol: wss
-    description: Production WebSocket endpoint
-  testnet:
-    url: "wss://testnet.binance.vision/ws-api/v3"
+    description: WebSocket server
+  development:
+    url: "stream.binance.com:443/ws"
     protocol: wss
-    description: Testnet WebSocket endpoint
+    description: Alternate WebSocket server
 channels:
-  request:
-    description: Channel for sending requests
+  /stream:
+    description: >
+      Channel for managing data streams, including subscribing, unsubscribing,
+      listing subscriptions, setting properties, and handling errors.
     publish:
-      operationId: send_request
-      summary: Send a request to Binance WebSocket API
-      message:
-        contentType: application/json
-        payload:
-          $ref: "#/components/schemas/send_request"
-  response:
-    description: Channel for receiving responses
-    subscribe:
-      operationId: receiveResponse
-      summary: Receive a response from Binance WebSocket API
+      operationId: streamManagementResponse
+      summary: Stream management responses
       message:
         oneOf:
-          - $ref: "#/components/messages/success_response"
-          - $ref: "#/components/messages/error_response"
-
+          - $ref: "#/components/messages/StreamControlResponseMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+          - $ref: "#/components/messages/AggregateTradeStreamMessage"
+          - $ref: "#/components/messages/TradeStreamMessage"
+          - $ref: "#/components/messages/KlineStreamWithTimezoneOffsetMessage"
+          - $ref: "#/components/messages/KlineStreamWithUTCMessage"
+          - $ref: "#/components/messages/IndividualSymbolMiniTickerMessage"
+          - $ref: "#/components/messages/AllMarketMiniTickersMessage"
+          - $ref: "#/components/messages/IndividualSymbolTickerMessage"
+          - $ref: "#/components/messages/AllMarketTickersMessage"
+          - $ref: "#/components/messages/IndividualSymbolRollingWindowStatisticsMessage"
+          - $ref: "#/components/messages/AllMarketRollingWindowStatisticsMessage"
+          - $ref: "#/components/messages/IndividualSymbolBookTickerMessage"
+          - $ref: "#/components/messages/AveragePriceMessage"
+          - $ref: "#/components/messages/PartialBookDepthMessage"
+          - $ref: "#/components/messages/DiffDepthMessage"
+    subscribe:
+      operationId: streamManagementRequest
+      summary: Stream management request
+      message:
+        contentType: application/json
+        name: StreamControlMessage
+        payload:
+          $ref: "#/components/schemas/StreamControlMessagePayload"
 components:
-  messages:
-    success_response:
-      contentType: application/json
-      payload:
-        $ref: "#/components/schemas/success_response"
-    error_response:
-      contentType: application/json
-      payload:
-        $ref: "#/components/schemas/error_response"
-
   schemas:
-    send_request:
+    StreamControl:
       type: object
+      name: "StreamControl"
       required:
-        - id
         - method
+        - id
       properties:
-        id:
-          type: string
-          description: Arbitrary ID used to match responses to requests
         method:
           type: string
-          description: Request method name
+          enum:
+            - SUBSCRIBE
+            - UNSUBSCRIBE
+            - LIST_SUBSCRIPTIONS
+            - SET_PROPERTY
+          description: >-
+            The method to use for subscribing, unsubscribing, listing
+            subscriptions, or setting a property.
         params:
-          $ref: "#/components/schemas/send_request_param"
-
-    send_request_param:
-      type: object
-      description: Request parameters (optional)
-      properties:
-        symbol:
-          type: string
-          description: Trading symbol
-        side:
-          $ref: "#/components/schemas/side"
-        type:
-          $ref: "#/components/schemas/order_type"
-        price:
-          type: string
-          description: Order price
-        quantity:
-          type: string
-          description: Order quantity
-        timeInForce:
-          type: string
-          description: Time in force for the order
-        timestamp:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - type: boolean
+          description: >
+            The streams to which the client wants to subscribe or unsubscribe,
+            or the property to set and its value.
+        id:
           type: integer
-          description: Timestamp of the order in milliseconds since Unix epoch
-        apiKey:
-          type: string
-          description: API key for authentication
-        signature:
-          type: string
-          description: Signature for authentication
-
-    success_response:
+          description: Unique identifier for the request.
+    StreamControlResponse:
       type: object
       required:
+        - result
         - id
-        - status
+      name: "StreamControlResponse"
       properties:
-        id:
-          type: string
-          description: Same as in the original request
-        status:
-          type: integer
-          description: Response status code
         result:
-          $ref: "#/components/schemas/success_response_result"
-        rateLimits:
-          type: array
-          items:
-            $ref: "#/components/schemas/rate_limit"
+          $ref: "#/components/schemas/StreamResponseArray"
+        id:
+          type: integer
+          description: The ID corresponding to the original request.
 
-    rate_limit:
-      type: object
-      properties:
-        rateLimitType:
-          type: string
-          description: "Type of rate limit (ORDERS, REQUEST_WEIGHT, etc.)"
-        interval:
-          type: string
-          description: "Interval of rate limiting (SECOND, MINUTE, etc.)"
-        intervalNum:
-          type: integer
-          description: Number of intervals
-        limit:
-          type: integer
-          description: Limit per interval
-        count:
-          type: integer
-          description: Count of requests made
-
-    success_response_result:
-      type: object
-      description: Response content if request succeeded
-      properties:
-        symbol:
-          type: string
-          description: Symbol of the order
-        orderId:
-          type: integer
-          description: Unique identifier of the order
-        orderListId:
-          type: integer
-          description: Unique identifier of the order list
-        clientOrderId:
-          type: string
-          description: Unique identifier of the order assigned by the client
-        transactTime:
-          type: integer
-          description: Transaction time in milliseconds since Unix epoch
-        price:
-          type: string
-          description: Price of the order
-        origQty:
-          type: string
-          description: Original quantity of the order
-        executedQty:
-          type: string
-          description: Quantity of the order that has been executed
-        cummulativeQuoteQty:
-          type: string
-          description: Cumulative quote asset transacted quantity
-        status:
-          type: string
-          description: Status of the order
-        timeInForce:
-          type: string
-          description: Time in force for the Order
-        side:
-          $ref: "#/components/schemas/side"
-        type:
-          $ref: "#/components/schemas/order_type"
-        workingTime:
-          type: integer
-          description: Working time in milliseconds since Unix epoch
-        selfTradePreventionMode:
-          type: string
-          description: Self-trade prevention mode of the order
-
-    error_response:
+    StreamResponseArray:
+      type: array
+      title: "StreamResponseArray"
+      items:
+        $ref: "#/components/schemas/StreamResponse1"
+    StreamResponse1:
+      type: string
+      example: ["sub1", "sub2"]
+      description: |
+        The list of current subscriptions for `LIST_SUBSCRIPTIONS`.
+    Error:
       type: object
       required:
+        - code
+        - msg
         - id
-        - status
-        - error
-      properties:
-        id:
-          type: string
-          description: Same as in the original request
-        status:
-          type: integer
-          description: Response status code
-        error:
-          $ref: "#/components/schemas/error"
-        rateLimits:
-          type: array
-          items:
-            $ref: "#/components/schemas/rate_limit"
-
-    error:
-      type: object
       properties:
         code:
           type: integer
-          description: Error code
+          description: Numeric error code
         msg:
           type: string
-          description: Error message
+          description: Description of the error
+        id:
+          type: integer
+          description: The ID corresponding to the original request that caused the error
+    AggregateTradeStream:
+      type: object
+      properties:
+        e:
+          type: string
+          example: aggTrade
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        a:
+          type: integer
+          example: 12345
+          description: Aggregate trade ID
+        p:
+          type: string
+          example: "0.001"
+          description: Price
+        q:
+          type: string
+          example: "100"
+          description: Quantity
+        f:
+          type: integer
+          example: 100
+          description: First trade ID
+        l:
+          type: integer
+          example: 105
+          description: Last trade ID
+        T:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Trade time
+        m:
+          type: boolean
+          example: true
+          description: Is the buyer the market maker?
+        M:
+          type: boolean
+          example: true
+          description: Ignore
+    TradeStream:
+      type: object
+      properties:
+        e:
+          type: string
+          example: trade
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        t:
+          type: integer
+          example: 12345
+          description: Trade ID
+        p:
+          type: string
+          example: "0.001"
+          description: Price
+        q:
+          type: string
+          example: "100"
+          description: Quantity
+        T:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Trade time
+        m:
+          type: boolean
+          example: true
+          description: Is the buyer the market maker?
+        M:
+          type: boolean
+          example: true
+          description: Ignore
+    KlineStreamWithTimezoneOffset:
+      type: object
+      properties:
+        e:
+          type: string
+          example: kline
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        k:
+          $ref: "#/components/schemas/klineInterval"
+    KlineStreamWithUTC:
+      type: object
+      properties:
+        e:
+          type: string
+          example: kline
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        k:
+          $ref: "#/components/schemas/klineInterval"
+    klineInterval:
+      type: object
+      properties:
+        t:
+          type: integer
+          format: int64
+          example: 1672515780000
+          description: Kline start time (Unix timestamp in UTC)
+        T:
+          type: integer
+          format: int64
+          example: 1672515839999
+          description: Kline close time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        i:
+          type: string
+          example: 1m
+          description: Interval
+        f:
+          type: integer
+          example: 100
+          description: First trade ID
+        L:
+          type: integer
+          example: 200
+          description: Last trade ID
+        o:
+          type: string
+          example: "0.0010"
+          description: Open price
+        c:
+          type: string
+          example: "0.0020"
+          description: Close price
+        h:
+          type: string
+          example: "0.0025"
+          description: High price
+        l:
+          type: string
+          example: "0.0015"
+          description: Low price
+        v:
+          type: string
+          example: "1000"
+          description: Base asset volume
+        n:
+          type: integer
+          example: 100
+          description: Number of trades
+        x:
+          type: boolean
+          example: false
+          description: Is this kline closed?
+        q:
+          type: string
+          example: "1.0000"
+          description: Quote asset volume
+        V:
+          type: string
+          example: "500"
+          description: Taker buy base asset volume
+        Q:
+          type: string
+          example: "0.500"
+          description: Taker buy quote asset volume
+        B:
+          type: string
+          example: "123456"
+          description: Ignore
+    IndividualSymbolMiniTicker:
+      type: object
+      name: "IndividualSymbolMiniTicker"
+      properties:
+        e:
+          type: string
+          example: 24hrMiniTicker
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        c:
+          type: string
+          example: "0.0025"
+          description: Close price
+        o:
+          type: string
+          example: "0.0010"
+          description: Open price
+        h:
+          type: string
+          example: "0.0025"
+          description: High price
+        l:
+          type: string
+          example: "0.0010"
+          description: Low price
+        v:
+          type: string
+          example: "10000"
+          description: Total traded base asset volume
+        q:
+          type: string
+          example: "18"
+          description: Total traded quote asset volume
+    AllMarketMiniTickers:
+      type: array
+      items:
+        $ref: "#/components/schemas/AllMarketMiniTicker"
+    AllMarketMiniTicker:
+      type: object
+      properties:
+        e:
+          type: string
+          example: 24hrMiniTicker
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        c:
+          type: string
+          example: "0.0025"
+          description: Close price
+        o:
+          type: string
+          example: "0.0010"
+          description: Open price
+        h:
+          type: string
+          example: "0.0025"
+          description: High price
+        l:
+          type: string
+          example: "0.0010"
+          description: Low price
+        v:
+          type: string
+          example: "10000"
+          description: Total traded base asset volume
+        q:
+          type: string
+          example: "18"
+          description: Total traded quote asset volume
 
-    side:
+    IndividualSymbolTicker:
+      type: object
+      name: "Individual symbol ticket"
+      properties:
+        e:
+          type: string
+          example: 24hrTicker
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        p:
+          type: string
+          example: "0.0015"
+          description: Price change
+        P:
+          type: string
+          example: "250.00"
+          description: Price change percent
+        w:
+          type: string
+          example: "0.0018"
+          description: Weighted average price
+        x:
+          type: string
+          example: "0.0009"
+          description: >-
+            First trade(F)-1 price (first trade before the 24hr rolling
+            window)
+        c:
+          type: string
+          example: "0.0025"
+          description: Last price
+        Q:
+          type: string
+          example: "10"
+          description: Last quantity
+        b:
+          type: string
+          example: "0.0024"
+          description: Best bid price
+        B:
+          type: string
+          example: "10"
+          description: Best bid quantity
+        a:
+          type: string
+          example: "0.0026"
+          description: Best ask price
+        A:
+          type: string
+          example: "100"
+          description: Best ask quantity
+        o:
+          type: string
+          example: "0.0010"
+          description: Open price
+        h:
+          type: string
+          example: "0.0025"
+          description: High price
+        l:
+          type: string
+          example: "0.0010"
+          description: Low price
+        v:
+          type: string
+          example: "10000"
+          description: Total traded base asset volume
+        q:
+          type: string
+          example: "18"
+          description: Total traded quote asset volume
+        O:
+          type: integer
+          example: 0
+          description: Statistics open time
+        C:
+          type: integer
+          example: 86400000
+          description: Statistics close time
+        F:
+          type: integer
+          example: 0
+          description: First trade ID
+        L:
+          type: integer
+          example: 18150
+          description: Last trade ID
+        "n":
+          type: integer
+          example: 18151
+          description: Total number of trades
+    AllMarketTickers:
+      type: array
+      items:
+        $ref: "#/components/schemas/AllMarketTicker"
+    AllMarketTicker:
+      type: object
+      properties:
+        e:
+          type: string
+          example: 24hrTicker
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        p:
+          type: string
+          example: "0.0015"
+          description: Price change
+        P:
+          type: string
+          example: "250.00"
+          description: Price change percent
+        w:
+          type: string
+          example: "0.0018"
+          description: Weighted average price
+        x:
+          type: string
+          example: "0.0009"
+          description: >-
+            First trade(F)-1 price (first trade before the 24hr rolling
+            window)
+        c:
+          type: string
+          example: "0.0025"
+          description: Last price
+        Q:
+          type: string
+          example: "10"
+          description: Last quantity
+        b:
+          type: string
+          example: "0.0024"
+          description: Best bid price
+        B:
+          type: string
+          example: "10"
+          description: Best bid quantity
+        a:
+          type: string
+          example: "0.0026"
+          description: Best ask price
+        A:
+          type: string
+          example: "100"
+          description: Best ask quantity
+        o:
+          type: string
+          example: "0.0010"
+          description: Open price
+        h:
+          type: string
+          example: "0.0025"
+          description: High price
+        l:
+          type: string
+          example: "0.0010"
+          description: Low price
+        v:
+          type: string
+          example: "10000"
+          description: Total traded base asset volume
+        q:
+          type: string
+          example: "18"
+          description: Total traded quote asset volume
+        O:
+          type: integer
+          example: 0
+          description: Statistics open time
+        C:
+          type: integer
+          example: 86400000
+          description: Statistics close time
+        F:
+          type: integer
+          example: 0
+          description: First trade ID
+        L:
+          type: integer
+          example: 18150
+          description: Last trade ID
+        "n":
+          type: integer
+          example: 18151
+          description: Total number of trades
+
+    IndividualSymbolRollingWindowStatistics:
+      type: object
+      properties:
+        e:
+          type: string
+          example: 1hTicker
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        p:
+          type: string
+          example: "0.0015"
+          description: Price change
+        P:
+          type: string
+          example: "250.00"
+          description: Price change percent
+        o:
+          type: string
+          example: "0.0010"
+          description: Open price
+        h:
+          type: string
+          example: "0.0025"
+          description: High price
+        l:
+          type: string
+          example: "0.0010"
+          description: Low price
+        c:
+          type: string
+          example: "0.0025"
+          description: Last price
+        w:
+          type: string
+          example: "0.0018"
+          description: Weighted average price
+        v:
+          type: string
+          example: "10000"
+          description: Total traded base asset volume
+        q:
+          type: string
+          example: "18"
+          description: Total traded quote asset volume
+        O:
+          type: integer
+          example: 0
+          description: Statistics open time
+        C:
+          type: integer
+          format: int64
+          example: 1675216573749
+          description: Statistics close time (Unix timestamp in UTC)
+        F:
+          type: integer
+          example: 0
+          description: First trade ID
+        L:
+          type: integer
+          example: 18150
+          description: Last trade ID
+        "n":
+          type: integer
+          example: 18151
+          description: Total number of trades
+    AllMarketRollingWindowStatistics:
+      type: array
+      items:
+        $ref: "#/components/schemas/AllMarketRollingWindowStat"
+    AllMarketRollingWindowStat:
+      type: object
+      properties:
+        e:
+          type: string
+          example: 1hTicker
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        p:
+          type: string
+          example: "0.0015"
+          description: Price change
+        P:
+          type: string
+          example: "250.00"
+          description: Price change percent
+        o:
+          type: string
+          example: "0.0010"
+          description: Open price
+        h:
+          type: string
+          example: "0.0025"
+          description: High price
+        l:
+          type: string
+          example: "0.0010"
+          description: Low price
+        c:
+          type: string
+          example: "0.0025"
+          description: Last price
+        w:
+          type: string
+          example: "0.0018"
+          description: Weighted average price
+        v:
+          type: string
+          example: "10000"
+          description: Total traded base asset volume
+        q:
+          type: string
+          example: "18"
+          description: Total traded quote asset volume
+        O:
+          type: integer
+          example: 0
+          description: Statistics open time
+        C:
+          type: integer
+          format: int64
+          example: 1675216573749
+          description: Statistics close time (Unix timestamp in UTC)
+        F:
+          type: integer
+          example: 0
+          description: First trade ID
+        L:
+          type: integer
+          example: 18150
+          description: Last trade ID
+        "n":
+          type: integer
+          example: 18151
+          description: Total number of trades
+
+    IndividualSymbolBookTicker:
+      type: object
+      properties:
+        u:
+          type: integer
+          example: 400900217
+          description: Order book update ID
+        s:
+          type: string
+          example: BNBUSDT
+          description: Symbol
+        b:
+          type: string
+          example: "25.35190000"
+          description: Best bid price
+        B:
+          type: string
+          example: "31.21000000"
+          description: Best bid quantity
+        a:
+          type: string
+          example: "25.36520000"
+          description: Best ask price
+        A:
+          type: string
+          example: "40.66000000"
+          description: Best ask quantity
+    AveragePrice:
+      type: object
+      properties:
+        e:
+          type: string
+          example: avgPrice
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1693907033000
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BTCUSDT
+          description: Symbol
+        i:
+          type: string
+          example: 5m
+          description: Average price interval
+        w:
+          type: string
+          example: "25776.86000000"
+          description: Average price
+        T:
+          type: integer
+          format: int64
+          example: 1693907032213
+          description: Last trade time (Unix timestamp in UTC)
+    PartialBookDepth:
+      type: object
+      properties:
+        lastUpdateId:
+          type: integer
+          format: int64
+          example: 160
+          description: Last update ID
+        bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/PartialBookBids"
+          description: List of bids to be updated
+        asks:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/PartialBookBids"
+
+          description: List of asks to be updated
+    PartialBookBids:
+      type: array
+      items:
+        type: string
+        example: "0.0024"
+        description: Price level or quantity
+
+    DiffDepth:
+      type: object
+      properties:
+        e:
+          type: string
+          example: depthUpdate
+          description: Event type
+        E:
+          type: integer
+          format: int64
+          example: 1672515782136
+          description: Event time (Unix timestamp in UTC)
+        s:
+          type: string
+          example: BNBBTC
+          description: Symbol
+        U:
+          type: integer
+          format: int64
+          example: 157
+          description: First update ID in the event
+        u:
+          type: integer
+          format: int64
+          example: 160
+          description: Final update ID in the event
+        b:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/PartialBookBids"
+          description: List of bids to be updated
+        a:
+          type: array
+          items:
+            type: array
+            items:
+              $ref: "#/components/schemas/PartialBookBids"
+    StreamControlMethod:
       type: string
       enum:
-        - BUY
-        - SELL
-      description: "Side of the order (BUY, SELL)"
-
-    order_type:
+        - SUBSCRIBE
+        - UNSUBSCRIBE
+        - LIST_SUBSCRIPTIONS
+        - SET_PROPERTY
+      description: The method to use for subscribing, unsubscribing, listing subscriptions, or setting a property.
+    StreamParam:
+      oneOf:
+        - $ref: "#/components/schemas/stringResponse"
+        - $ref: "#/components/schemas/boolResponse"
+      description: The streams to which the client wants to subscribe or unsubscribe, or the property to set and its value.
+    StreamControlMessagePayload:
+      type: object
+      required:
+        - method
+        - id
+      properties:
+        method:
+          $ref: "#/components/schemas/StreamControlMethod"
+        params:
+          $ref: "#/components/schemas/StreamParam"
+        id:
+          type: integer
+          description: Unique identifier for the request.
+    stringResponse:
       type: string
-      enum:
-        - LIMIT
-        - MARKET
-      description: "Type of order (LIMIT, MARKET, etc.)"
+      example: "any string"
+    boolResponse:
+      type: boolean
+      example: true
+
+  messages:
+    StreamControlResponseMessage:
+      payload:
+        $ref: "#/components/schemas/StreamControlResponse"
+    ErrorMessage:
+      payload:
+        $ref: "#/components/schemas/Error"
+    AggregateTradeStreamMessage:
+      payload:
+        $ref: "#/components/schemas/AggregateTradeStream"
+    TradeStreamMessage:
+      payload:
+        $ref: "#/components/schemas/TradeStream"
+    KlineStreamWithTimezoneOffsetMessage:
+      payload:
+        $ref: "#/components/schemas/KlineStreamWithTimezoneOffset"
+    KlineStreamWithUTCMessage:
+      payload:
+        $ref: "#/components/schemas/KlineStreamWithUTC"
+    IndividualSymbolMiniTickerMessage:
+      payload:
+        $ref: "#/components/schemas/IndividualSymbolMiniTicker"
+    AllMarketMiniTickersMessage:
+      payload:
+        $ref: "#/components/schemas/AllMarketMiniTickers"
+    IndividualSymbolTickerMessage:
+      payload:
+        $ref: "#/components/schemas/IndividualSymbolTicker"
+    AllMarketTickersMessage:
+      payload:
+        $ref: "#/components/schemas/AllMarketTickers"
+    IndividualSymbolRollingWindowStatisticsMessage:
+      payload:
+        $ref: "#/components/schemas/IndividualSymbolRollingWindowStatistics"
+    AllMarketRollingWindowStatisticsMessage:
+      payload:
+        $ref: "#/components/schemas/AllMarketRollingWindowStatistics"
+    IndividualSymbolBookTickerMessage:
+      payload:
+        $ref: "#/components/schemas/IndividualSymbolBookTicker"
+    AveragePriceMessage:
+      payload:
+        $ref: "#/components/schemas/AveragePrice"
+    PartialBookDepthMessage:
+      payload:
+        $ref: "#/components/schemas/PartialBookDepth"
+    DiffDepthMessage:
+      payload:
+        $ref: "#/components/schemas/DiffDepth"

@@ -77,8 +77,8 @@ asyncapi generate fromTemplate example_asyncapi.yaml @asyncapi/python-paho-templ
 To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I will set up a codegen that generates the rust exchange lib for python and crate for rust.
 | Exchange    | Custody | REST (OpenAPI) | WS (AsyncAPI) |
 | ----------- | ------- | -------------- | ------------- |
-| hyperliquid | no      | done           | planned       |
-| binance     | yes     | done           | WIP           |
+| hyperliquid | no      | done           | wip           |
+| binance     | yes     | done           | done          |
 | coinbase    | yes     | done           | planned       |
 | hashkey     | yes     | done           | planned       |
 | bitwyre     | no      | planned        | planned       |
