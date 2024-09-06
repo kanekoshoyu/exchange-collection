@@ -1,8 +1,0 @@
-[package]
-name = "exchange-collection-hashkey"
-version = "0.0.0"
-edition = "2021"
-
-[dependencies.exchange-collection-hashkey-rest]
-version = "0.0.0"
-path = "rest"
