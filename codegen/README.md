@@ -20,5 +20,5 @@
 - [ ] collection crate (e.g. target/rust)
   - [ ] target/rust/Cargo.toml
     - [x] name = "exchange-collection"
-    - [ ] version = "document_version" // sum of exchanges under the collection
-    - [ ] exchange-collection-binance = { path = "binance", version = "0.1.0" }
+    - [x] version = "document_version" // sum of exchanges under the collection
+    - [x] exchange-collection-binance = { path = "binance", version = "0.1.0" }

@@ -186,7 +186,7 @@ fn run() -> Result<()> {
     // set up crate Cargo.toml
 
     for language in ProgrammingLanguage::iter() {
-        let unified_package_name = "exchange-collection";
+        let collection_package_name = "exchange-collection";
         match language {
             ProgrammingLanguage::Rust => {
                 let collection_directory = cli
@@ -194,98 +194,54 @@ fn run() -> Result<()> {
                     .to_owned()
                     .unwrap()
                     .join(PathBuf::from_str("rust")?);
-                let target_collection_crate = CollectionCrate::from_path(collection_directory)?;
+                let target_collection_crate =
+                    CollectionCrate::from_path(collection_directory.clone())?;
                 println!("{:#?}", target_collection_crate);
 
                 // collection Cargo.toml
-                {}
+                {
+                    let collection_crate = target_collection_crate.clone();
+                    let mut manifest: Manifest<()> = cargo_toml::Manifest::default();
+                    // assign package
+                    let mut exchange_package: cargo_toml::Package<()> =
+                        cargo_toml::Package::default();
+                    exchange_package.name = collection_package_name.to_string();
+                    exchange_package.version =
+                        cargo_toml::Inheritable::Set(collection_crate.version.to_string());
+                    manifest.package = Some(exchange_package);
+                    // assign dependency
+                    for target_exchange_crate in collection_crate.exchange_crates {
+                        let exchange_name = target_exchange_crate.exchange_name.clone();
+                        let dependency_detail = cargo_toml::DependencyDetail {
+                            path: Some(format!("src/{exchange_name}")),
+                            version: Some(target_exchange_crate.clone().version.to_string()),
+                            ..Default::default()
+                        };
+                        let dependency_detail = Box::new(dependency_detail);
+                        let dependency_detail = cargo_toml::Dependency::Detailed(dependency_detail);
+                        manifest.dependencies.insert(
+                            target_exchange_crate.exchange_name.clone(),
+                            dependency_detail,
+                        );
+                    }
+                    // output into a file
+                    let manifest_str = toml::to_string(&manifest)?;
+                    let cargo_toml = collection_directory
+                        .clone()
+                        .join(PathBuf::from_str("Cargo.toml").unwrap());
+                    std::fs::write(cargo_toml, manifest_str)?;
+                }
 
                 // collection lib.rs
                 {}
 
-                for target_exchange_crate in target_collection_crate.exchange_crates {
+                for target_exchange_crate in target_collection_crate.clone().exchange_crates {
                     // exchange Cargo.toml
                     {}
 
                     // exchange lib.rs
                     {}
                 }
-                // let base_src_dir = base_dir.join("src");
-                // // list out all the exchange paths
-                // let exchange_paths: Vec<PathBuf> = std::fs::read_dir(&base_src_dir)
-                //     .unwrap()
-                //     .filter_map(Result::ok)
-                //     .filter(|entry| entry.path().is_dir())
-                //     .map(|entry| entry.path())
-                //     .collect();
-                // //
-                // let mut cross_exchange_cumulative_version = Version::default();
-                // for exchange_path in exchange_paths {
-                //     // exchange level generation
-                //     let exchange = exchange_path.file_name().unwrap().to_str().unwrap();
-                //     let exchange_src_dir = exchange_path.join("src");
-                //     let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(&exchange_src_dir)
-                //         .unwrap()
-                //         .filter_map(Result::ok)
-                //         .filter(|entry| entry.path().is_dir())
-                //         .map(|entry| entry.path())
-                //         .collect();
-                //     // obtain the protocol data generate lib.rs and Cargo.toml file
-                //     let mut exchange_crate_version = Version::default();
-                //     let mut protocols: Vec<Protocol> = Vec::new();
-                //     // go check target/rust/src/binance/src/rest
-                //     for protocol_dir in protocol_dirs {
-                //         let protocol = protocol_dir.file_name().unwrap().to_str().unwrap();
-                //         protocols.push(Protocol::from_str(protocol)?);
-                //         // TODO read the version
-                //         // exchange_crate_version+=;
-                //     }
-                //     // go check target/rust/src/binance/src/ws
-                //     let exchange_package_name = format!("{}-{}", unified_package_name, exchange);
-                //     let mut cross_protocol_cumulative_version = Version::default();
-                //     // construct manifest
-                //     let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
-                //     // for every protocol, add a dependencies and accumulate their version
-                //     for protocol in protocols {
-                //         let protocol_package_name =
-                //             format!("{}-{}", exchange_package_name, protocol.to_string());
-                //         // TODO obtain version
-                //         let version = Version::default();
-                //         cross_protocol_cumulative_version += version;
-                //         let dependency_detail = cargo_toml::DependencyDetail {
-                //             path: Some(protocol.to_string()),
-                //             version: Some(version.to_string()),
-                //             ..Default::default()
-                //         };
-                //         let dependency_detail = Box::new(dependency_detail);
-                //         let dependency_detail = cargo_toml::Dependency::Detailed(dependency_detail);
-                //         manifest
-                //             .dependencies
-                //             .insert(protocol_package_name, dependency_detail);
-                //     }
-                //     let mut exchange_package: cargo_toml::Package<()> =
-                //         cargo_toml::Package::default();
-                //     exchange_package.name = exchange_package_name;
-                //     exchange_package.version =
-                //         cargo_toml::Inheritable::Set(cross_protocol_cumulative_version.to_string());
-                //     manifest.package = Some(exchange_package);
-                //     // output into a file
-                //     let manifest_str = toml::to_string(&manifest)?;
-                //     let cargo_toml =
-                //         exchange_src_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
-                //     std::fs::write(cargo_toml, manifest_str)?;
-                //     // accumulate exchange version
-                //     cross_exchange_cumulative_version += cross_protocol_cumulative_version;
-                // }
-                // package generation
-                // let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
-                // let mut package = cargo_toml::Package::default();
-                // package.name = unified_package_name.to_string();
-                // manifest.package = Some(package);
-                // // output to a file
-                // let manifest_str = toml::to_string(&manifest)?;
-                // let cargo_toml = base_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
-                // std::fs::write(cargo_toml, manifest_str)?;
             }
             ProgrammingLanguage::Python => {
                 // please implemnent here
