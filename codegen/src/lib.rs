@@ -186,6 +186,29 @@ impl std::fmt::Display for Version {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
     }
 }
+impl FromStr for Version {
+    type Err = eyre::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        // Split the version string by dots
+        let parts: Vec<&str> = s.split('.').collect();
+        if parts.len() != 3 {
+            // Return an error if the format is incorrect
+            return Err(eyre!("invalid version format"));
+        }
+
+        // Parse each part into an integer, propagating any errors
+        let major = parts[0].parse::<usize>()?;
+        let minor = parts[1].parse::<usize>()?;
+        let patch = parts[2].parse::<usize>()?;
+
+        Ok(Version {
+            major,
+            minor,
+            patch,
+        })
+    }
+}
 impl<'de> Deserialize<'de> for Version {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -234,6 +257,7 @@ impl<'de> Deserialize<'de> for Version {
         deserializer.deserialize_str(VersionVisitor)
     }
 }
+
 pub struct InputFileParameter {
     /// we keep adding exchanges, no pub enum
     pub exchange: String,

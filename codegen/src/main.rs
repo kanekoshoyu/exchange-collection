@@ -1,4 +1,4 @@
-use cargo_toml::{DependencyDetail, InheritedDependencyDetail};
+use cargo_toml::{InheritedDependencyDetail, Manifest};
 use exchange_collection_codegen::*;
 use eyre::Result;
 use std::io::Write;
@@ -7,147 +7,285 @@ use std::process::Command;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 
+#[derive(Clone, Debug)]
+pub struct ProtocolCrate {
+    pub protocol: Protocol,
+    pub version: Version,
+}
+impl TryFrom<Manifest> for ProtocolCrate {
+    type Error = eyre::Error;
+
+    fn try_from(manifest: Manifest) -> std::result::Result<Self, Self::Error> {
+        let Some(protocol_str) = manifest.package().name().split("-").last() else {
+            return Err(eyre::eyre!("failed parsing protocol name"));
+        };
+        let version_str = manifest.package().version();
+        Ok(ProtocolCrate {
+            protocol: protocol_str.parse()?,
+            version: version_str.parse()?,
+        })
+    }
+}
+impl ProtocolCrate {
+    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
+        // read Cargo.toml and fill in the data
+        let path = path.as_ref();
+        let cargo_toml_path = path.join(Path::new("Cargo.toml"));
+        let Ok(manifest) = Manifest::from_path(cargo_toml_path) else {
+            panic!("failed reading manifest from path");
+        };
+        ProtocolCrate::try_from(manifest)
+    }
+}
+#[derive(Clone, Debug, Default)]
+pub struct ExchangeCrate {
+    pub exchange_name: String,
+    pub version: Version,
+    pub protocol_crates: Vec<ProtocolCrate>,
+}
+impl ExchangeCrate {
+    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
+        // read Cargo.toml and fill in the data
+        let path = path.as_ref();
+        let src_path = path.join(PathBuf::from("src"));
+
+        let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(src_path)?
+            .map(|item| item.unwrap().path())
+            .filter(|path| path.is_dir())
+            .collect();
+
+        let mut protocol_crates = Vec::new();
+        for protocol_dir in protocol_dirs {
+            protocol_crates.push(ProtocolCrate::from_path(protocol_dir)?);
+        }
+
+        let version = protocol_crates
+            .iter()
+            .cloned()
+            .fold(Version::default(), |acc, protocol_crate| {
+                acc + protocol_crate.version
+            });
+
+        let exchange_name: String = path
+            .file_name()
+            .unwrap_or_default()
+            .to_os_string()
+            .into_string()
+            .unwrap_or_default();
+
+        Ok(ExchangeCrate {
+            exchange_name,
+            version,
+            protocol_crates,
+        })
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct CollectionCrate {
+    pub version: Version,
+    pub exchange_crates: Vec<ExchangeCrate>,
+}
+impl CollectionCrate {
+    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
+        // read Cargo.toml and fill in the data
+        let path = path.as_ref();
+        let src_path = path.join(PathBuf::from("src"));
+
+        let exchange_dirs: Vec<PathBuf> = std::fs::read_dir(src_path)?
+            .map(|item| item.unwrap().path())
+            .filter(|path| path.is_dir())
+            .collect();
+
+        let mut exchange_crates = Vec::new();
+        for exchange_dir in exchange_dirs {
+            exchange_crates.push(ExchangeCrate::from_path(exchange_dir)?);
+        }
+
+        let version = exchange_crates
+            .iter()
+            .cloned()
+            .fold(Version::default(), |acc, protocol_crate| {
+                acc + protocol_crate.version
+            });
+
+        Ok(CollectionCrate {
+            version,
+            exchange_crates,
+        })
+    }
+}
+
 fn run() -> Result<()> {
     // load
     let cli: CliInput = CliInput::load()?;
     println!("{:#?}", cli);
 
-    //TODO check internet connection, as nodejs requires internet
+    // check internet connectivity
+    {
+        let url = "https://www.google.com";
+        if !reqwest::blocking::get(url)?.status().is_success() {
+            return Err(eyre::eyre!("the machine is not online"));
+        }
+    }
 
-    // exchange-protocol level generation
-    match (cli.input_filename, cli.input_directory) {
-        (None, Some(input_dir)) => {
-            // batch load from input_dir
-            println!("batch load");
-            let files = std::fs::read_dir(input_dir.clone()).unwrap();
-            let mut filenames = Vec::new();
-            for file in files {
-                let file = file?;
-                let mut filename = input_dir.clone();
-                filename.push(file.file_name());
-                filenames.push(filename);
+    // protocol generation (lowest)
+    {
+        match (cli.input_filename, cli.input_directory.clone()) {
+            (None, Some(input_dir)) => {
+                // batch load from input_dir
+                println!("batch load");
+                let files = std::fs::read_dir(input_dir.clone()).unwrap();
+                let mut filenames = Vec::new();
+                for file in files {
+                    let file = file?;
+                    let mut filename = input_dir.clone();
+                    filename.push(file.file_name());
+                    filenames.push(filename);
+                }
+                let output_collection_directory = cli.output_directory.to_owned().unwrap();
+                for input_filename in filenames {
+                    for output_language in cli.output_language.clone() {
+                        println!(
+                            "generating {} from {:?}",
+                            output_language,
+                            input_filename.file_name().unwrap()
+                        );
+                        codegen_protocol_crate(
+                            input_filename.clone(),
+                            output_collection_directory.clone(),
+                            output_language,
+                        )?;
+                    }
+                }
             }
-            let output_directory = cli.output_directory.unwrap();
-            for input_filename in filenames {
+            (Some(input_filename), None) => {
+                // single load
+                println!("single load");
+                let output_directory = cli.output_directory.to_owned().unwrap();
                 for output_language in cli.output_language.clone() {
-                    println!(
-                        "generating {} from {:?}",
-                        output_language,
-                        input_filename.file_name().unwrap()
-                    );
-                    codegen_module(
+                    codegen_protocol_crate(
                         input_filename.clone(),
                         output_directory.clone(),
                         output_language,
                     )?;
                 }
             }
+            _ => unreachable!(),
         }
-        (Some(input_filename), None) => {
-            // single load
-            println!("single load");
-            let output_directory = cli.output_directory.unwrap();
-            for output_language in cli.output_language.clone() {
-                codegen_module(
-                    input_filename.clone(),
-                    output_directory.clone(),
-                    output_language,
-                )?;
-            }
-        }
-        _ => unreachable!(),
     }
 
-    // exchange level generation
+    // codegen crate and exchange (not a big fan of recursive code...)
+    // iterate through crate_src to get all exchanges
+    // iterate through exhange_src to get all protocols and its version
+    // set HashMap<String, Hashmap<String, Version>>
+
+    // set up exchange_src lib.rs
+    // set up exchange Cargo.toml
+    // set up crate_src lib.rs
+    // set up crate Cargo.toml
+
     for language in ProgrammingLanguage::iter() {
+        let unified_package_name = "exchange-collection";
         match language {
             ProgrammingLanguage::Rust => {
-                let unified_package_name = "exchange-collection";
-                let base_dir = PathBuf::from_str("target/rust")?;
-                let base_src_dir = base_dir.join("src");
-
-                // list out all the exchange paths
-                let exchange_paths: Vec<PathBuf> = std::fs::read_dir(&base_src_dir)
+                let collection_directory = cli
+                    .output_directory
+                    .to_owned()
                     .unwrap()
-                    .filter_map(Result::ok)
-                    .filter(|entry| entry.path().is_dir())
-                    .map(|entry| entry.path())
-                    .collect();
+                    .join(PathBuf::from_str("rust")?);
+                let target_collection_crate = CollectionCrate::from_path(collection_directory)?;
+                println!("{:#?}", target_collection_crate);
 
-                //
-                let mut cross_exchange_cumulative_version = Version::default();
+                // collection Cargo.toml
+                {}
 
-                for exchange_path in exchange_paths {
-                    // exchange level generation
-                    let exchange = exchange_path.file_name().unwrap().to_str().unwrap();
-                    let exchange_src_dir = exchange_path.join("src");
+                // collection lib.rs
+                {}
 
-                    let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(&exchange_src_dir)
-                        .unwrap()
-                        .filter_map(Result::ok)
-                        .filter(|entry| entry.path().is_dir())
-                        .map(|entry| entry.path())
-                        .collect();
-                    // obtain the protocol data generate lib.rs and Cargo.toml file
-                    let mut exchange_crate_version = Version::default();
-                    let mut protocols: Vec<Protocol> = Vec::new();
-                    // go check target/rust/src/binance/src/rest
-                    for protocol_dir in protocol_dirs {
-                        let protocol = protocol_dir.file_name().unwrap().to_str().unwrap();
-                        protocols.push(Protocol::from_str(protocol)?);
-                        // TODO read the version
-                        // exchange_crate_version+=;
-                    }
+                for target_exchange_crate in target_collection_crate.exchange_crates {
+                    // exchange Cargo.toml
+                    {}
 
-                    // go check target/rust/src/binance/src/ws
-                    let exchange_package_name = format!("{}-{}", unified_package_name, exchange);
-                    let mut cross_protocol_cumulative_version = Version::default();
-
-                    // construct manifest
-                    let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
-                    // for every protocol, add a dependencies and accumulate their version
-                    for protocol in protocols {
-                        let protocol_package_name =
-                            format!("{}-{}", exchange_package_name, protocol.to_string());
-                        // TODO obtain version
-                        let version = Version::default();
-                        cross_protocol_cumulative_version += version;
-                        let dependency_detail = cargo_toml::DependencyDetail {
-                            path: Some(protocol.to_string()),
-                            version: Some(version.to_string()),
-                            ..Default::default()
-                        };
-                        let dependency_detail = Box::new(dependency_detail);
-                        let dependency_detail = cargo_toml::Dependency::Detailed(dependency_detail);
-                        manifest
-                            .dependencies
-                            .insert(protocol_package_name, dependency_detail);
-                    }
-                    let mut exchange_package: cargo_toml::Package<()> =
-                        cargo_toml::Package::default();
-                    exchange_package.name = exchange_package_name;
-                    exchange_package.version =
-                        cargo_toml::Inheritable::Set(cross_protocol_cumulative_version.to_string());
-                    manifest.package = Some(exchange_package);
-                    // output into a file
-                    let manifest_str = toml::to_string(&manifest)?;
-                    let cargo_toml =
-                        exchange_src_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
-                    std::fs::write(cargo_toml, manifest_str)?;
-                    // accumulate exchange version
-                    cross_exchange_cumulative_version += cross_protocol_cumulative_version;
+                    // exchange lib.rs
+                    {}
                 }
-
+                // let base_src_dir = base_dir.join("src");
+                // // list out all the exchange paths
+                // let exchange_paths: Vec<PathBuf> = std::fs::read_dir(&base_src_dir)
+                //     .unwrap()
+                //     .filter_map(Result::ok)
+                //     .filter(|entry| entry.path().is_dir())
+                //     .map(|entry| entry.path())
+                //     .collect();
+                // //
+                // let mut cross_exchange_cumulative_version = Version::default();
+                // for exchange_path in exchange_paths {
+                //     // exchange level generation
+                //     let exchange = exchange_path.file_name().unwrap().to_str().unwrap();
+                //     let exchange_src_dir = exchange_path.join("src");
+                //     let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(&exchange_src_dir)
+                //         .unwrap()
+                //         .filter_map(Result::ok)
+                //         .filter(|entry| entry.path().is_dir())
+                //         .map(|entry| entry.path())
+                //         .collect();
+                //     // obtain the protocol data generate lib.rs and Cargo.toml file
+                //     let mut exchange_crate_version = Version::default();
+                //     let mut protocols: Vec<Protocol> = Vec::new();
+                //     // go check target/rust/src/binance/src/rest
+                //     for protocol_dir in protocol_dirs {
+                //         let protocol = protocol_dir.file_name().unwrap().to_str().unwrap();
+                //         protocols.push(Protocol::from_str(protocol)?);
+                //         // TODO read the version
+                //         // exchange_crate_version+=;
+                //     }
+                //     // go check target/rust/src/binance/src/ws
+                //     let exchange_package_name = format!("{}-{}", unified_package_name, exchange);
+                //     let mut cross_protocol_cumulative_version = Version::default();
+                //     // construct manifest
+                //     let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
+                //     // for every protocol, add a dependencies and accumulate their version
+                //     for protocol in protocols {
+                //         let protocol_package_name =
+                //             format!("{}-{}", exchange_package_name, protocol.to_string());
+                //         // TODO obtain version
+                //         let version = Version::default();
+                //         cross_protocol_cumulative_version += version;
+                //         let dependency_detail = cargo_toml::DependencyDetail {
+                //             path: Some(protocol.to_string()),
+                //             version: Some(version.to_string()),
+                //             ..Default::default()
+                //         };
+                //         let dependency_detail = Box::new(dependency_detail);
+                //         let dependency_detail = cargo_toml::Dependency::Detailed(dependency_detail);
+                //         manifest
+                //             .dependencies
+                //             .insert(protocol_package_name, dependency_detail);
+                //     }
+                //     let mut exchange_package: cargo_toml::Package<()> =
+                //         cargo_toml::Package::default();
+                //     exchange_package.name = exchange_package_name;
+                //     exchange_package.version =
+                //         cargo_toml::Inheritable::Set(cross_protocol_cumulative_version.to_string());
+                //     manifest.package = Some(exchange_package);
+                //     // output into a file
+                //     let manifest_str = toml::to_string(&manifest)?;
+                //     let cargo_toml =
+                //         exchange_src_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
+                //     std::fs::write(cargo_toml, manifest_str)?;
+                //     // accumulate exchange version
+                //     cross_exchange_cumulative_version += cross_protocol_cumulative_version;
+                // }
                 // package generation
-                let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
-                let mut package = cargo_toml::Package::default();
-                package.name = unified_package_name.to_string();
-                manifest.package = Some(package);
-
-                // output to a file
-                let manifest_str = toml::to_string(&manifest)?;
-                let cargo_toml = base_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
-                std::fs::write(cargo_toml, manifest_str)?;
+                // let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
+                // let mut package = cargo_toml::Package::default();
+                // package.name = unified_package_name.to_string();
+                // manifest.package = Some(package);
+                // // output to a file
+                // let manifest_str = toml::to_string(&manifest)?;
+                // let cargo_toml = base_dir.join(PathBuf::from_str("Cargo.toml").unwrap());
+                // std::fs::write(cargo_toml, manifest_str)?;
             }
             ProgrammingLanguage::Python => {
                 // please implemnent here
@@ -157,9 +295,9 @@ fn run() -> Result<()> {
     Ok(())
 }
 
-fn codegen_protocol_module_output_directory(
+fn output_protocol_directory(
     input_filename: impl AsRef<Path>,
-    output_directory_base: impl AsRef<Path>,
+    output_collection_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
 ) -> PathBuf {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
@@ -167,34 +305,28 @@ fn codegen_protocol_module_output_directory(
     let protocol = param.protocol;
 
     // define subpath under output_directory to output
-    let sub_path_str = match output_language {
+    let local_protocol_directory_str = match output_language {
         ProgrammingLanguage::Rust => {
             format!("{}/src/{}/src/{}", output_language, exchange, protocol)
         }
         ProgrammingLanguage::Python => format!("{}/{}/{}", output_language, exchange, protocol),
     };
-    let sub_path = PathBuf::from_str(&sub_path_str).unwrap();
+    let local_protocol_directory = PathBuf::from_str(&local_protocol_directory_str).unwrap();
     // append subpath into the output_directory
-    let mut output_directory = output_directory_base.as_ref().to_path_buf();
-    output_directory.push(sub_path);
-
-    PathBuf::from(&output_directory)
+    let mut protocol_directory_str = output_collection_directory.as_ref().to_path_buf();
+    protocol_directory_str.push(local_protocol_directory);
+    PathBuf::from(&protocol_directory_str)
 }
 
 /// openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
 /// asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
-fn codegen_module_command(
+fn codegen_protocol_crate_command(
     input_filename: impl AsRef<Path>,
-    output_directory_base: impl AsRef<Path>,
+    protocol_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
 ) -> Result<Command> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
-    let output_directory = codegen_protocol_module_output_directory(
-        &input_filename,
-        &output_directory_base,
-        output_language,
-    );
-
+    let protocol_directory = protocol_directory.as_ref();
     // output
     let input_filename = input_filename.as_ref();
     Ok(match param.format {
@@ -203,7 +335,8 @@ fn codegen_module_command(
             cmd.arg("generate");
             cmd.arg(format!("-g {}", output_language));
             cmd.arg(format!("-i {}", input_filename.display()));
-            cmd.arg(format!("-o {}", output_directory.display()));
+            cmd.arg(format!("-o {}", protocol_directory.display()));
+            cmd.arg(format!("--addional-properties=library=reqwest"));
             cmd
         }
         ApiFileFormat::AsyncApi => {
@@ -211,36 +344,36 @@ fn codegen_module_command(
             cmd.arg("generate models");
             cmd.arg(format!("{}", output_language));
             cmd.arg(format!("-i {}", input_filename.display()));
-            cmd.arg(format!("-o {}", output_directory.display()));
+            cmd.arg(format!("-o {}", protocol_directory.display()));
             cmd
         }
     })
 }
 
 /// codegen for single module, e.g. Binance WS Rust
-fn codegen_module(
+fn codegen_protocol_crate(
     input_filename: impl AsRef<Path>,
-    output_directory_base: impl AsRef<Path>,
+    output_collection_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
 ) -> Result<()> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
-    let output_directory = codegen_protocol_module_output_directory(
+    let protocol_directory = output_protocol_directory(
         &input_filename,
-        &output_directory_base,
+        &output_collection_directory,
         output_language,
     );
-    println!("codegen_output_directory: {}", output_directory.display());
+    println!("codegen_output_directory: {}", protocol_directory.display());
     // pre-codegen (any thing that codegen requires)
     {
         // create dir
-        if let Err(e) = std::fs::create_dir_all(&output_directory) {
+        if let Err(e) = std::fs::create_dir_all(&protocol_directory) {
             return Err(eyre::eyre!("failed creating directory, {e}"));
         }
         match param.format {
             ApiFileFormat::OpenApi => {
                 // copy the ignore script into target directory, keep the same filename
                 let from = PathBuf::from_str("codegen/.openapi-generator-ignore")?;
-                let to = output_directory.clone().join(from.file_name().unwrap());
+                let to = protocol_directory.clone().join(from.file_name().unwrap());
                 // println!("copying from: {:?}, to: {:?}", from, to);
                 if let Err(e) = std::fs::copy(from, to) {
                     return Err(eyre::eyre!("failed copying ignore file, {e}"));
@@ -255,8 +388,8 @@ fn codegen_module(
     // codegen
     {
         let mut command =
-            codegen_module_command(input_filename, &output_directory_base, output_language)?;
-        // println!("{:?}", command);
+            codegen_protocol_crate_command(input_filename, &protocol_directory, output_language)?;
+        println!("{:?}", command);
         command.output()?;
     }
 
@@ -265,37 +398,48 @@ fn codegen_module(
         // add package info
         match output_language {
             ProgrammingLanguage::Rust => {
+                // crate_directory: Cargo.toml (exchange-collection)
+                // crate_src_directory: lib.rs (binance/hyperliquid)
+                // exchange_directory: Cargo.toml (exchange-collection-binance)
+                // exchange_src_directory: lib.rs (rest/ws)
+                // protocol_directory: Cargo.toml (exchange-collection-binance-rest)
+                {}
                 // todo!("add mod.rs and Cargo.toml based on the version");
 
-                // create a new Manifest object, which represents the contents of Cargo.toml
-                let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
-                let mut package = cargo_toml::Package::default();
-                package.name = format!("exchange-collection-{}-{}", param.exchange, param.protocol);
-                package.version = cargo_toml::Inheritable::Set(param.version.to_string());
-                package.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2021);
-                manifest.package = Some(package);
+                // Cargo.toml
+                {
+                    let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
+                    let mut package = cargo_toml::Package::default();
+                    package.name =
+                        format!("exchange-collection-{}-{}", param.exchange, param.protocol);
+                    package.version = cargo_toml::Inheritable::Set(param.version.to_string());
+                    package.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2021);
+                    manifest.package = Some(package);
 
-                let dependencies = ["reqwest", "serde", "serde_json", "serde_yaml", "url"];
-                for dependecy in dependencies {
-                    manifest.dependencies.insert(
-                        dependecy.to_string(),
-                        cargo_toml::Dependency::Inherited(InheritedDependencyDetail {
-                            workspace: true,
-                            ..Default::default()
-                        }),
-                    );
+                    let dependencies = ["reqwest", "serde", "serde_json", "serde_yaml", "url"];
+                    for dependecy in dependencies {
+                        manifest.dependencies.insert(
+                            dependecy.to_string(),
+                            cargo_toml::Dependency::Inherited(InheritedDependencyDetail {
+                                workspace: true,
+                                ..Default::default()
+                            }),
+                        );
+                    }
+                    // output as a file
+                    std::fs::write(
+                        protocol_directory.join(PathBuf::from_str("Cargo.toml").unwrap()),
+                        toml::to_string(&manifest)?,
+                    )?;
                 }
-                // output as a file
-                let manifest_str = toml::to_string(&manifest)?;
-                let cargo_toml = output_directory.join(PathBuf::from_str("Cargo.toml").unwrap());
-                std::fs::write(cargo_toml, manifest_str)?;
 
-                // create lib.rs with list of its protocols
-                let lib_rs = output_directory
-                    .parent()
-                    .unwrap()
-                    .join(PathBuf::from_str("lib.rs").unwrap());
-                append_if_missing(&lib_rs, &format!("pub mod {};", param.protocol))?;
+                // TODO move this out of the
+                // lib.rs
+                {
+                    let exchange_src_directory = protocol_directory.parent().unwrap();
+                    let lib_rs = exchange_src_directory.join(PathBuf::from_str("lib.rs").unwrap());
+                    append_if_missing(&lib_rs, &format!("pub mod {};", param.protocol))?;
+                }
 
                 // anything other than the single module codegen should go to overall_codegen, e.g.
             }
@@ -349,7 +493,8 @@ mod tests {
         let output_directory = PathBuf::from_str("target").unwrap();
         let output_language = ProgrammingLanguage::Rust;
         let command =
-            match codegen_module_command(input_filename, output_directory, output_language) {
+            match codegen_protocol_crate_command(input_filename, output_directory, output_language)
+            {
                 Ok(command) => command,
                 Err(e) => panic!("{e:?}"),
             };
@@ -433,7 +578,7 @@ mod tests {
         let openapi: OpenApi = serde_yaml::from_str(&input_yaml_str).unwrap();
         let asyncapi: AsyncApi = serde_yaml::from_str(&input_yaml_str).unwrap();
         assert_eq!(
-            openapi.version,
+            openapi.get_version().unwrap_or_default(),
             Version {
                 major: 3,
                 minor: 0,
@@ -441,12 +586,40 @@ mod tests {
             }
         );
         assert_eq!(
-            asyncapi.version,
+            asyncapi.get_version().unwrap_or_default(),
             Version {
                 major: 2,
                 minor: 3,
                 patch: 0
             }
         );
+    }
+
+    #[test]
+    fn test_protocol_crate_from_dir() {
+        let dir = PathBuf::from_str("../target/rust/src/binance/src/rest")
+            .unwrap()
+            .canonicalize()
+            .unwrap();
+        let protocol_crate = ProtocolCrate::from_path(dir).unwrap();
+        assert_eq!(protocol_crate.version, Version::from_str("1.0.0").unwrap());
+        assert_eq!(protocol_crate.protocol, Protocol::Rest);
+    }
+
+    #[test]
+    fn test_exchange_crate_from_dir() {
+        let dir = PathBuf::from_str("../target/rust/src/binance").unwrap();
+        let protocol_crate = ExchangeCrate::from_path(dir).unwrap();
+        assert_eq!(protocol_crate.version, Version::from_str("2.0.0").unwrap());
+        assert_eq!(protocol_crate.protocol_crates.len(), 2);
+        assert_eq!(protocol_crate.exchange_name, "binance");
+    }
+
+    #[test]
+    fn test_collecion_crate_from_dir() {
+        let dir = PathBuf::from_str("../target/rust").unwrap();
+        let protocol_crate = CollectionCrate::from_path(dir).unwrap();
+        assert_eq!(protocol_crate.version, Version::from_str("2.0.0").unwrap());
+        assert_eq!(protocol_crate.exchange_crates.len(), 1);
     }
 }

@@ -1,6 +1,7 @@
 # [exchange-collection](../README.md)-codegen
-codegen for exchange collection
+> codegen for exchange collection
 
+[changelog](./CHANGELOG.md)
 ## TODO (take bottom up approach)
 - [ ] come up with a complete guideline on nested semantic versioning
 - [ ] protocol crate (e.g.  target/rust/src/binance/src/rest)

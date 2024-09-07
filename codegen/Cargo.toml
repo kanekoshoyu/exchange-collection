@@ -9,6 +9,7 @@ edition = "2021"
 cargo_toml.workspace = true
 clap.workspace = true
 eyre.workspace = true
+reqwest = { workspace = true, features = ["blocking"] }
 serde.workspace = true
 serde_yaml.workspace = true
 strum.workspace = true

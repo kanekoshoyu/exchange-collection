@@ -35,16 +35,16 @@ I propose a more streamlined integration of exchange API with a new approach to 
 (effort: N * L * S)
 
 ## structure
-| location                       | feature                                                                         |
-| ------------------------------ | ------------------------------------------------------------------------------- |
-| [asset](./asset/)              | OpenAPI and AsyncAPI YAML                                                       |
-| [codegen](./codegen/README.md) | codegen script in rust, run locally to generate and push                        |
-| [target](./target/README.md)   | generated code in python and rust                                               |
-| [index.html](./index.html)     | Rapidoc OpenAPI YAML viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
+| location                       | feature                                                                       |
+| ------------------------------ | ----------------------------------------------------------------------------- |
+| [asset](./asset/)              | OpenAPI and AsyncAPI YAML                                                     |
+| [codegen](./codegen/README.md) | codegen script in rust, run locally to generate and push                      |
+| [target](./target/README.md)   | generated code in python and rust                                             |
+| [index.html](./index.html)     | OpenAPI / AsyncAPI viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
 
 ## guidelines
-1. OpenAPI: YAML, v3.0.1 (convert swagger to OpenAPI [here](https://editor.swagger.io/))
-2. AsyncAPI: YAML, v2.3.0 (codegen does not work well with v3 apparently)
+1. OpenAPI: YAML, v3.X.Y (convert swagger to OpenAPI [here](https://editor.swagger.io/))
+2. AsyncAPI: YAML, v2.X.Y (codegen does not work well with v3 apparently)
 3. place YAML in follow the naming convention of `{exchange}_{rest/ws}_{openapi/asyncapi}.yaml`
 4. codegen scripting in python (for easier GitHub CI)
 5. official codegen support: rust, python
