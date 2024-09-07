@@ -233,7 +233,19 @@ fn run() -> Result<()> {
                 }
 
                 // collection lib.rs
-                {}
+                {
+                    let collection_crate = target_collection_crate.clone();
+                    let collection_src_directory =
+                        collection_directory.join(PathBuf::from_str("src")?);
+                    for target_exchange_crate in collection_crate.exchange_crates {
+                        let lib_rs =
+                            collection_src_directory.join(PathBuf::from_str("lib.rs").unwrap());
+                        append_if_missing(
+                            &lib_rs,
+                            &format!("pub mod {};", target_exchange_crate.exchange_name),
+                        )?;
+                    }
+                }
 
                 for target_exchange_crate in target_collection_crate.clone().exchange_crates {
                     // exchange Cargo.toml
@@ -389,7 +401,6 @@ fn codegen_protocol_crate(
                     )?;
                 }
 
-                // TODO move this out of the
                 // lib.rs
                 {
                     let exchange_src_directory = protocol_directory.parent().unwrap();
