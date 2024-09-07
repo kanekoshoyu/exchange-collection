@@ -235,24 +235,34 @@ fn run() -> Result<()> {
                 // collection lib.rs
                 {
                     let collection_crate = target_collection_crate.clone();
-                    let collection_src_directory =
-                        collection_directory.join(PathBuf::from_str("src")?);
                     for target_exchange_crate in collection_crate.exchange_crates {
-                        let lib_rs =
-                            collection_src_directory.join(PathBuf::from_str("lib.rs").unwrap());
                         append_if_missing(
-                            &lib_rs,
+                            &collection_directory.join(PathBuf::from_str("src/lib.rs").unwrap()),
                             &format!("pub mod {};", target_exchange_crate.exchange_name),
                         )?;
                     }
                 }
 
                 for target_exchange_crate in target_collection_crate.clone().exchange_crates {
+                    let dir = format!("src/{}", &target_exchange_crate.exchange_name);
+                    let exchange_directory = collection_directory.join(PathBuf::from_str(&dir)?);
                     // exchange Cargo.toml
-                    {}
+                    {
+                        // TODO
+                    }
 
                     // exchange lib.rs
-                    {}
+                    {
+                        let exchange_crate = target_exchange_crate.clone();
+                        for target_protocol_crate in exchange_crate.protocol_crates {
+                            let exchange_directory = exchange_directory.clone();
+                            append_if_missing(
+                                &exchange_directory.join(PathBuf::from_str("src/lib.rs")?),
+                                &format!("pub mod {};", target_protocol_crate.protocol.to_string()),
+                            )
+                            .expect("msg");
+                        }
+                    }
                 }
             }
             ProgrammingLanguage::Python => {
@@ -366,14 +376,6 @@ fn codegen_protocol_crate(
         // add package info
         match output_language {
             ProgrammingLanguage::Rust => {
-                // crate_directory: Cargo.toml (exchange-collection)
-                // crate_src_directory: lib.rs (binance/hyperliquid)
-                // exchange_directory: Cargo.toml (exchange-collection-binance)
-                // exchange_src_directory: lib.rs (rest/ws)
-                // protocol_directory: Cargo.toml (exchange-collection-binance-rest)
-                {}
-                // todo!("add mod.rs and Cargo.toml based on the version");
-
                 // Cargo.toml
                 {
                     let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
@@ -400,14 +402,6 @@ fn codegen_protocol_crate(
                         toml::to_string(&manifest)?,
                     )?;
                 }
-
-                // lib.rs
-                {
-                    let exchange_src_directory = protocol_directory.parent().unwrap();
-                    let lib_rs = exchange_src_directory.join(PathBuf::from_str("lib.rs").unwrap());
-                    append_if_missing(&lib_rs, &format!("pub mod {};", param.protocol))?;
-                }
-
                 // anything other than the single module codegen should go to overall_codegen, e.g.
             }
             ProgrammingLanguage::Python => {}
@@ -419,7 +413,6 @@ fn codegen_protocol_crate(
 /// Appends `line_to_append` to `lib_rs_path` if the line is missing.
 fn append_if_missing(lib_rs_path: impl AsRef<Path>, line_to_append: &str) -> std::io::Result<()> {
     let lib_rs_path = lib_rs_path.as_ref();
-
     // Check if the file exists
     if lib_rs_path.exists() {
         // If the file exists, read the contents of the file
