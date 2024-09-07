@@ -203,18 +203,18 @@ fn run() -> Result<()> {
                     let collection_crate = target_collection_crate.clone();
                     let mut manifest: Manifest<()> = cargo_toml::Manifest::default();
                     // assign package
-                    let mut exchange_package: cargo_toml::Package<()> =
+                    let mut collection_package: cargo_toml::Package<()> =
                         cargo_toml::Package::default();
-                    exchange_package.name = collection_package_name.to_string();
-                    exchange_package.version =
+                    collection_package.name = collection_package_name.to_string();
+                    collection_package.version =
                         cargo_toml::Inheritable::Set(collection_crate.version.to_string());
-                    manifest.package = Some(exchange_package);
+                    manifest.package = Some(collection_package);
                     // assign dependency
                     for target_exchange_crate in collection_crate.exchange_crates {
                         let exchange_name = target_exchange_crate.exchange_name.clone();
                         let dependency_detail = cargo_toml::DependencyDetail {
                             path: Some(format!("src/{exchange_name}")),
-                            version: Some(target_exchange_crate.clone().version.to_string()),
+                            version: Some(target_exchange_crate.version.to_string()),
                             ..Default::default()
                         };
                         let dependency_detail = Box::new(dependency_detail);
@@ -248,7 +248,37 @@ fn run() -> Result<()> {
                     let exchange_directory = collection_directory.join(PathBuf::from_str(&dir)?);
                     // exchange Cargo.toml
                     {
-                        // TODO
+                        let target_exchange_crate = target_exchange_crate.clone();
+                        let mut manifest: Manifest<()> = cargo_toml::Manifest::default();
+                        // assign package
+                        let mut exchange_package: cargo_toml::Package<()> =
+                            cargo_toml::Package::default();
+                        exchange_package.name = target_exchange_crate.exchange_name.clone();
+                        exchange_package.version =
+                            cargo_toml::Inheritable::Set(target_exchange_crate.version.to_string());
+                        manifest.package = Some(exchange_package);
+                        // assign dependency
+                        for target_protocol_crate in target_exchange_crate.protocol_crates {
+                            let protocol_name = target_protocol_crate.protocol.to_string();
+                            let dependency_detail = cargo_toml::DependencyDetail {
+                                path: Some(format!("src/{protocol_name}")),
+                                version: Some(target_protocol_crate.version.to_string()),
+                                ..Default::default()
+                            };
+                            let dependency_detail = Box::new(dependency_detail);
+                            let dependency_detail =
+                                cargo_toml::Dependency::Detailed(dependency_detail);
+                            manifest.dependencies.insert(
+                                target_protocol_crate.protocol.to_string(),
+                                dependency_detail,
+                            );
+                        }
+                        // output into a file
+                        let manifest_str = toml::to_string(&manifest)?;
+                        let cargo_toml = exchange_directory
+                            .clone()
+                            .join(PathBuf::from_str("Cargo.toml").unwrap());
+                        std::fs::write(cargo_toml, manifest_str)?;
                     }
 
                     // exchange lib.rs
