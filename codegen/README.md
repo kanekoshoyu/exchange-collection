@@ -2,11 +2,12 @@
 codegen for exchange collection
 
 ## TODO (take bottom up approach)
+- [ ] come up with a complete guideline on nested semantic versioning
 - [ ] protocol crate (e.g.  target/rust/src/binance/src/rest)
   - [ ] target/rust/src/binance/src/rest/src/model (linting fails in the generated code)
   - [x] target/rust/src/binance/src/rest/Cargo.toml
     - [x] exchange-collection-binance-rest
-    - [ ] version = "0.1.0" // from the version in the doc, current one is wrong
+    - [x] version = "0.1.0"
     - [x] dependencies (serde, serde_repr, serde_json, reqwest, url)
 - [ ] exchange crate (e.g. target/rust/src/binance)
   - [x] target/rust/src/binance/Cargo.toml // based on the generated protocols

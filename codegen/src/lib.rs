@@ -6,15 +6,38 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
-#[derive(Deserialize, Debug, Clone)]
-pub struct AsyncApiInfo {
-    #[serde(rename = "asyncapi")]
-    pub version: Version,
+
+pub trait GetVersion {
+    fn get_version(&self) -> Option<Version>;
 }
 #[derive(Deserialize, Debug, Clone)]
+pub struct AsyncApi {
+    pub info: AsyncApiInfo,
+}
+impl GetVersion for AsyncApi {
+    fn get_version(&self) -> Option<Version> {
+        self.info.version
+    }
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct AsyncApiInfo {
+    pub version: Option<Version>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub struct OpenApi {
+    pub info: OpenApiInfo,
+}
+impl GetVersion for OpenApi {
+    fn get_version(&self) -> Option<Version> {
+        self.info.version
+    }
+}
+
+#[derive(Deserialize, Debug, Clone)]
 pub struct OpenApiInfo {
-    #[serde(rename = "openapi")]
-    pub version: Version,
+    pub version: Option<Version>,
 }
 
 #[derive(Parser, Debug)]
@@ -252,16 +275,17 @@ impl InputFileParameter {
 
         let version = match format {
             ApiFileFormat::OpenApi => {
-                let info: OpenApiInfo =
+                let info: OpenApi =
                     serde_yaml::from_str(&file_content).expect("Failed to parse YAML");
-                info.version
+                info.get_version()
             }
             ApiFileFormat::AsyncApi => {
-                let info: AsyncApiInfo =
+                let info: AsyncApi =
                     serde_yaml::from_str(&file_content).expect("Failed to parse YAML");
-                info.version
+                info.get_version()
             }
-        };
+        }
+        .unwrap_or_default();
 
         Ok(InputFileParameter {
             exchange,

@@ -430,8 +430,8 @@ mod tests {
             openapi: 3.0.1
             asyncapi: 2.3.0
         ";
-        let openapi: OpenApiInfo = serde_yaml::from_str(&input_yaml_str).unwrap();
-        let asyncapi: AsyncApiInfo = serde_yaml::from_str(&input_yaml_str).unwrap();
+        let openapi: OpenApi = serde_yaml::from_str(&input_yaml_str).unwrap();
+        let asyncapi: AsyncApi = serde_yaml::from_str(&input_yaml_str).unwrap();
         assert_eq!(
             openapi.version,
             Version {
