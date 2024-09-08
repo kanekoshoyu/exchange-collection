@@ -1,9 +1,30 @@
 # [exchange-collection](../README.md)-codegen
 > codegen for exchange collection
 
-[changelog](./CHANGELOG.md)
+## versioning 
+[changelog](./CHANGELOG.md)  
+- protocol crate version = API config version + codegen version  
+  ```
+  binance_rest_openapi.yaml: 1.0.0
+  exchange-collection-codegen: 0.1.0
+  exchange-collection-binance-rest: 1.1.0
+  ```
+- exchange crate version = sum of protocol version version
+  ```
+  exchange-collection-binance-rest: 1.1.0
+  exchange-collection-binance-ws: 1.1.0
+  exchange-collection-binance: 2.2.0
+  ```
+- collection crate version = sum of exchange crate version
+  ```
+  exchange-collection-binance: 2.2.0
+  exchange-collection-hyperliquid: 1.1.0
+  exchange-collection: 3.3.0
+  ```
+
+
 ## TODO (take bottom up approach)
-- [ ] come up with a complete guideline on nested semantic versioning
+- [x] come up with a complete guideline on nested semantic versioning
 - [X] protocol crate (e.g.  target/rust/src/binance/src/rest)
   - [X] target/rust/src/binance/src/rest/src/model (linting fails in the generated code)
   - [x] target/rust/src/binance/src/rest/Cargo.toml

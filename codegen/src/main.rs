@@ -433,7 +433,9 @@ fn codegen_protocol_crate(
                     let mut package = cargo_toml::Package::default();
                     package.name =
                         format!("exchange-collection-{}-{}", param.exchange, param.protocol);
-                    package.version = cargo_toml::Inheritable::Set(param.version.to_string());
+                    // version of a generated protocol is the sum of codegen version and config version
+                    let version = param.version + Version::current_crate()?;
+                    package.version = cargo_toml::Inheritable::Set(version.to_string());
                     package.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2021);
                     manifest.package = Some(package);
 
