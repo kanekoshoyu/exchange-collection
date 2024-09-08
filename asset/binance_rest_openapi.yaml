@@ -25581,7 +25581,7 @@ paths:
                     type: integer
                     format: int64
                     example: 1708677583874
-                  optionType":
+                  optionType:
                     type: string
                     example: CALL
                 required:
@@ -28866,7 +28866,7 @@ components:
         m:
           type: boolean
           description: Was the buyer the maker?
-          x-rust-field-name: is_buyer_maker  # Custom Rust field name
+          x-rust-field-name: is_buyer_maker
         M:
           type: boolean
           description: Was the trade the best price match?

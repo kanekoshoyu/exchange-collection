@@ -38,12 +38,12 @@ pub struct SapiV1DciProductSubscribePost200Response {
     pub order_id: i64,
     #[serde(rename = "purchaseTime")]
     pub purchase_time: i64,
-    #[serde(rename = "optionType", skip_serializing_if = "Option::is_none")]
-    pub option_type_double_quote: Option<String>,
+    #[serde(rename = "optionType")]
+    pub option_type: String,
 }
 
 impl SapiV1DciProductSubscribePost200Response {
-    pub fn new(position_id: i64, invest_coin: String, exercised_coin: String, subscription_amount: String, duration: i32, auto_compound_plan: String, strike_price: String, settle_date: i64, purchase_status: String, apr: String, order_id: i64, purchase_time: i64) -> SapiV1DciProductSubscribePost200Response {
+    pub fn new(position_id: i64, invest_coin: String, exercised_coin: String, subscription_amount: String, duration: i32, auto_compound_plan: String, strike_price: String, settle_date: i64, purchase_status: String, apr: String, order_id: i64, purchase_time: i64, option_type: String) -> SapiV1DciProductSubscribePost200Response {
         SapiV1DciProductSubscribePost200Response {
             position_id,
             invest_coin,
@@ -57,7 +57,7 @@ impl SapiV1DciProductSubscribePost200Response {
             apr,
             order_id,
             purchase_time,
-            option_type_double_quote: None,
+            option_type,
         }
     }
 }
