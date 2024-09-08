@@ -6,7 +6,6 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
-
 #[derive(Clone, Debug)]
 pub struct ProtocolCrate {
     pub protocol: Protocol,
@@ -175,16 +174,6 @@ fn run() -> Result<()> {
         }
     }
 
-    // codegen crate and exchange (not a big fan of recursive code...)
-    // iterate through crate_src to get all exchanges
-    // iterate through exhange_src to get all protocols and its version
-    // set HashMap<String, Hashmap<String, Version>>
-
-    // set up exchange_src lib.rs
-    // set up exchange Cargo.toml
-    // set up crate_src lib.rs
-    // set up crate Cargo.toml
-
     for language in ProgrammingLanguage::iter() {
         let collection_package_name = "exchange-collection";
         match language {
@@ -303,6 +292,32 @@ fn run() -> Result<()> {
     Ok(())
 }
 
+/// Appends `line_to_append` to `lib_rs_path` if the line is missing.
+fn append_if_missing(lib_rs_path: impl AsRef<Path>, line_to_append: &str) -> std::io::Result<()> {
+    let lib_rs_path = lib_rs_path.as_ref();
+    // Check if the file exists
+    if lib_rs_path.exists() {
+        // If the file exists, read the contents of the file
+        let content = std::fs::read_to_string(lib_rs_path)?;
+
+        // Check if the line is already present
+        if !content.contains(line_to_append) {
+            // If not, open the file in append mode and write the line
+            let mut file = std::fs::OpenOptions::new().append(true).open(lib_rs_path)?;
+            writeln!(file, "{}", line_to_append)?;
+        }
+    } else {
+        // If the file does not exist, create it and write the line
+        let mut file = std::fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .open(lib_rs_path)?;
+        writeln!(file, "{}", line_to_append)?;
+    }
+
+    Ok(())
+}
+
 fn output_protocol_directory(
     input_filename: impl AsRef<Path>,
     output_collection_directory: impl AsRef<Path>,
@@ -344,15 +359,17 @@ fn codegen_protocol_crate_command(
             cmd.arg(format!("-g {}", output_language));
             cmd.arg(format!("-i {}", input_filename.display()));
             cmd.arg(format!("-o {}", protocol_directory.display()));
-            cmd.arg(format!("--addional-properties=library=reqwest"));
+            cmd.arg(format!("--additional-properties=library=reqwest"));
             cmd
         }
         ApiFileFormat::AsyncApi => {
             let mut cmd = Command::new("asyncapi");
-            cmd.arg("generate models");
-            cmd.arg(format!("{}", output_language));
-            cmd.arg(format!("-i {}", input_filename.display()));
-            cmd.arg(format!("-o {}", protocol_directory.display()));
+            cmd.arg("generate");
+            cmd.arg("models");
+            cmd.arg(output_language.to_string());
+            cmd.arg(format!("{}", input_filename.display()));
+            cmd.arg("-o");
+            cmd.arg(format!("{}/src", protocol_directory.display()));
             cmd
         }
     })
@@ -397,8 +414,12 @@ fn codegen_protocol_crate(
     {
         let mut command =
             codegen_protocol_crate_command(input_filename, &protocol_directory, output_language)?;
-        println!("{:?}", command);
-        command.output()?;
+        let output = command.output()?;
+        let status = output.status;
+        match status.success() {
+            true => println!("Codegen succeeded"),
+            false => println!("Codegen failed"),
+        }
     }
 
     // post-codegen (anything that wraps the codegen material as package)
@@ -440,31 +461,6 @@ fn codegen_protocol_crate(
     Ok(())
 }
 
-/// Appends `line_to_append` to `lib_rs_path` if the line is missing.
-fn append_if_missing(lib_rs_path: impl AsRef<Path>, line_to_append: &str) -> std::io::Result<()> {
-    let lib_rs_path = lib_rs_path.as_ref();
-    // Check if the file exists
-    if lib_rs_path.exists() {
-        // If the file exists, read the contents of the file
-        let content = std::fs::read_to_string(lib_rs_path)?;
-
-        // Check if the line is already present
-        if !content.contains(line_to_append) {
-            // If not, open the file in append mode and write the line
-            let mut file = std::fs::OpenOptions::new().append(true).open(lib_rs_path)?;
-            writeln!(file, "{}", line_to_append)?;
-        }
-    } else {
-        // If the file does not exist, create it and write the line
-        let mut file = std::fs::OpenOptions::new()
-            .create(true)
-            .write(true)
-            .open(lib_rs_path)?;
-        writeln!(file, "{}", line_to_append)?;
-    }
-
-    Ok(())
-}
 pub fn main() {
     match run() {
         Ok(_) => println!("success"),
@@ -480,7 +476,7 @@ mod tests {
     #[test]
     fn test_codegen_command() {
         let input_filename = PathBuf::from_str("../asset/binance_ws_asyncapi.yaml").unwrap();
-        let output_directory = PathBuf::from_str("target").unwrap();
+        let output_directory = PathBuf::from_str("target/rust/src/binance/src/ws").unwrap();
         let output_language = ProgrammingLanguage::Rust;
         let command =
             match codegen_protocol_crate_command(input_filename, output_directory, output_language)
