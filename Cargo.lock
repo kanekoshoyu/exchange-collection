@@ -230,6 +230,43 @@ dependencies = [
 ]
 
 [[package]]
+name = "exchange-collection"
+version = "2.2.0"
+dependencies = [
+ "exchange-collection-binance",
+]
+
+[[package]]
+name = "exchange-collection-binance"
+version = "2.2.0"
+dependencies = [
+ "exchange-collection-binance-rest",
+ "exchange-collection-binance-ws",
+]
+
+[[package]]
+name = "exchange-collection-binance-rest"
+version = "1.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "url",
+]
+
+[[package]]
+name = "exchange-collection-binance-ws"
+version = "1.1.0"
+dependencies = [
+ "reqwest",
+ "serde",
+ "serde_json",
+ "serde_yaml",
+ "url",
+]
+
+[[package]]
 name = "exchange-collection-codegen"
 version = "0.1.0"
 dependencies = [

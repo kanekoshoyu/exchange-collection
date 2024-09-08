@@ -208,10 +208,8 @@ fn run() -> Result<()> {
                         };
                         let dependency_detail = Box::new(dependency_detail);
                         let dependency_detail = cargo_toml::Dependency::Detailed(dependency_detail);
-                        manifest.dependencies.insert(
-                            target_exchange_crate.exchange_name.clone(),
-                            dependency_detail,
-                        );
+                        let module_name = format!("{}-{}", collection_package_name, exchange_name);
+                        manifest.dependencies.insert(module_name, dependency_detail);
                     }
                     // output into a file
                     let manifest_str = toml::to_string(&manifest)?;
@@ -225,14 +223,25 @@ fn run() -> Result<()> {
                 {
                     let collection_crate = target_collection_crate.clone();
                     for target_exchange_crate in collection_crate.exchange_crates {
+                        let path =
+                            collection_directory.join(PathBuf::from_str("src/lib.rs").unwrap());
+                        let module_name = format!(
+                            "{}-{}",
+                            collection_package_name, target_exchange_crate.exchange_name
+                        );
                         append_if_missing(
-                            collection_directory.join(PathBuf::from_str("src/lib.rs").unwrap()),
-                            &format!("pub mod {};", target_exchange_crate.exchange_name),
+                            path,
+                            &format!("pub use {};", module_name.replace("-", "_")),
                         )?;
                     }
                 }
 
-                for target_exchange_crate in target_collection_crate.clone().exchange_crates {
+                let mut collection = target_collection_crate.clone();
+                collection
+                    .exchange_crates
+                    .sort_by_key(|e| e.exchange_name.clone());
+
+                for target_exchange_crate in collection.exchange_crates {
                     let dir = format!("src/{}", &target_exchange_crate.exchange_name);
                     let exchange_directory = collection_directory.join(PathBuf::from_str(&dir)?);
                     // exchange Cargo.toml
@@ -242,7 +251,10 @@ fn run() -> Result<()> {
                         // assign package
                         let mut exchange_package: cargo_toml::Package<()> =
                             cargo_toml::Package::default();
-                        exchange_package.name = target_exchange_crate.exchange_name.clone();
+                        exchange_package.name = format!(
+                            "{}-{}",
+                            collection_package_name, target_exchange_crate.exchange_name
+                        );
                         exchange_package.version =
                             cargo_toml::Inheritable::Set(target_exchange_crate.version.to_string());
                         manifest.package = Some(exchange_package);
@@ -257,10 +269,13 @@ fn run() -> Result<()> {
                             let dependency_detail = Box::new(dependency_detail);
                             let dependency_detail =
                                 cargo_toml::Dependency::Detailed(dependency_detail);
-                            manifest.dependencies.insert(
-                                target_protocol_crate.protocol.to_string(),
-                                dependency_detail,
+                            let module_name = format!(
+                                "{}-{}-{}",
+                                collection_package_name,
+                                target_exchange_crate.exchange_name,
+                                target_protocol_crate.protocol.to_string()
                             );
+                            manifest.dependencies.insert(module_name, dependency_detail);
                         }
                         // output into a file
                         let manifest_str = toml::to_string(&manifest)?;
@@ -275,9 +290,15 @@ fn run() -> Result<()> {
                         let exchange_crate = target_exchange_crate.clone();
                         for target_protocol_crate in exchange_crate.protocol_crates {
                             let exchange_directory = exchange_directory.clone();
+                            let module_name = format!(
+                                "{}-{}-{}",
+                                collection_package_name,
+                                exchange_crate.exchange_name,
+                                target_protocol_crate.protocol.to_string()
+                            );
                             append_if_missing(
                                 exchange_directory.join(PathBuf::from_str("src/lib.rs")?),
-                                &format!("pub mod {};", target_protocol_crate.protocol),
+                                &format!("pub use {};", module_name.replace("-", "_")),
                             )
                             .expect("msg");
                         }
@@ -309,7 +330,7 @@ fn append_if_missing(lib_rs_path: impl AsRef<Path>, line_to_append: &str) -> std
     } else {
         // If the file does not exist, create it and write the line
         let mut file = std::fs::OpenOptions::new()
-            .truncate(true)
+            .create_new(true)
             .write(true)
             .open(lib_rs_path)?;
         writeln!(file, "{}", line_to_append)?;
@@ -417,8 +438,8 @@ fn codegen_protocol_crate(
         let output = command.output()?;
         let status = output.status;
         match status.success() {
-            true => println!("Codegen succeeded"),
-            false => println!("Codegen failed"),
+            true => println!("codegen succeeded"),
+            false => println!("codegen failed, {:?}", command),
         }
     }
 
@@ -429,10 +450,13 @@ fn codegen_protocol_crate(
             ProgrammingLanguage::Rust => {
                 // Cargo.toml
                 {
+                    let collection_package_name = "exchange-collection";
                     let mut manifest: cargo_toml::Manifest<()> = cargo_toml::Manifest::default();
                     let mut package = cargo_toml::Package::default();
-                    package.name =
-                        format!("exchange-collection-{}-{}", param.exchange, param.protocol);
+                    package.name = format!(
+                        "{}-{}-{}",
+                        collection_package_name, param.exchange, param.protocol
+                    );
                     // version of a generated protocol is the sum of codegen version and config version
                     let version = param.version + Version::current_crate()?;
                     package.version = cargo_toml::Inheritable::Set(version.to_string());

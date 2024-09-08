@@ -3,3 +3,4 @@ openapitools.json
 # **/.openapi-generator/*
 target/debug
 target/.rustc_info.json
+*.TAG

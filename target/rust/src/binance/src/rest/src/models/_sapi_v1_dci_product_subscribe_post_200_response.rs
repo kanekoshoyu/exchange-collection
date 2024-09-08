@@ -38,7 +38,7 @@ pub struct SapiV1DciProductSubscribePost200Response {
     pub order_id: i64,
     #[serde(rename = "purchaseTime")]
     pub purchase_time: i64,
-    #[serde(rename = "optionType"", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "optionType", skip_serializing_if = "Option::is_none")]
     pub option_type_double_quote: Option<String>,
 }
 

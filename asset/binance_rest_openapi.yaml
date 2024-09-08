@@ -28866,9 +28866,11 @@ components:
         m:
           type: boolean
           description: Was the buyer the maker?
+          x-rust-field-name: is_buyer_maker  # Custom Rust field name
         M:
           type: boolean
           description: Was the trade the best price match?
+          x-rust-field-name: is_best_price_match  # Custom Rust field name
       required:
         - a
         - p

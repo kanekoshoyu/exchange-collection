@@ -1,12 +1,12 @@
 [package]
-name = "binance"
+name = "exchange-collection-binance"
 version = "2.2.0"
 edition = "2021"
 
-[dependencies.rest]
+[dependencies.exchange-collection-binance-rest]
 version = "1.1.0"
 path = "src/rest"
 
-[dependencies.ws]
+[dependencies.exchange-collection-binance-ws]
 version = "1.1.0"
 path = "src/ws"

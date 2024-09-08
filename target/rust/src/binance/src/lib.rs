@@ -1,2 +1,2 @@
-pub mod rest;
-pub mod ws;
+pub use exchange_collection_binance_ws;
+pub use exchange_collection_binance_rest;
