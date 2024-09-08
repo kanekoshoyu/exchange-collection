@@ -163,6 +163,12 @@ pub struct Version {
     pub minor: usize,
     pub patch: usize,
 }
+impl Version {
+    pub fn current_crate() -> Result<Self> {
+        let version_str = env!("CARGO_PKG_VERSION");
+        Version::from_str(version_str)
+    }
+}
 impl Add for Version {
     type Output = Version;
 
@@ -186,6 +192,7 @@ impl std::fmt::Display for Version {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
     }
 }
+
 impl FromStr for Version {
     type Err = eyre::Error;
 
@@ -266,11 +273,10 @@ pub struct InputFileParameter {
     pub version: Version,
 }
 impl InputFileParameter {
-    pub fn from_filename(filename: impl AsRef<Path>) -> Result<Self, ()> {
+    pub fn from_filename(filename: impl AsRef<Path>) -> Result<Self> {
         let filename = filename.as_ref();
         if !filename.is_file() {
-            println!("file does not exist");
-            return Err(());
+            return Err(eyre::eyre!("file does not exist"));
         }
 
         // get content first
@@ -282,7 +288,7 @@ impl InputFileParameter {
 
         // "binance_ws_asyncapi"
         if !filename.contains(".yaml") {
-            return Err(());
+            return Err(eyre::eyre!("config file is not conistent"));
         }
         let rest = filename.to_string().replace(".yaml", "");
 
@@ -290,12 +296,11 @@ impl InputFileParameter {
         let str_vec: Vec<&str> = rest.split("_").collect();
 
         if str_vec.len() != 3 {
-            println!("invalid format");
-            return Err(());
+            return Err(eyre::eyre!("invalid format"));
         }
         let exchange = str_vec[0].to_string();
-        let protocol = Protocol::from_str(str_vec[1]).map_err(|_| ())?;
-        let format = ApiFileFormat::from_str(str_vec[2]).map_err(|_| ())?;
+        let protocol = Protocol::from_str(str_vec[1])?;
+        let format = ApiFileFormat::from_str(str_vec[2])?;
 
         let version = match format {
             ApiFileFormat::OpenApi => {

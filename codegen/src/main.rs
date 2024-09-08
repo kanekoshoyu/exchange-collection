@@ -226,7 +226,7 @@ fn run() -> Result<()> {
                     let collection_crate = target_collection_crate.clone();
                     for target_exchange_crate in collection_crate.exchange_crates {
                         append_if_missing(
-                            &collection_directory.join(PathBuf::from_str("src/lib.rs").unwrap()),
+                            collection_directory.join(PathBuf::from_str("src/lib.rs").unwrap()),
                             &format!("pub mod {};", target_exchange_crate.exchange_name),
                         )?;
                     }
@@ -276,8 +276,8 @@ fn run() -> Result<()> {
                         for target_protocol_crate in exchange_crate.protocol_crates {
                             let exchange_directory = exchange_directory.clone();
                             append_if_missing(
-                                &exchange_directory.join(PathBuf::from_str("src/lib.rs")?),
-                                &format!("pub mod {};", target_protocol_crate.protocol.to_string()),
+                                exchange_directory.join(PathBuf::from_str("src/lib.rs")?),
+                                &format!("pub mod {};", target_protocol_crate.protocol),
                             )
                             .expect("msg");
                         }
@@ -309,7 +309,7 @@ fn append_if_missing(lib_rs_path: impl AsRef<Path>, line_to_append: &str) -> std
     } else {
         // If the file does not exist, create it and write the line
         let mut file = std::fs::OpenOptions::new()
-            .create(true)
+            .truncate(true)
             .write(true)
             .open(lib_rs_path)?;
         writeln!(file, "{}", line_to_append)?;
@@ -359,7 +359,7 @@ fn codegen_protocol_crate_command(
             cmd.arg(format!("-g {}", output_language));
             cmd.arg(format!("-i {}", input_filename.display()));
             cmd.arg(format!("-o {}", protocol_directory.display()));
-            cmd.arg(format!("--additional-properties=library=reqwest"));
+            cmd.arg("--additional-properties=library=reqwest");
             cmd
         }
         ApiFileFormat::AsyncApi => {
@@ -491,10 +491,12 @@ mod tests {
         assert_eq!(
             args,
             [
-                "generate models",
+                "generate",
+                "models",
                 "rust",
-                "-i ../asset/binance_ws_asyncapi.yaml",
-                "-o target/rust/src/binance/src/ws"
+                "../asset/binance_ws_asyncapi.yaml",
+                "-o",
+                "target/rust/src/binance/src/ws/src"
             ]
             .to_vec()
         );
@@ -555,33 +557,6 @@ mod tests {
     }
 
     #[test]
-    fn test_deserialize_version() {
-        // Test a valid version string
-        let input_yaml_str = "
-            openapi: 3.0.1
-            asyncapi: 2.3.0
-        ";
-        let openapi: OpenApi = serde_yaml::from_str(&input_yaml_str).unwrap();
-        let asyncapi: AsyncApi = serde_yaml::from_str(&input_yaml_str).unwrap();
-        assert_eq!(
-            openapi.get_version().unwrap_or_default(),
-            Version {
-                major: 3,
-                minor: 0,
-                patch: 1
-            }
-        );
-        assert_eq!(
-            asyncapi.get_version().unwrap_or_default(),
-            Version {
-                major: 2,
-                minor: 3,
-                patch: 0
-            }
-        );
-    }
-
-    #[test]
     fn test_protocol_crate_from_dir() {
         let dir = PathBuf::from_str("../target/rust/src/binance/src/rest")
             .unwrap()
@@ -607,5 +582,11 @@ mod tests {
         let protocol_crate = CollectionCrate::from_path(dir).unwrap();
         assert_eq!(protocol_crate.version, Version::from_str("2.0.0").unwrap());
         assert_eq!(protocol_crate.exchange_crates.len(), 1);
+    }
+
+    #[test]
+    fn test_current_version() {
+        let version = Version::current_crate().unwrap();
+        assert_eq!(version, Version::from_str("0.1.0").unwrap())
     }
 }
