@@ -68,9 +68,9 @@ openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/e
 ```
 asyncapi generate models <language> example_asyncapi.yaml -o output/example_<language>>_model
 ```
-#### AsyncAPI python paho client
+#### AsyncAPI python paho client (a template is in npm as [here](https://www.npmjs.com/search?q=asyncapi%20python))
 ```
-asyncapi generate fromTemplate example_asyncapi.yaml @asyncapi/python-paho-template -o output/example_python_paho
+asyncapi generate fromTemplate asset/hyperliquid_ws_asyncapi.yaml @tornabene.org/python-paho-template -o target_rust_hyperliquid_ws --debug
 ```
 
 ## current status

@@ -4,3 +4,6 @@ openapitools.json
 target/debug
 target/.rustc_info.json
 *.TAG
+# keep below format for debugging purpose
+target_*
+package-lock.json
