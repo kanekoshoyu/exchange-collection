@@ -64,22 +64,31 @@ npm install -g @asyncapi/generator
 ```
 openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
 ```
+### OpenAPI rust client (REST, reqwest)
+```
+openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model --additional-properties=library=reqwest
+```
+### OpenAPI python client (REST, asyncio)
+```
+openapi-generator-cli generate -i asset/binance_rest_openapi.yaml -g python -o ./target_binance_rest --additional-properties=asyncio=true
+```
 ### AsyncAPI model
 ```
 asyncapi generate models <language> example_asyncapi.yaml -o output/example_<language>>_model
 ```
-#### AsyncAPI python paho client (a template is in npm as [here](https://www.npmjs.com/search?q=asyncapi%20python))
-```
-asyncapi generate fromTemplate asset/hyperliquid_ws_asyncapi.yaml @tornabene.org/python-paho-template -o target_rust_hyperliquid_ws --debug
-```
+### AsyncAPI rust client (WS, tokio-tungstenite)
+Missing now, I am hiring node.js dev to work on this one
+### AsyncAPI python client (WS, asyncio-websockets)
+a template in npm as [here](https://www.npmjs.com/search?q=asyncapi%20python)
+Missing now, I am hiring node.js dev to work on this one
 
 ## current status
-To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I will set up a codegen that generates the rust exchange lib for python and crate for rust.
+To kick off, I will gather OpenAPI AsyncAPI YAML here.
 | Exchange    | Custody | REST (OpenAPI) | WS (AsyncAPI) |
 | ----------- | ------- | -------------- | ------------- |
-| hyperliquid | no      | done           | wip           |
+| hyperliquid | no      | done           | done          |
 | binance     | yes     | done           | done          |
-| coinbase    | yes     | done           | planned       |
+| coinbase    | yes     | done           | wip           |
 | hashkey     | yes     | done           | planned       |
 | bitwyre     | no      | planned        | planned       |
 | dydx        | no      | planned        | planned       |
@@ -88,17 +97,19 @@ To kick off, I will gather a bunch of AsyncAPI YAML here. In the near future I w
 | kucoin      | yes     | planned        | planned       |
 | okx         | yes     | planned        | planned       |
 
-I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix/) due to limited number of supported exchanges. But it is definitely an interesting one to try in the future.
+I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix/) due to limited number of supported exchanges. But it is definitely an interesting one to try in the future.  
 
 
 ## TODO
-- [ ] gather assets
+- [ ] gather initial assets
   - [x] gather 3 exchanges in OpenAPI
   - [ ] gather 3 exchanges in AsyncAPI
-- [x] set up CI for codegen model
-  - [x] verify if the codegen models can be generated on python/rust
-  - [x] package codegen model another repo per language
-  - [ ] make it available in pip and crate.io
+- [ ] set up CI for codegen model
+  - [x] verify if a REST/WS client can be generated on python/rust
+  - [ ] rust tokio-tungstenite codegen
+  - [ ] python asyncio-websockets codegen
+  - [ ] package codegen model another repo per language
+  - [ ] make it available in pip and crates.io
 - [x] set up trading library
   - [x] define trading traits
   - [ ] implement traits on top of the codegen model
@@ -112,7 +123,9 @@ I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org
 ## partnership
 I keep this project opensource so that everyone can take part of it. If you have any OpenAPI / AsyncAPI document for a crypto exchange, you are more than welcome to add with a pull request, or I am willing to purchase as well.  
 If you want to get an exchange integrated, I can help get that up for an one-off cost in one week, just enough to pay my freelancing partner to get it done.  
-Please contact [Sho Kaneko](https://github.com/kanekoshoyu) for details.
+Please contact [Sho Kaneko](https://github.com/kanekoshoyu) for details.  
+I realised that there is no asyncapi rust client generator, I will set up a new repo for it and publish to npm.
+
 
 ## see also
 - [guilder](https://github.com/kanekoshoyu/guilder) - Unopinionated Cross-Exchange Crypto Trading Library
