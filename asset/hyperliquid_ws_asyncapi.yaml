@@ -1,0 +1,860 @@
+asyncapi: 2.1.0
+info:
+  title: HyperLiquid Websocket API
+  version: 2.0.0
+  description: 'WebSocket endpoints are available for real-time data streaming and as an alternative to HTTP request sending on the Hyperliquid exchange.'
+servers:
+  production:
+    url: 'wss://api.hyperliquid.xyz/ws'
+    protocol: wss
+    description: Mainnet WebSocket server
+  development:
+    url: 'wss://api.hyperliquid-testnet.xyz/ws'
+    protocol: wss
+    description: Testnet WebSocket server
+channels:
+  subscribe:
+    description: "Subscription channel for receiving real-time data."
+    subscribe:
+      summary: Subscribe to data feeds
+      operationId: subscribeToFeed
+      message:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/subscriptionPayload"
+    
+components:
+  schemas:
+    PostRequest:
+      type: object
+      properties:
+        method:
+          $ref: "#/components/schemas/PostRequestEnum"
+        id:
+          type: integer
+          description: Unique identifier for the request, used to track the response.
+          example: 123
+        request:
+          $ref: '#/components/schemas/RequestPayload'
+    PostRequestEnum:
+      type: string
+      enum: ['post']
+      description: Specifies that the client is posting a request.
+      example: 'post'
+    RequestPayload:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/RequestEnum"
+        payload:
+          $ref: "#/components/schemas/ActualPayload"
+    RequestEnum:
+      type: string
+      enum: ['info', 'action']
+      description: Specifies the type of the request (info or action).
+      example: 'info'
+    ActualPayload:
+        type: object
+        description: The actual payload for the request.
+        properties:
+            type:
+              type: string
+              example: 'l2Book'
+            coin:
+              type: string
+              example: 'ETH'
+            nSigFigs:
+              type: integer
+              description: Number of significant figures.
+              example: 5
+            mantissa:
+              type: integer
+              nullable: true
+              example: null
+
+    PostResponse:
+      type: object
+      properties:
+        channel:
+          type: string
+          example: 'post'
+        data:
+          $ref: "#/components/schemas/postData"
+    postData:
+        type: object
+        properties:
+          id:
+            type: integer
+            description: Unique identifier to match the request.
+            example: 123
+          response:
+            $ref: '#/components/schemas/ResponsePayload'
+
+    ResponsePayload:
+      type: object
+      properties:
+        type:
+          $reF: "#/components/schemas/ResponsePayloadEnum"
+        payload:
+          $ref: "#/components/schemas/payloadFormat"
+    ResponsePayloadEnum:
+      type: string
+      enum: ['info', 'action', 'error']
+      description: Type of the response.
+      example: 'info'
+    payloadFormat:
+        type: object
+        description: Payload of the response.
+        properties:
+            type:
+              type: string
+              description: Type of the data in the response (e.g., l2Book).
+              example: 'l2Book'
+            data:
+              $ref: "#/components/schemas/payloadData"
+    payloadData:
+      type: object
+      description: The actual data returned in the response.
+      properties:
+        coin:
+          type: string
+          example: 'ETH'
+        time:
+          type: number
+          description: Timestamp in milliseconds.
+          example: 1629471123000
+        levels:
+          type: array
+          description: Levels of order book updates.
+          items:
+            $ref: "#/components/schemas/bookLevelArray"
+    bookLevelArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/bookLevelData"
+    bookLevelData:
+      type: object
+      properties:
+        px:
+          type: string
+          description: Price level.
+          example: '3007.1'
+        sz:
+          type: string
+          description: Size at that price level.
+          example: '2.7954'
+        n:
+          type: number
+          description: Number of orders at that price level.
+          example: 1
+    subscriptionPayload:
+      type: object
+      properties:
+            method:
+              $ref: "#/components/schemas/SubscriptionEnum"
+            subscription:
+              $ref: "#/components/schemas/Subscriptions"
+    SubscriptionEnum:
+      type: string
+      enum: [subscribe]
+      example: "subscribe"
+    Subscriptions:
+      type: object
+      oneOf:
+          - $ref: '#/components/schemas/AllMidsSubscription'
+          - $ref: '#/components/schemas/NotificationSubscription'
+          - $ref: '#/components/schemas/WebData2Subscription'
+          - $ref: '#/components/schemas/CandleSubscription'
+          - $ref: '#/components/schemas/L2BookSubscription'
+          - $ref: '#/components/schemas/TradesSubscription'
+          - $ref: '#/components/schemas/OrderUpdatesSubscription'
+          - $ref: '#/components/schemas/UserEventsSubscription'
+          - $ref: '#/components/schemas/UserFillsSubscription'
+          - $ref: '#/components/schemas/UserFundingsSubscription'
+          - $ref: '#/components/schemas/WsUserNonFundingLedgerUpdate'
+
+    AllMidsSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/AllMidsEnum"
+      required:
+        - type
+    AllMidsEnum:
+      type: string
+      enum: [allMids]
+      example: "allMids"
+    NotificationSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/NotificationEnum"
+        user:
+          type: string
+          example: "<address>"
+      required:
+        - type
+        - user
+    NotificationEnum:
+      type: string
+      enum: [notification]
+      example: "notification"
+    WebData2Subscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/WebDataEnum"
+        user:
+          type: string
+          example: "<address>"
+      required:
+        - type
+        - user
+    WebDataEnum:
+      type: string
+      enum: [webData2]
+      example: "webData2"
+    CandleSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/CandleEnum"
+        coin:
+          type: string
+          example: "<coin_symbol>"
+        interval:
+          type: string
+          example: "<candle_interval>"
+      required:
+        - type
+        - coin
+        - interval
+    CandleEnum:
+      type: string
+      enum: [candle]
+      example: "candle"
+    L2BookSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/l2Enum"
+        coin:
+          type: string
+          example: "<coin_symbol>"
+      required:
+        - type
+        - coin
+    l2Enum:
+      type: string
+      enum: [l2Book]
+      example: "l2Book"
+    TradesSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/TradeEnum"
+        coin:
+          type: string
+          example: "<coin_symbol>"
+      required:
+        - type
+        - coin
+    TradeEnum:
+      type: string
+      enum: [trades]
+      example: "trades"
+    OrderUpdatesSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/OrderUpdatesEnum"
+        user:
+          type: string
+          example: "<address>"
+      required:
+        - type
+        - user
+    OrderUpdatesEnum:
+      type: string
+      enum: [orderUpdates]
+      example: "orderUpdates"
+    UserEventsSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/EventEnum"
+        user:
+          type: string
+          example: "<address>"
+      required:
+        - type
+        - user
+    EventEnum:
+      type: string
+      enum: [userEvents]
+      example: "userEvents"
+    UserFillsSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/userFillsEnum"
+        user:
+          type: string
+          example: "<address>"
+      required:
+        - type
+        - user
+    userFillsEnum:
+      type: string
+      enum: [userFills]
+      example: "userFills"
+    UserFundingsSubscription:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/FundingEnum"
+        user:
+          type: string
+          example: "<address>"
+      required:
+        - type
+        - user
+    FundingEnum:
+      type: string
+      enum: [userFundings]
+      example: "userFundings"
+    WsUserNonFundingLedgerUpdate:
+      type: object
+      properties:
+        time:
+          type: integer
+          description: "Timestamp of the ledger update"
+          example: 1625247600000
+        hash:
+          type: string
+          description: "Transaction hash"
+          example: "0x1234abcd5678ef"
+        delta:
+          $ref: "#/components/schemas/WsDelta"
+      required:
+        - time
+        - hash
+        - delta
+    WsDelta:
+      oneOf:
+            - $ref: '#/components/schemas/WsDeposit'
+            - $ref: '#/components/schemas/WsWithdraw'
+            - $ref: '#/components/schemas/WsInternalTransfer'
+            - $ref: '#/components/schemas/WsSubAccountTransfer'
+            - $ref: '#/components/schemas/WsLedgerLiquidation'
+            - $ref: '#/components/schemas/WsVaultDelta'
+            - $ref: '#/components/schemas/WsVaultWithdrawal'
+            - $ref: '#/components/schemas/WsVaultLeaderCommission'
+    WsDeposit:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/WsDepositEnum"
+        usdc:
+          type: number
+          description: "Amount of USDC deposited"
+          example: 1000
+      required:
+        - type
+        - usdc
+    WsDepositEnum:
+      type: string
+      enum: ["deposit"]
+      example: "deposit"
+    WsWithdraw:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/withdrawEnum"
+        usdc:
+          type: number
+          description: "Amount of USDC withdrawn"
+          example: 500
+        nonce:
+          type: number
+          description: "Unique nonce for the withdrawal"
+          example: 123
+        fee:
+          type: number
+          description: "Fee charged for the withdrawal"
+          example: 5
+      required:
+        - type
+        - usdc
+        - nonce
+        - fee
+    withdrawEnum:
+      type: string
+      enum: ["withdraw"]
+      example: "withdraw"
+    WsInternalTransfer:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/transferEnum"
+        usdc:
+          type: number
+          description: "Amount of USDC transferred"
+          example: 200
+        user:
+          type: string
+          description: "Source user address"
+          example: "0xabcdef12345"
+        destination:
+          type: string
+          description: "Destination user address"
+          example: "0x12345abcdef"
+        fee:
+          type: number
+          description: "Transfer fee"
+          example: 2
+      required:
+        - type
+        - usdc
+        - user
+        - destination
+        - fee
+    transferEnum:
+      type: string
+      enum: ["internalTransfer"]
+      example: "internalTransfer"
+    WsSubAccountTransfer:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/accountEnum"
+        usdc:
+          type: number
+          description: "Amount of USDC transferred"
+          example: 300
+        user:
+          type: string
+          description: "Source user address"
+          example: "0xabcdef12345"
+        destination:
+          type: string
+          description: "Destination sub-account address"
+          example: "0xsubaccount123"
+      required:
+        - type
+        - usdc
+        - user
+        - destination
+    accountEnum:
+      type: string
+      enum: ["subAccountTransfer"]
+      example: "subAccountTransfer"
+    WsLedgerLiquidation:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/LedgerTypeEnum"
+        accountValue:
+          type: number
+          description: "Account value after liquidation"
+          example: 1000
+        leverageType:
+          $ref: "#/components/schemas/leverageEnum"
+        liquidatedPositions:
+          type: array
+          items:
+            $ref: '#/components/schemas/LiquidatedPosition'
+          description: "List of liquidated positions"
+      required:
+        - type
+        - accountValue
+        - leverageType
+        - liquidatedPositions
+    LedgerTypeEnum:
+      type: string
+      enum: ["liquidation"]
+      example: "liquidation"
+    leverageEnum:
+      type: string
+      enum: ["Cross", "Isolated"]
+      description: "Leverage type"
+      example: "Cross"
+    LiquidatedPosition:
+      type: object
+      properties:
+        coin:
+          type: string
+          description: "Coin that was liquidated"
+          example: "BTC"
+        szi:
+          type: number
+          description: "Size of the liquidated position"
+          example: 0.05
+      required:
+        - coin
+        - szi
+
+    WsVaultDelta:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/vaultEnum"
+        vault:
+          type: string
+          description: "Vault identifier"
+          example: "vault123"
+        usdc:
+          type: number
+          description: "Amount of USDC related to the vault"
+          example: 500
+      required:
+        - type
+        - vault
+        - usdc
+    vaultEnum:
+      type: string
+      enum: ["vaultCreate", "vaultDeposit", "vaultDistribution"]
+      example: "vaultCreate"
+    WsVaultWithdrawal:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/vaultWithdrawEnum"
+        vault:
+          type: string
+          description: "Vault identifier"
+          example: "vault123"
+        user:
+          type: string
+          description: "User making the withdrawal"
+          example: "0xabcdef12345"
+        requestedUsd:
+          type: number
+          description: "Requested withdrawal amount in USD"
+          example: 1000
+        commission:
+          type: number
+          description: "Leader's commission fee"
+          example: 10
+        closingCost:
+          type: number
+          description: "Cost of closing the position"
+          example: 5
+        basis:
+          type: number
+          description: "Basis amount for the vault"
+          example: 900
+        netWithdrawnUsd:
+          type: number
+          description: "Net amount withdrawn after fees"
+          example: 985
+      required:
+        - type
+        - vault
+        - user
+        - requestedUsd
+        - commission
+        - closingCost
+        - basis
+        - netWithdrawnUsd
+    vaultWithdrawEnum:
+      type: string
+      enum: ["vaultWithdraw"]
+      example: "vaultWithdraw"
+    WsVaultLeaderCommission:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/commissionEnum"
+        user:
+          type: string
+          description: "Leader user address"
+          example: "0xabcdef12345"
+        usdc:
+          type: number
+          description: "Commission earned in USDC"
+          example: 100
+      required:
+        - type
+        - user
+        - usdc
+    commissionEnum:
+      type: string
+      enum: ["vaultLeaderCommission"]
+      example: "vaultLeaderCommission"
+    WsTrade:
+      type: object
+      properties:
+        coin:
+          type: string
+        side:
+          type: string
+        px:
+          type: string
+        sz:
+          type: string
+        hash:
+          type: string
+        time:
+          type: number
+        tid:
+          type: number
+      required:
+        - coin
+        - side
+        - px
+        - sz
+        - hash
+        - time
+        - tid
+
+    WsBook:
+      type: object
+      properties:
+        coin:
+          type: string
+        levels:
+          type: array
+          items:
+            $ref: '#/components/schemas/WsLevel'
+        time:
+          type: number
+      required:
+        - coin
+        - levels
+        - time
+
+    WsLevel:
+      type: object
+      properties:
+        px:
+          type: string
+        sz:
+          type: string
+        n:
+          type: number
+      required:
+        - px
+        - sz
+        - n
+
+    Notification:
+      type: object
+      properties:
+        notification:
+          type: string
+      required:
+        - notification
+
+    AllMids:
+      type: object
+      properties:
+        mids:
+          type: string
+      required:
+        - mids
+
+    Candle:
+      type: object
+      properties:
+        t:
+          type: number
+        T:
+          type: number
+        s:
+          type: string
+        i:
+          type: string
+        o:
+          type: number
+        c:
+          type: number
+        h:
+          type: number
+        l:
+          type: number
+        v:
+          type: number
+        n:
+          type: number
+      required:
+        - t
+        - T
+        - s
+        - i
+        - o
+        - c
+        - h
+        - l
+        - v
+        - n
+
+    WsUserEvent:
+      oneOf:
+        - $ref: "#/components/schemas/WsUserFillArray"
+        - $ref: '#/components/schemas/WsUserFunding'
+        - $ref: '#/components/schemas/WsLiquidation'
+        - $ref: "#/components/schemas/WsnonUserArray"
+    WsnonUserArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/WsNonUserCancel'
+    WsUserFillArray:
+      type: array
+      items:
+        $ref: '#/components/schemas/WsUserFill'
+    WsUserFill:
+      type: object
+      properties:
+        coin:
+          type: string
+        px:
+          type: string
+        sz:
+          type: string
+        side:
+          type: string
+        time:
+          type: number
+        startPosition:
+          type: string
+        dir:
+          type: string
+        closedPnl:
+          type: string
+        hash:
+          type: string
+        oid:
+          type: number
+        crossed:
+          type: boolean
+        fee:
+          type: string
+        tid:
+          type: number
+      required:
+        - coin
+        - px
+        - sz
+        - side
+        - time
+        - startPosition
+        - dir
+        - closedPnl
+        - hash
+        - oid
+        - crossed
+        - fee
+        - tid
+
+    WsUserFunding:
+      type: object
+      properties:
+        time:
+          type: number
+        coin:
+          type: string
+        usdc:
+          type: string
+        szi:
+          type: string
+        fundingRate:
+          type: string
+      required:
+        - time
+        - coin
+        - usdc
+        - szi
+        - fundingRate
+
+    WsLiquidation:
+      type: object
+      properties:
+        lid:
+          type: number
+        liquidator:
+          type: string
+        liquidated_user:
+          type: string
+        liquidated_ntl_pos:
+          type: string
+        liquidated_account_value:
+          type: string
+      required:
+        - lid
+        - liquidator
+        - liquidated_user
+        - liquidated_ntl_pos
+        - liquidated_account_value
+
+    WsNonUserCancel:
+      type: object
+      properties:
+        coin:
+          type: string
+        oid:
+          type: number
+      required:
+        - coin
+        - oid
+
+    WsOrder:
+      type: object
+      properties:
+        order:
+          $ref: '#/components/schemas/WsBasicOrder'
+        status:
+          type: string
+          enum: ["open", "filled", "canceled", "triggered", "rejected", "marginCanceled"]
+        statusTimestamp:
+          type: number
+      required:
+        - order
+        - status
+    WsBasicOrder:
+      type: object
+      properties:
+        coin:
+          type: string
+          description: "Symbol of the coin for the order"
+          example: "BTC"
+        side:
+          type: string
+          description: "The side of the order, either buy or sell"
+          enum: ["buy", "sell"]
+          example: "buy"
+        limitPx:
+          type: string
+          description: "Limit price for the order"
+          example: "50000"
+        sz:
+          type: string
+          description: "Size of the order"
+          example: "0.01"
+        oid:
+          type: integer
+          description: "Unique order ID"
+          example: 12345
+        timestamp:
+          type: integer
+          description: "Timestamp of when the order was placed"
+          example: 1625247600000
+        origSz:
+          type: string
+          description: "Original size of the order"
+          example: "0.02"
+        cloid:
+          type: string
+          description: "Client order ID, can be undefined"
+          nullable: true
+          example: "custom-order-id-123"
+      required:
+        - coin
+        - side
+        - limitPx
+        - sz
+        - oid
+        - timestamp
+        - origSz
+  
+   
