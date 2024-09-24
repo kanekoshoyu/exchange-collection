@@ -68,7 +68,7 @@
         <rapi-doc id="rapidoc" spec-url="" style="display:none;"></rapi-doc>
         <iframe id="asyncapi-iframe" style="display:none;"></iframe>
         <script>
-        const githubApiUrl = "https://api.github.com/repos/kanekoshoyu/exchange_yaml/contents/asset";
+        const githubApiUrl = "https://api.github.com/repos/kanekoshoyu/exchange-collection/contents/asset";
         let exchanges = [];
 
         async function fetchExchanges() {
@@ -87,7 +87,7 @@
                         exchangeMap[exchangeName].push({
                             protocolType,
                             apiType,
-                            url: `https://raw.githubusercontent.com/kanekoshoyu/exchange_yaml/main/asset/${file.name}`
+                            url: `https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/main/asset/${file.name}`
                         });
                     }
                 });

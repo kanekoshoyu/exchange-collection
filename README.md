@@ -1,7 +1,7 @@
 # exchange-collection
 > crypto orderbook exchange OpenAPI(REST) and AsyncAPI(WS) doc and clients
 
-[![doc](https://img.shields.io/badge/doc-rapidoc-blue)](https://repoch.co/exchange_yaml)
+[![doc](https://img.shields.io/badge/doc-rapidoc-blue)](https://repoch.co/exchange-collection)
 [![license](https://img.shields.io/github/license/kanekoshoyu/kucoin_arbitrage)](https://github.com/kanekoshoyu/kucoin_arbitrage/blob/master/LICENSE)
 [![ci](https://img.shields.io/github/actions/workflow/status/kanekoshoyu/kucoin_arbitrage/rust.yml)](https://github.com/kanekoshoyu/kucoin_arbitrage/actions)
 [![issues](https://img.shields.io/github/issues/kanekoshoyu/kucoin_arbitrage)](https://github.com/kanekoshoyu/kucoin_arbitrage/issues)
@@ -32,12 +32,12 @@ I propose a streamlined integration of exchange API with a new approach, by usin
 3. Implement trading traits per generated model. I have set up trading traits in [guilder](https://github.com/kanekoshoyu/guilder). If you do not like it, feel free to still use the this repo for the OpenAPI / AsyncAPI and its code-gen clients. 
 
 ## structure
-| location                       | feature                                                                       |
-| ------------------------------ | ----------------------------------------------------------------------------- |
-| [asset](./asset/)              | OpenAPI and AsyncAPI YAML                                                     |
-| [codegen](./codegen/README.md) | codegen script in rust, run locally to generate and push                      |
-| [target](./target/README.md)   | generated code in python and rust                                             |
-| [index.html](./index.html)     | OpenAPI / AsyncAPI viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
+| location                       | feature                                                                             |
+| ------------------------------ | ----------------------------------------------------------------------------------- |
+| [asset](./asset/)              | OpenAPI and AsyncAPI YAML                                                           |
+| [codegen](./codegen/README.md) | codegen script in rust, run locally to generate and push                            |
+| [target](./target/README.md)   | generated code in python and rust                                                   |
+| [index.html](./index.html)     | OpenAPI / AsyncAPI viewer, hosted [here](https://www.repoch.co/exchange-collection) |
 
 ## guidelines
 | specs                           | guidelines                                                                                            |
@@ -118,7 +118,7 @@ I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org
 - [ ] set up CI for codegen model
   - [ ] rust codegen
     - [x] REST (reqwest) client
-    - [ ] WS (tokio-tungstenite) client template (WIP: [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template))
+    - [ ] WS (tokio-tungstenite) client template 
     - [ ] CI for release on [crates.io](https://crates.io)
   - [ ] python codegen
     - [x] REST client
