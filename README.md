@@ -25,7 +25,7 @@ They have issues in the below aspects:
 3. **opinionated framework**: cross-exchange libraries often designed as complex framework,and often fails to meet the business needs.
 4. **multi-language support**: generally people prefer python for proof of concept and rust for production. we should use rust as backbone, then provide python support on top, but also provide flexibility for native python vertical integration.
 
-## solution proposal
+## proposal
 I propose a streamlined integration of exchange API with a new approach, by using machine-readable API documents; OpenAPI for REST and AsyncAPI for WebSocket.
 1. gather both OpenAPI and AsyncAPI YAML per exchange (with the collective help by freelancers)
 2. Set up codegen CI for generating REST/WS clients.
@@ -40,12 +40,13 @@ I propose a streamlined integration of exchange API with a new approach, by usin
 | [index.html](./index.html)     | OpenAPI / AsyncAPI viewer, hosted [here](https://www.repoch.co/exchange_yaml) |
 
 ## guidelines
-1. OpenAPI: YAML, v3.X.Y (convert swagger to OpenAPI [here](https://editor.swagger.io/))
-2. AsyncAPI: YAML, v2.X.Y (codegen does not work well with v3 apparently)
-3. place YAML in follow the naming convention of `{exchange}_{rest/ws}_{openapi/asyncapi}.yaml`
-4. codegen scripting in python (for easier GitHub CI)
-5. official codegen support: rust, python
-6. unofficial support: typescript, csharp, golang, java, dart, kotlin, php, cplusplus, scala
+| specs                           | guidelines                                                                                            |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| OpenAPI format                  | `{exchange}_rest_openapi.yaml`, v3.X.Y, convert swagger to OpenAPI [here](https://editor.swagger.io/) |
+| AsyncAPI format                 | `{exchange}_ws_asyncapi.yaml`, YAML, v2.X.Y, codegen does not work well with v3 apparently            |
+| codegen                         | Rust                                                                                                  |
+| official codegen output support | `rust` `python`                                                                                       |
+| unofficial support              | `typescript` `csharp` `golang` `java` `dart` `kotlin` `php` `cplusplus` `scala`                       |
 
 ## codegen commands
 ### initial set up
@@ -74,10 +75,11 @@ openapi-generator-cli generate -i asset/binance_rest_openapi.yaml -g python -o .
 asyncapi generate models <language> example_asyncapi.yaml -o output/example_<language>>_model
 ```
 ### AsyncAPI rust client (WS, tokio-tungstenite)
+> WIP in [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template)
+
 Missing now, I am hiring node.js dev to work on this one
 ### AsyncAPI python client (WS, asyncio-websockets)
-a template in npm as [here](https://www.npmjs.com/search?q=asyncapi%20python)
-Missing now, I am hiring node.js dev to work on this one
+> planned
 
 ## exchange integration status
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
@@ -114,13 +116,13 @@ I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org
   - [ ] gather 10 exchanges for single exchange trading
   - [ ] gather 20 exchanges for cross exchange trading
 - [ ] set up CI for codegen model
-  - [ ] rust
-    - [x] rust REST (reqwest) client codegen
-    - [ ] rust WS (tokio-tungstenite) client codegen template on npm
+  - [ ] rust codegen
+    - [x] REST (reqwest) client
+    - [ ] WS (tokio-tungstenite) client template (WIP: [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template))
     - [ ] CI for release on [crates.io](https://crates.io)
-  - [ ] python
-    - [ ] python REST client codegen
-    - [ ] python WS (asyncio-websockets) codegen
+  - [ ] python codegen
+    - [x] REST client
+    - [ ] WS (asyncio-websockets)
     - [ ] CI for release on [pip]()
 - [x] set up [guilder](https://github.com/kanekoshoyu/guilder) trading library
   - [x] define trading traits
@@ -130,7 +132,7 @@ I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org
 ## notes
 - the `ag` command seems to be deprecated and cannot generate code properly
 - you can install `asyncapi-preview` extension on vs code for preview
-- AsyncAPI `python-sanic-template` was failing
+- comnunity AsyncAPI templates like `python-sanic-template` are not working properly 
 
 ## partnership
 I keep this project opensource so that everyone can take part of it. If you have any OpenAPI / AsyncAPI document for a crypto exchange, you are more than welcome to add with a pull request, or I am willing to purchase as well.  
@@ -138,11 +140,14 @@ If you want to get an exchange integrated, I can help get that up for an one-off
 Please contact [Sho Kaneko](https://github.com/kanekoshoyu) for details.  
 
 ## recruitment
-### OpenAPI / AsyncAPI author
+#### OpenAPI / AsyncAPI author
 I am gathering API doc and it would be great if people can help me with it.  
-### javascript AsyncAPI template developer
-I realised that there is no asyncapi rust client generator. AsyncAPI templates are in node.js. I will set up a new repo for it and publish to npm, but I am not a node.js expert, so I would love to have javascript person to help me on this.  
+#### javascript AsyncAPI template developer
+> [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template)
+
+I have set up a repo to develop AsyncAPI template for Rust WS in React. I am not a React expert, so I would love to have expert to accelarate development.  
 
 ## see also
 - [guilder](https://github.com/kanekoshoyu/guilder) - Unopinionated Cross-Exchange Crypto Trading Library
+- [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template) - AsyncAPI Template for Generating Rust WebSocket Client
 - [kucoin-arbitrage](https://github.com/kanekoshoyu/kucoin_arbitrage) - KuCoin Cyclic Arbitrage, in Tokio Rust (legacy)
