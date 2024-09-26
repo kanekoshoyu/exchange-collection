@@ -44,7 +44,7 @@ I propose a streamlined integration of exchange API with a new approach, by usin
 | ------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | OpenAPI format                  | `{exchange}_rest_openapi.yaml`, v3.X.Y, convert swagger to OpenAPI [here](https://editor.swagger.io/) |
 | AsyncAPI format                 | `{exchange}_ws_asyncapi.yaml`, YAML, v2.X.Y, codegen does not work well with v3 apparently            |
-| codegen                         | Rust                                                                                                  |
+| codegen                         | written in Rust                                                                                       |
 | official codegen output support | `rust` `python`                                                                                       |
 | unofficial support              | `typescript` `csharp` `golang` `java` `dart` `kotlin` `php` `cplusplus` `scala`                       |
 
@@ -79,7 +79,7 @@ asyncapi generate models <language> example_asyncapi.yaml -o output/example_<lan
 
 Missing now, I am hiring node.js dev to work on this one
 ### AsyncAPI python client (WS, asyncio-websockets)
-> planned
+> planned after rust code generator
 
 ## exchange integration status
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
@@ -87,7 +87,7 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | --------------------------------------------------------- | --------- | -------------- | ------------- |
 | [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | done          |
 | [binance](https://binance-docs.github.io)                 | yes       | done           | done          |
-| [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | wip           |
+| [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | done          |
 | [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | planned       |
 | [bitwyre](https://docs.bitwyre.com)                       | no        | planned        | planned       |
 | [dydx](https://docs.dydx.exchange)                        | no        | planned        | planned       |
@@ -110,9 +110,9 @@ I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org
 
 ## TODO
 - [ ] gather assets
-  - [ ] gather initial assets
+  - [x] gather initial assets
     - [x] gather 3 exchanges in OpenAPI
-    - [ ] gather 3 exchanges in AsyncAPI
+    - [x] gather 3 exchanges in AsyncAPI
   - [ ] gather 10 exchanges for single exchange trading
   - [ ] gather 20 exchanges for cross exchange trading
 - [ ] set up CI for codegen model
@@ -125,7 +125,9 @@ I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org
     - [ ] WS (asyncio-websockets)
     - [ ] CI for release on [pip]()
 - [x] set up [guilder](https://github.com/kanekoshoyu/guilder) trading library
-  - [x] define trading traits
+  - [x] define market data traits
+  - [ ] define order placement traits
+  - [ ] define ledger traits
   - [ ] implement traits on top of the codegen model
   - [ ] package models with opinionated trait per language
 
