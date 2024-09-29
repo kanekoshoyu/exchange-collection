@@ -2,14 +2,14 @@ asyncapi: 2.1.0
 info:
   title: HyperLiquid Websocket API
   version: 2.0.0
-  description: 'WebSocket endpoints are available for real-time data streaming and as an alternative to HTTP request sending on the Hyperliquid exchange.'
+  description: "WebSocket endpoints are available for real-time data streaming and as an alternative to HTTP request sending on the Hyperliquid exchange."
 servers:
   production:
-    url: 'wss://api.hyperliquid.xyz/ws'
+    url: "wss://api.hyperliquid.xyz/ws"
     protocol: wss
     description: Mainnet WebSocket server
   development:
-    url: 'wss://api.hyperliquid-testnet.xyz/ws'
+    url: "wss://api.hyperliquid-testnet.xyz/ws"
     protocol: wss
     description: Testnet WebSocket server
 channels:
@@ -22,7 +22,7 @@ channels:
         contentType: application/json
         payload:
           $ref: "#/components/schemas/subscriptionPayload"
-    
+
 components:
   schemas:
     PostRequest:
@@ -35,12 +35,12 @@ components:
           description: Unique identifier for the request, used to track the response.
           example: 123
         request:
-          $ref: '#/components/schemas/RequestPayload'
+          $ref: "#/components/schemas/RequestPayload"
     PostRequestEnum:
       type: string
-      enum: ['post']
+      enum: ["post"]
       description: Specifies that the client is posting a request.
-      example: 'post'
+      example: "post"
     RequestPayload:
       type: object
       properties:
@@ -50,45 +50,45 @@ components:
           $ref: "#/components/schemas/ActualPayload"
     RequestEnum:
       type: string
-      enum: ['info', 'action']
+      enum: ["info", "action"]
       description: Specifies the type of the request (info or action).
-      example: 'info'
+      example: "info"
     ActualPayload:
-        type: object
-        description: The actual payload for the request.
-        properties:
-            type:
-              type: string
-              example: 'l2Book'
-            coin:
-              type: string
-              example: 'ETH'
-            nSigFigs:
-              type: integer
-              description: Number of significant figures.
-              example: 5
-            mantissa:
-              type: integer
-              nullable: true
-              example: null
+      type: object
+      description: The actual payload for the request.
+      properties:
+        type:
+          type: string
+          example: "l2Book"
+        coin:
+          type: string
+          example: "ETH"
+        nSigFigs:
+          type: integer
+          description: Number of significant figures.
+          example: 5
+        mantissa:
+          type: integer
+          nullable: true
+          example: null
 
     PostResponse:
       type: object
       properties:
         channel:
           type: string
-          example: 'post'
+          example: "post"
         data:
           $ref: "#/components/schemas/postData"
     postData:
-        type: object
-        properties:
-          id:
-            type: integer
-            description: Unique identifier to match the request.
-            example: 123
-          response:
-            $ref: '#/components/schemas/ResponsePayload'
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier to match the request.
+          example: 123
+        response:
+          $ref: "#/components/schemas/ResponsePayload"
 
     ResponsePayload:
       type: object
@@ -99,26 +99,26 @@ components:
           $ref: "#/components/schemas/payloadFormat"
     ResponsePayloadEnum:
       type: string
-      enum: ['info', 'action', 'error']
+      enum: ["info", "action", "error"]
       description: Type of the response.
-      example: 'info'
+      example: "info"
     payloadFormat:
-        type: object
-        description: Payload of the response.
-        properties:
-            type:
-              type: string
-              description: Type of the data in the response (e.g., l2Book).
-              example: 'l2Book'
-            data:
-              $ref: "#/components/schemas/payloadData"
+      type: object
+      description: Payload of the response.
+      properties:
+        type:
+          type: string
+          description: Type of the data in the response (e.g., l2Book).
+          example: "l2Book"
+        data:
+          $ref: "#/components/schemas/payloadData"
     payloadData:
       type: object
       description: The actual data returned in the response.
       properties:
         coin:
           type: string
-          example: 'ETH'
+          example: "ETH"
         time:
           type: number
           description: Timestamp in milliseconds.
@@ -138,11 +138,11 @@ components:
         px:
           type: string
           description: Price level.
-          example: '3007.1'
+          example: "3007.1"
         sz:
           type: string
           description: Size at that price level.
-          example: '2.7954'
+          example: "2.7954"
         n:
           type: number
           description: Number of orders at that price level.
@@ -150,10 +150,10 @@ components:
     subscriptionPayload:
       type: object
       properties:
-            method:
-              $ref: "#/components/schemas/SubscriptionEnum"
-            subscription:
-              $ref: "#/components/schemas/Subscriptions"
+        method:
+          $ref: "#/components/schemas/SubscriptionEnum"
+        subscription:
+          $ref: "#/components/schemas/Subscriptions"
     SubscriptionEnum:
       type: string
       enum: [subscribe]
@@ -161,17 +161,17 @@ components:
     Subscriptions:
       type: object
       oneOf:
-          - $ref: '#/components/schemas/AllMidsSubscription'
-          - $ref: '#/components/schemas/NotificationSubscription'
-          - $ref: '#/components/schemas/WebData2Subscription'
-          - $ref: '#/components/schemas/CandleSubscription'
-          - $ref: '#/components/schemas/L2BookSubscription'
-          - $ref: '#/components/schemas/TradesSubscription'
-          - $ref: '#/components/schemas/OrderUpdatesSubscription'
-          - $ref: '#/components/schemas/UserEventsSubscription'
-          - $ref: '#/components/schemas/UserFillsSubscription'
-          - $ref: '#/components/schemas/UserFundingsSubscription'
-          - $ref: '#/components/schemas/WsUserNonFundingLedgerUpdate'
+        - $ref: "#/components/schemas/AllMidsSubscription"
+        - $ref: "#/components/schemas/NotificationSubscription"
+        - $ref: "#/components/schemas/WebData2Subscription"
+        - $ref: "#/components/schemas/CandleSubscription"
+        - $ref: "#/components/schemas/L2BookSubscription"
+        - $ref: "#/components/schemas/TradesSubscription"
+        - $ref: "#/components/schemas/OrderUpdatesSubscription"
+        - $ref: "#/components/schemas/UserEventsSubscription"
+        - $ref: "#/components/schemas/UserFillsSubscription"
+        - $ref: "#/components/schemas/UserFundingsSubscription"
+        - $ref: "#/components/schemas/WsUserNonFundingLedgerUpdate"
 
     AllMidsSubscription:
       type: object
@@ -342,14 +342,14 @@ components:
         - delta
     WsDelta:
       oneOf:
-            - $ref: '#/components/schemas/WsDeposit'
-            - $ref: '#/components/schemas/WsWithdraw'
-            - $ref: '#/components/schemas/WsInternalTransfer'
-            - $ref: '#/components/schemas/WsSubAccountTransfer'
-            - $ref: '#/components/schemas/WsLedgerLiquidation'
-            - $ref: '#/components/schemas/WsVaultDelta'
-            - $ref: '#/components/schemas/WsVaultWithdrawal'
-            - $ref: '#/components/schemas/WsVaultLeaderCommission'
+        - $ref: "#/components/schemas/WsDeposit"
+        - $ref: "#/components/schemas/WsWithdraw"
+        - $ref: "#/components/schemas/WsInternalTransfer"
+        - $ref: "#/components/schemas/WsSubAccountTransfer"
+        - $ref: "#/components/schemas/WsLedgerLiquidation"
+        - $ref: "#/components/schemas/WsVaultDelta"
+        - $ref: "#/components/schemas/WsVaultWithdrawal"
+        - $ref: "#/components/schemas/WsVaultLeaderCommission"
     WsDeposit:
       type: object
       properties:
@@ -463,7 +463,7 @@ components:
         liquidatedPositions:
           type: array
           items:
-            $ref: '#/components/schemas/LiquidatedPosition'
+            $ref: "#/components/schemas/LiquidatedPosition"
           description: "List of liquidated positions"
       required:
         - type
@@ -616,7 +616,7 @@ components:
         levels:
           type: array
           items:
-            $ref: '#/components/schemas/WsLevel'
+            $ref: "#/components/schemas/WsLevel"
         time:
           type: number
       required:
@@ -692,17 +692,17 @@ components:
     WsUserEvent:
       oneOf:
         - $ref: "#/components/schemas/WsUserFillArray"
-        - $ref: '#/components/schemas/WsUserFunding'
-        - $ref: '#/components/schemas/WsLiquidation'
+        - $ref: "#/components/schemas/WsUserFunding"
+        - $ref: "#/components/schemas/WsLiquidation"
         - $ref: "#/components/schemas/WsnonUserArray"
     WsnonUserArray:
       type: array
       items:
-        $ref: '#/components/schemas/WsNonUserCancel'
+        $ref: "#/components/schemas/WsNonUserCancel"
     WsUserFillArray:
       type: array
       items:
-        $ref: '#/components/schemas/WsUserFill'
+        $ref: "#/components/schemas/WsUserFill"
     WsUserFill:
       type: object
       properties:
@@ -802,10 +802,18 @@ components:
       type: object
       properties:
         order:
-          $ref: '#/components/schemas/WsBasicOrder'
+          $ref: "#/components/schemas/WsBasicOrder"
         status:
           type: string
-          enum: ["open", "filled", "canceled", "triggered", "rejected", "marginCanceled"]
+          enum:
+            [
+              "open",
+              "filled",
+              "canceled",
+              "triggered",
+              "rejected",
+              "marginCanceled",
+            ]
         statusTimestamp:
           type: number
       required:
@@ -856,5 +864,3 @@ components:
         - oid
         - timestamp
         - origSz
-  
-   

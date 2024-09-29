@@ -2,40 +2,40 @@ asyncapi: 2.1.0
 info:
   title: Coinbase Websocket API
   version: 2.0.0
-  description: 'WebSocket endpoints are available for real-time data streaming and as an alternative to HTTP request sending on the Coinbase exchange.'
+  description: "WebSocket endpoints are available for real-time data streaming and as an alternative to HTTP request sending on the Coinbase exchange."
 servers:
   Market Data Production:
-    url: 'wss://ws-feed.exchange.coinbase.com'
+    url: "wss://ws-feed.exchange.coinbase.com"
     protocol: wss
     description: Coinbase Market data Production API
   Market Data Sandbox:
-    url: 'wss://ws-feed-public.sandbox.exchange.coinbase.com'
+    url: "wss://ws-feed-public.sandbox.exchange.coinbase.com"
     protocol: wss
     description: Coinbase Market data Sandbox API
   Direct Market Procution API:
-    url: 'wss://ws-direct.exchange.coinbase.com'
+    url: "wss://ws-direct.exchange.coinbase.com"
     protocol: wss
     description: Coinbase Direct Market data Production API
   Direct Market Sandbox API:
-    url: 'wss://ws-direct.sandbox.exchange.coinbase.com'
+    url: "wss://ws-direct.sandbox.exchange.coinbase.com"
     protocol: wss
     description: Coinbase Direct Market data Sandbox API
   Advanced Trade Market:
-    url: 'wss://advanced-trade-ws.coinbase.com'
+    url: "wss://advanced-trade-ws.coinbase.com"
     protocol: wss
     description: Advanced Trade market data endpoint
   Advanced Trade Order:
-    url: 'wss://advanced-trade-ws-user.coinbase.com'
+    url: "wss://advanced-trade-ws-user.coinbase.com"
     protocol: wss
     description: Advanced Trade user order data endpoint
 channels:
   level2:
     description: Subscribe to the level2 order book updates for specific product IDs.
-    
+
     subscribe:
       summary: Subscribe to heartbeat updates.
       message:
-        $ref: '#/components/messages/SubscribeMessage'
+        $ref: "#/components/messages/SubscribeMessage"
     publish:
       summary: Responses for Subscriptions
       message:
@@ -46,7 +46,7 @@ channels:
     subscribe:
       summary: Subscribe to heartbeat updates.
       message:
-        $ref: '#/components/messages/SubscribeMessage'
+        $ref: "#/components/messages/SubscribeMessage"
     publish:
       summary: Responses for Subscriptions
       message:
@@ -57,7 +57,7 @@ channels:
     subscribe:
       summary: Subscribe to heartbeat updates.
       message:
-        $ref: '#/components/messages/SubscribeMessage'
+        $ref: "#/components/messages/SubscribeMessage"
     publish:
       summary: Responses for Subscriptions
       message:
@@ -76,8 +76,8 @@ components:
       payload:
         $ref: "#/components/schemas/SubscriptionResponsePayload"
   schemas:
-    PublishData:      
-        oneOf:
+    PublishData:
+      oneOf:
         - $ref: "#/components/messages/SubscriptionResponse"
         - $ref: "#/components/schemas/HeartbeatPayload"
         - $ref: "#/components/schemas/StatusPayload"
@@ -106,26 +106,26 @@ components:
         - $ref: "#/components/schemas/FutureBalanceSummary"
     SubscriptionArray:
       oneOf:
-          - $ref: "#/components/schemas/SubscriptionPayload"
-          - $ref: "#/components/schemas/TradeSubscriptionPayload"
+        - $ref: "#/components/schemas/SubscriptionPayload"
+        - $ref: "#/components/schemas/TradeSubscriptionPayload"
     SubscriptionPayload:
       type: object
       properties:
-          name: 
+        name:
+          type: string
+          example: "rfq_matches"
+        type:
+          $ref: "#/components/schemas/subscriptionEnum"
+        product_ids:
+          type: array
+          items:
             type: string
-            example: "rfq_matches"
-          type:
-            $ref: "#/components/schemas/subscriptionEnum"
-          product_ids:
-            type: array
-            items:
-              type: string
-            description: The product IDs to subscribe to.
-            example: ["ETH-USD", "ETH-EUR"]
-          channels:
-            type: array
-            items:
-              $ref: "#/components/schemas/ChannelOrProductIds"
+          description: The product IDs to subscribe to.
+          example: ["ETH-USD", "ETH-EUR"]
+        channels:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChannelOrProductIds"
     ChannelOrProductIds:
       type: object
       oneOf:
@@ -133,11 +133,22 @@ components:
         - $ref: "#/components/schemas/ProductIds"
     subscriptionEnum:
       type: string
-      enum: ["subscribe","unsubscribed"]
+      enum: ["subscribe", "unsubscribed"]
       example: "subscribe"
     ChannelEnum:
       type: string
-      enum: ["level2", "heartbeat","status",'aution','ticker','matches','rfq-_matches','ticker_batch','full']
+      enum:
+        [
+          "level2",
+          "heartbeat",
+          "status",
+          "aution",
+          "ticker",
+          "matches",
+          "rfq-_matches",
+          "ticker_batch",
+          "full",
+        ]
     TradeSubscriptionPayload:
       type: object
       required:
@@ -146,37 +157,37 @@ components:
         - channel
         - jwt
       properties:
-            type:
-              $ref: "#/components/schemas/subscriptionEnum"
-              description: Specifies the type of message.
-              example: subscribe
-            product_ids:
-              type: array
-              items:
-                type: string
-              description: Array of product IDs to subscribe to.
-              example:
-                - ETH-USD
-                - ETH-EUR
-            channel:
-              $ref: "#/components/schemas/TradeChannelEnum"
-            jwt:
-              type: string
-              description: JWT token for authentication.
-              example: exampleJWT
+        type:
+          $ref: "#/components/schemas/subscriptionEnum"
+          description: Specifies the type of message.
+          example: subscribe
+        product_ids:
+          type: array
+          items:
+            type: string
+          description: Array of product IDs to subscribe to.
+          example:
+            - ETH-USD
+            - ETH-EUR
+        channel:
+          $ref: "#/components/schemas/TradeChannelEnum"
+        jwt:
+          type: string
+          description: JWT token for authentication.
+          example: exampleJWT
     TradeChannelEnum:
       type: string
       enum:
-        - 'level2'
-        - 'heartbeats'
-        - 'candles'
-        - 'market_trades'
-        - 'status'
-        - 'ticker'
-        - 'ticker_batch'
-        - 'l2_data'
-        - 'user'
-        - 'futures_balance_summary'
+        - "level2"
+        - "heartbeats"
+        - "candles"
+        - "market_trades"
+        - "status"
+        - "ticker"
+        - "ticker_batch"
+        - "l2_data"
+        - "user"
+        - "futures_balance_summary"
       description: Channel for level 2 order book data.
       example: level2
     ProductIds:
@@ -193,39 +204,39 @@ components:
     SubscriptionResponsePayload:
       type: object
       properties:
-          type:
-            type: string
-            example: "subscriptions"
-          channels:
-            type: array
-            items:
-              oneOf:
-                - $ref: "#/components/schemas/ChannelEnum"
-                - $ref: "#/components/schemas/ProductIds"
+        type:
+          type: string
+          example: "subscriptions"
+        channels:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/ChannelEnum"
+              - $ref: "#/components/schemas/ProductIds"
     HeartbeatPayload:
       type: object
       properties:
-          type:
-            type: string
-            description: The type of the message.
-            example: "heartbeat"
-          sequence:
-            type: integer
-            description: Sequence number of the message.
-            example: 90
-          last_trade_id:
-            type: integer
-            description: The last trade ID.
-            example: 20
-          product_id:
-            type: string
-            description: The product ID associated with this heartbeat.
-            example: "BTC-USD"
-          time:
-            type: string
-            format: date-time
-            description: The timestamp of the heartbeat message.
-            example: "2014-11-07T08:19:28.464459Z"
+        type:
+          type: string
+          description: The type of the message.
+          example: "heartbeat"
+        sequence:
+          type: integer
+          description: Sequence number of the message.
+          example: 90
+        last_trade_id:
+          type: integer
+          description: The last trade ID.
+          example: 20
+        product_id:
+          type: string
+          description: The product ID associated with this heartbeat.
+          example: "BTC-USD"
+        time:
+          type: string
+          format: date-time
+          description: The timestamp of the heartbeat message.
+          example: "2014-11-07T08:19:28.464459Z"
     StatusPayload:
       type: object
       properties:
@@ -274,18 +285,18 @@ components:
         fx_stablecoin:
           type: boolean
       required:
-              - id
-              - base_currency
-              - quote_currency
-              - base_increment
-              - quote_increment
-              - display_name
-              - status
-              - min_market_funds
-              - post_only
-              - limit_only
-              - cancel_only
-              - fx_stablecoin
+        - id
+        - base_currency
+        - quote_currency
+        - base_increment
+        - quote_increment
+        - display_name
+        - status
+        - min_market_funds
+        - post_only
+        - limit_only
+        - cancel_only
+        - fx_stablecoin
     CurrencyData:
       type: object
       properties:
@@ -760,7 +771,7 @@ components:
         - maker_profile_id
         - profile_id
         - maker_fee_rate
-    
+
     STPOrderMessage:
       type: object
       properties:
@@ -768,7 +779,7 @@ components:
           type: string
           example: "change"
         reason:
-          $ref: "#/components/schemas/STPEnum" 
+          $ref: "#/components/schemas/STPEnum"
         time:
           type: string
           format: date-time
@@ -802,7 +813,7 @@ components:
     STPEnum:
       type: string
       description: "Reason for the change, e.g., STP (Self Trade Prevention)"
-      enum: ["STP", "modify_order","other_reason"]
+      enum: ["STP", "modify_order", "other_reason"]
     StopOrderMessage:
       type: object
       properties:
@@ -868,7 +879,7 @@ components:
         properties:
           type:
             type: string
-            example: 'snapshot'
+            example: "snapshot"
           product_id:
             type: string
             description: The trading pair (e.g., BTC-USD)
@@ -881,7 +892,7 @@ components:
             type: array
             description: List of ask orders [price, size]
             items:
-              $ref: "#/components/schemas/BidsAskArray"              
+              $ref: "#/components/schemas/BidsAskArray"
     BidsAskArray:
       type: array
       items:
@@ -947,15 +958,15 @@ components:
     BuySell:
       type: array
       items:
-      - type: string
-        description: The side of the order (buy or sell)
-        example: 'buy or sell'
-      - type: string
-        description: Price level at which the change occurred
-        example: "22356.270000"
-      - type: string
-        description: Size at this price level after the change
-        example: "0.00000000"
+        - type: string
+          description: The side of the order (buy or sell)
+          example: "buy or sell"
+        - type: string
+          description: Price level at which the change occurred
+          example: "22356.270000"
+        - type: string
+          description: Size at this price level after the change
+          example: "0.00000000"
     BalancePayload:
       summary: Account balance update
       description: A message providing the current balance status of an account, including locked funds and available funds for trading.
@@ -1066,45 +1077,45 @@ components:
     Events:
       type: object
       properties:
-              type:
-                type: string
-                description: Type of candle event.
-                example: snapshot
-              candles:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Candles"
+        type:
+          type: string
+          description: Type of candle event.
+          example: snapshot
+        candles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Candles"
     Candles:
       type: object
       properties:
-          start:
-            type: string
-            description: Start time of the candle in Unix timestamp.
-            example: "1688998200"
-          high:
-            type: string
-            description: Highest price during the candle.
-            example: "1867.72"
-          low:
-            type: string
-            description: Lowest price during the candle.
-            example: "1865.63"
-          open:
-            type: string
-            description: Opening price of the candle.
-            example: "1867.38"
-          close:
-            type: string
-            description: Closing price of the candle.
-            example: "1866.81"
-          volume:
-            type: string
-            description: Trading volume during the candle.
-            example: "0.20269406"
-          product_id:
-            type: string
-            description: Product identifier for the asset.
-            example: "ETH-USD"
+        start:
+          type: string
+          description: Start time of the candle in Unix timestamp.
+          example: "1688998200"
+        high:
+          type: string
+          description: Highest price during the candle.
+          example: "1867.72"
+        low:
+          type: string
+          description: Lowest price during the candle.
+          example: "1865.63"
+        open:
+          type: string
+          description: Opening price of the candle.
+          example: "1867.38"
+        close:
+          type: string
+          description: Closing price of the candle.
+          example: "1866.81"
+        volume:
+          type: string
+          description: Trading volume during the candle.
+          example: "0.20269406"
+        product_id:
+          type: string
+          description: Product identifier for the asset.
+          example: "ETH-USD"
     TradeMarkets:
       type: object
       required:
@@ -1138,42 +1149,42 @@ components:
     MarketEvents:
       type: object
       properties:
-              type:
-                type: string
-                description: Type of trade event.
-                example: snapshot
-              trades:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Trades"
+        type:
+          type: string
+          description: Type of trade event.
+          example: snapshot
+        trades:
+          type: array
+          items:
+            $ref: "#/components/schemas/Trades"
     Trades:
       type: object
       properties:
-            trade_id:
-              type: string
-              description: Unique identifier for the trade.
-              example: "000000000"
-            product_id:
-              type: string
-              description: Product identifier for the asset.
-              example: "ETH-USD"
-            price:
-              type: string
-              description: Price at which the trade occurred.
-              example: "1260.01"
-            size:
-              type: string
-              description: Size of the trade.
-              example: "0.3"
-            side:
-              type: string
-              description: The side of the trade (buy or sell).
-              example: "BUY"
-            time:
-              type: string
-              format: date-time
-              description: Timestamp when the trade occurred.
-              example: "2019-08-14T20:42:27.265Z"
+        trade_id:
+          type: string
+          description: Unique identifier for the trade.
+          example: "000000000"
+        product_id:
+          type: string
+          description: Product identifier for the asset.
+          example: "ETH-USD"
+        price:
+          type: string
+          description: Price at which the trade occurred.
+          example: "1260.01"
+        size:
+          type: string
+          description: Size of the trade.
+          example: "0.3"
+        side:
+          type: string
+          description: The side of the trade (buy or sell).
+          example: "BUY"
+        time:
+          type: string
+          format: date-time
+          description: Timestamp when the trade occurred.
+          example: "2019-08-14T20:42:27.265Z"
     TradeStatus:
       type: object
       properties:
@@ -1268,62 +1279,62 @@ components:
         tickers:
           type: array
           items:
-           $ref: "#/components/schemas/TickersArray"
+            $ref: "#/components/schemas/TickersArray"
     TickersArray:
-       type: object
-       properties:
-            type:
-              type: string
-              description: The type of event, in this case, a ticker.
-              example: ticker
-            product_id:
-              type: string
-              description: Unique identifier for the product.
-              example: BTC-USD
-            price:
-              type: string
-              description: The current price of the product.
-              example: "21932.98"
-            volume_24_h:
-              type: string
-              description: 24-hour trading volume.
-              example: "16038.28770938"
-            low_24_h:
-              type: string
-              description: Lowest price in the last 24 hours.
-              example: "21835.29"
-            high_24_h:
-              type: string
-              description: Highest price in the last 24 hours.
-              example: "23011.18"
-            low_52_w:
-              type: string
-              description: Lowest price in the last 52 weeks.
-              example: "15460"
-            high_52_w:
-              type: string
-              description: Highest price in the last 52 weeks.
-              example: "48240"
-            price_percent_chg_24_h:
-              type: string
-              description: 24-hour percentage change in price.
-              example: "-4.15775596190603"
-            best_bid:
-              type: string
-              description: Current best bid price.
-              example: "21931.98"
-            best_bid_quantity:
-              type: string
-              description: Quantity at the best bid price.
-              example: "8000.21"
-            best_ask:
-              type: string
-              description: Current best ask price.
-              example: "21933.98"
-            best_ask_quantity:
-              type: string
-              description: Quantity at the best ask price.
-              example: "8038.07770938"
+      type: object
+      properties:
+        type:
+          type: string
+          description: The type of event, in this case, a ticker.
+          example: ticker
+        product_id:
+          type: string
+          description: Unique identifier for the product.
+          example: BTC-USD
+        price:
+          type: string
+          description: The current price of the product.
+          example: "21932.98"
+        volume_24_h:
+          type: string
+          description: 24-hour trading volume.
+          example: "16038.28770938"
+        low_24_h:
+          type: string
+          description: Lowest price in the last 24 hours.
+          example: "21835.29"
+        high_24_h:
+          type: string
+          description: Highest price in the last 24 hours.
+          example: "23011.18"
+        low_52_w:
+          type: string
+          description: Lowest price in the last 52 weeks.
+          example: "15460"
+        high_52_w:
+          type: string
+          description: Highest price in the last 52 weeks.
+          example: "48240"
+        price_percent_chg_24_h:
+          type: string
+          description: 24-hour percentage change in price.
+          example: "-4.15775596190603"
+        best_bid:
+          type: string
+          description: Current best bid price.
+          example: "21931.98"
+        best_bid_quantity:
+          type: string
+          description: Quantity at the best bid price.
+          example: "8000.21"
+        best_ask:
+          type: string
+          description: Current best ask price.
+          example: "21933.98"
+        best_ask_quantity:
+          type: string
+          description: Quantity at the best ask price.
+          example: "8038.07770938"
     TradeL2Data:
       type: object
       required:
@@ -1372,23 +1383,23 @@ components:
     L2Updates:
       type: object
       properties:
-          side:
-            type: string
-            description: The side of the order book (bid or ask).
-            example: bid
-          event_time:
-            type: string
-            format: date-time
-            description: The time of the update event.
-            example: "1970-01-01T00:00:00Z"
-          price_level:
-            type: string
-            description: The price level being updated.
-            example: "21921.73"
-          new_quantity:
-            type: string
-            description: The new quantity at the price level.
-            example: "0.06317902"  
+        side:
+          type: string
+          description: The side of the order book (bid or ask).
+          example: bid
+        event_time:
+          type: string
+          format: date-time
+          description: The time of the update event.
+          example: "1970-01-01T00:00:00Z"
+        price_level:
+          type: string
+          description: The price level being updated.
+          example: "21921.73"
+        new_quantity:
+          type: string
+          description: The new quantity at the price level.
+          example: "0.06317902"
     UserData:
       type: object
       required:
@@ -1414,7 +1425,7 @@ components:
         events:
           type: array
           items:
-            $ref: '#/components/schemas/UserEvent'
+            $ref: "#/components/schemas/UserEvent"
     UserEvent:
       type: object
       required:
@@ -1428,17 +1439,17 @@ components:
         orders:
           type: array
           items:
-            $ref: '#/components/schemas/UserOrder'
+            $ref: "#/components/schemas/UserOrder"
         positions:
-          $ref: '#/components/schemas/UserPositions'
+          $ref: "#/components/schemas/UserPositions"
     ExpiryEnum:
       type: string
       example: UNKNOWN_CONTRACT_EXPIRY_TYPE
-      enum: ['UNKNOWN_CONTRACT_EXPIRY_TYPE','EXPIRY','PERPECTUAL']
+      enum: ["UNKNOWN_CONTRACT_EXPIRY_TYPE", "EXPIRY", "PERPECTUAL"]
     OrderEnum:
       type: string
       example: Limit
-      enum: ['LIMIT_ORDER_TYPE','MARKET_ORDER_TYPE','STOP_LIMIT_ORDER_TYPE']
+      enum: ["LIMIT_ORDER_TYPE", "MARKET_ORDER_TYPE", "STOP_LIMIT_ORDER_TYPE"]
     UserOrder:
       type: object
       properties:
@@ -1528,34 +1539,48 @@ components:
     TriggerEnum:
       type: string
       example: INVALID_ORDER_TYPE
-      enum: ['UNKNOWN_TRIGGER_STATUS','INVALID_ORDER_TYPE','STOP_PENDING','STOP_TRIGGERED']
+      enum:
+        [
+          "UNKNOWN_TRIGGER_STATUS",
+          "INVALID_ORDER_TYPE",
+          "STOP_PENDING",
+          "STOP_TRIGGERED",
+        ]
     TimeEnum:
       type: string
       example: GOOD_UNTIL_CANCELLED
-      enum: ['UNKNOWN_TIME_IN_FORCE',"GOOD_UNTIL_CANELLED",'GOOD_UNTIL_DATE_TIME','IMMIDIATE_OR_CANCEL','FILL_OR_KILL']
+      enum:
+        [
+          "UNKNOWN_TIME_IN_FORCE",
+          "GOOD_UNTIL_CANELLED",
+          "GOOD_UNTIL_DATE_TIME",
+          "IMMIDIATE_OR_CANCEL",
+          "FILL_OR_KILL",
+        ]
     StatusEnum:
       type: string
       example: FILLED
-      enum: ['PENDING','OPEN','FILLED','CANCELLED','EXPIRED','FAILED']
+      enum: ["PENDING", "OPEN", "FILLED", "CANCELLED", "EXPIRED", "FAILED"]
     RiskEnum:
       type: string
       example: UNKNOWN_RISK_MANAGEMENT_TYPE
-      enum: ['UNKNOWN_RISK_MANAGEMENT_TYPE','MANAGED_BY_FCM','MANAGED_BY_VENUE']
+      enum:
+        ["UNKNOWN_RISK_MANAGEMENT_TYPE", "MANAGED_BY_FCM", "MANAGED_BY_VENUE"]
     ProductEnum:
       type: string
       example: SPOT
-      enum: ["UNKNOWN_PRODUCT_TYPE","SPOT","FUTURE"]
+      enum: ["UNKNOWN_PRODUCT_TYPE", "SPOT", "FUTURE"]
     UserPositions:
       type: object
       properties:
         perpetual_futures_positions:
           type: array
           items:
-            $ref: '#/components/schemas/PerpetualFuturesPosition'
+            $ref: "#/components/schemas/PerpetualFuturesPosition"
         expiring_futures_positions:
           type: array
           items:
-            $ref: '#/components/schemas/ExpiringFuturesPosition'
+            $ref: "#/components/schemas/ExpiringFuturesPosition"
     PerpetualFuturesPosition:
       type: object
       properties:
@@ -1574,10 +1599,10 @@ components:
         position_side:
           type: string
           example: Long
-          ENUM: ['long','short']
+          ENUM: ["long", "short"]
         margin_type:
           type: string
-          example: 'Cross or isolated'          
+          example: "Cross or isolated"
         net_size:
           type: string
           example: "0.0041"
@@ -1657,7 +1682,7 @@ components:
         events:
           type: array
           items:
-            $ref: '#/components/schemas/FuturesBalanceSummaryEvent'
+            $ref: "#/components/schemas/FuturesBalanceSummaryEvent"
     FuturesBalanceSummaryEvent:
       type: object
       required:
@@ -1668,7 +1693,7 @@ components:
           type: string
           example: snapshot
         fcm_balance_summary:
-          $ref: '#/components/schemas/FcmBalanceSummary'
+          $ref: "#/components/schemas/FcmBalanceSummary"
     FcmBalanceSummary:
       type: object
       properties:
@@ -1709,17 +1734,31 @@ components:
           type: string
           example: "1000"
         intraday_margin_window_measure:
-          $ref: '#/components/schemas/IntradayMarginWindowMeasure'
+          $ref: "#/components/schemas/IntradayMarginWindowMeasure"
         overnight_margin_window_measure:
-          $ref: '#/components/schemas/OvernightMarginWindowMeasure'
+          $ref: "#/components/schemas/OvernightMarginWindowMeasure"
     MarginEnum:
       type: string
       example: FCM_MARGIN_WINDOW_TYPE_INTRADAY
-      enum: ['FCM_MARGIN_WINDOW_TYPE_UNSPECIFIED','FCM_MARGIN_WINDOW_TYPE_OVERNIGHT','FCM_MARGIN_WINDOW_TYPE_WEEKEND','FCM_MARGIN_WINDOW_TYPE_INTRADAY','FCM_MARGIN_WINDOW_TYPE_TRANSITION']
+      enum:
+        [
+          "FCM_MARGIN_WINDOW_TYPE_UNSPECIFIED",
+          "FCM_MARGIN_WINDOW_TYPE_OVERNIGHT",
+          "FCM_MARGIN_WINDOW_TYPE_WEEKEND",
+          "FCM_MARGIN_WINDOW_TYPE_INTRADAY",
+          "FCM_MARGIN_WINDOW_TYPE_TRANSITION",
+        ]
     MarginLevelEnum:
       type: string
       example: MARGIN_LEVEL_TYPE_BASE
-      enum: ['MARGIN_LEVEL_TYPE_UNSPECIFIED','MARGIN_LEVEL_TYPE_BASE','MARGIN_LEVEL_TYPE_WARNING','MARGIN_LEVEL_TYPE_DANGER','MARGIN_LEVEL_TYPE_LIQUIDATION']
+      enum:
+        [
+          "MARGIN_LEVEL_TYPE_UNSPECIFIED",
+          "MARGIN_LEVEL_TYPE_BASE",
+          "MARGIN_LEVEL_TYPE_WARNING",
+          "MARGIN_LEVEL_TYPE_DANGER",
+          "MARGIN_LEVEL_TYPE_LIQUIDATION",
+        ]
     IntradayMarginWindowMeasure:
       type: object
       properties:
