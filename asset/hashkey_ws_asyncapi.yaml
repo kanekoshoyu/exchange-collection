@@ -1,0 +1,792 @@
+asyncapi: 2.1.0
+info:
+  title: Hashkey Websocket API
+  version: 2.0.0
+  description: "WebSocket endpoints are available for real-time data streaming on Hashkey exchange."
+servers:
+  Sandbox Public Streams:
+    url: "wss://stream-pro.sim.hashkeydev.com/quote/ws/v1"
+    protocol: wss
+  Sandbox Private Streams:
+    url: "wss://stream-pro.sim.hashkeydev.com/api/v1/ws/{listenKey}"
+    protocol: wss
+  Production Private Streams:
+    url: "wss://stream-pro.hashkey.com/quote/ws/v1"
+    protocol: wss
+  Production Public Streams:
+    url: "wss://stream-pro.hashkey.com/api/v1/ws/{listenKey}"
+    protocol: wss
+channels:
+  /:
+    description: Main communication channel for the WebSocket connection.
+    publish:
+      summary: Messages received at server
+      description: The client sends a ping message with a timestamp to keep the WebSocket connection alive.
+      message:
+        oneOf:
+          - $ref: "#/components/messages/PingMessage"
+          - $ref: "#/components/messages/KlineSubscriptionRequest"
+          - $ref: "#/components/messages/RealtimesSubscriptionRequest"
+          - $ref: "#/components/messages/TradeSubscriptionRequest"
+          - $ref: "#/components/messages/DepthSubscriptionRequest"
+    subscribe:
+      description: Message send by server
+      message:
+        oneOf:
+          - $ref: "#/components/messages/PongMessage"
+          - $ref: "#/components/messages/KlineUpdateResponse"
+          - $ref: "#/components/messages/RealtimesUpdateResponse"
+          - $ref: "#/components/messages/TradeUpdateResponse"
+          - $ref: "#/components/messages/DepthUpdateResponse"
+          - $ref: "#/components/messages/AccountUpdateMessage"
+          - $ref: "#/components/messages/OrderUpdateMessage"
+          - $ref: "#/components/messages/TicketPushMessage"
+
+components:
+  messages:
+    PingMessage:
+      name: PingMessage
+      title: Ping Message
+      summary: A ping message sent by the client.
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          ping:
+            type: integer
+            description: The client's session ID timestamp.
+            example: 1691473241907
+    PongMessage:
+      name: PongMessage
+      title: Pong Message
+      summary: A pong message sent by the server in response to a ping.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/PongPayload"
+    KlineSubscriptionRequest:
+      name: KlineSubscriptionRequest
+      title: Kline Subscription Request
+      summary: The request sent by the client to subscribe to Kline data for a currency pair.
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          symbol:
+            type: string
+            description: The currency pair symbol.
+            example: BTCUSDT
+          topic:
+            type: string
+            description: The topic for Kline data.
+            example: kline_1m
+          event:
+            type: string
+            description: The event type for the subscription.
+            example: sub
+          params:
+            $ref: "#/components/schemas/SubscriptionParams"
+          id:
+            type: integer
+            description: Unique ID for the subscription request.
+            example: 1
+    KlineUpdateResponse:
+      name: KlineUpdateResponse
+      title: Kline Update Response
+      summary: The server response containing Kline data updates.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/KlinePayload"
+    RealtimesSubscriptionRequest:
+      name: RealtimesSubscriptionRequest
+      title: Realtimes Subscription Request
+      summary: The request sent by the client to subscribe to Realtimes data for a currency pair.
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          symbol:
+            type: string
+            description: The currency pair symbol.
+            example: BTCUSDT
+          topic:
+            type: string
+            description: The topic for Realtimes data.
+            example: realtimes
+          event:
+            type: string
+            description: The event type for the subscription.
+            example: sub
+          params:
+            $ref: "#/components/schemas/RealtimeParams"
+          id:
+            type: integer
+            description: Unique ID for the subscription request.
+            example: 1
+    RealtimesUpdateResponse:
+      name: RealtimesUpdateResponse
+      title: Realtimes Update Response
+      summary: The server response containing Realtimes data updates.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/RealtimePayload"
+    TradeSubscriptionRequest:
+      name: TradeSubscriptionRequest
+      title: Trade Subscription Request
+      summary: The request sent by the client to subscribe to Trade data for a currency pair.
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          symbol:
+            type: string
+            description: The currency pair symbol.
+            example: BTCUSDT
+          topic:
+            type: string
+            description: The topic for Trade data.
+            example: trade
+          event:
+            type: string
+            description: The event type for the subscription.
+            example: sub
+          params:
+            $ref: "#/components/schemas/TradeParams"
+          id:
+            type: integer
+            description: Unique ID for the subscription request.
+            example: 1
+    TradeUpdateResponse:
+      name: TradeUpdateResponse
+      title: Trade Update Response
+      summary: The server response containing Trade data updates.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/TradePayload"
+    DepthSubscriptionRequest:
+      name: DepthSubscriptionRequest
+      title: Depth Subscription Request
+      summary: The request sent by the client to subscribe to Depth data for a currency pair.
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          symbol:
+            type: string
+            description: The currency pair symbol.
+            example: BTCUSDT
+          topic:
+            type: string
+            description: The topic for Depth data.
+            example: depth
+          event:
+            type: string
+            description: The event type for the subscription.
+            example: sub
+          params:
+            $ref: "#/components/schemas/DepthParams"
+          id:
+            type: integer
+            description: Unique ID for the subscription request.
+            example: 1
+    DepthUpdateResponse:
+      name: DepthUpdateResponse
+      title: Depth Update Response
+      summary: The server response containing Depth data updates.
+      contentType: application/json
+      payload:
+        $ref: "#/components/schemas/DepthPayload"
+    AccountUpdateMessage:
+      name: AccountUpdateMessage
+      title: Account Update
+      summary: Message sent when there is a change in account balance.
+      contentType: application/json
+      payload:
+        type: array
+        items:
+          $ref: "#/components/schemas/AccountSchema"
+    OrderUpdateMessage:
+      name: OrderUpdateMessage
+      title: Order Update
+      summary: Message sent when there is an update on an order.
+      contentType: application/json
+      payload:
+        type: array
+        items:
+          $ref: "#/components/schemas/OrderSchema"
+    TicketPushMessage:
+      name: TicketPushMessage
+      title: Ticket Push
+      summary: Message sent when a ticket update occurs.
+      contentType: application/json
+      payload:
+        type: array
+        items:
+          $ref: "#/components/schemas/TicketSchema"
+  schemas:
+    SubscriptionParams:
+      type: object
+      properties:
+        binary:
+          type: boolean
+          description: Whether to return binary data.
+          example: false
+    KlineParams:
+      type: object
+      properties:
+        realtimeInterval:
+          type: string
+          description: The interval for real-time data.
+          example: 24h
+        klineType:
+          type: string
+          description: The type of Kline interval.
+          example: 1m
+        binary:
+          type: boolean
+          description: Whether the data is in binary format.
+          example: false
+    KlineData:
+      type: object
+      properties:
+        t:
+          type: integer
+          description: Timestamp in milliseconds.
+          example: 1688199660000
+        s:
+          type: string
+          description: The symbol of the currency pair.
+          example: BTCUSDT
+        sn:
+          type: string
+          description: The name of the currency pair.
+          example: BTCUSDT
+        c:
+          type: string
+          description: The close price.
+          example: 10002
+        h:
+          type: string
+          description: The high price.
+          example: 10002
+        l:
+          type: string
+          description: The low price.
+          example: 10002
+        o:
+          type: string
+          description: The open price.
+          example: 10002
+        v:
+          type: string
+          description: The base asset volume.
+          example: 0
+    RealtimeParams:
+      type: object
+      properties:
+        realtimeInterval:
+          type: string
+          description: The interval for real-time data.
+          example: 24h
+        binary:
+          type: boolean
+          description: Whether the data is in binary format.
+          example: false
+        dumpScale:
+          type: integer
+          description: Number of layers in either of order book sides.
+          example: 10
+    RealtimeData:
+      type: object
+      properties:
+        t:
+          type: integer
+          description: Timestamp in milliseconds.
+          example: 1688199300011
+        s:
+          type: string
+          description: The symbol of the currency pair.
+          example: BTCUSDT
+        sn:
+          type: string
+          description: The name of the currency pair.
+          example: BTCUSDT
+        c:
+          type: string
+          description: The close price.
+          example: 10002
+        h:
+          type: string
+          description: The high price.
+          example: 10002
+        l:
+          type: string
+          description: The low price.
+          example: 10002
+        o:
+          type: string
+          description: The open price.
+          example: 10002
+        v:
+          type: string
+          description: Total traded base asset volume.
+          example: 0
+        qv:
+          type: string
+          description: Total traded quote asset volume.
+          example: 0
+        m:
+          type: string
+          description: 24H Range.
+          example: 0
+        e:
+          type: integer
+          description: Exchange ID.
+          example: 301
+    TradeParams:
+      type: object
+      properties:
+        realtimeInterval:
+          type: string
+          description: The interval for real-time data.
+          example: 24h
+        binary:
+          type: boolean
+          description: Whether the data is in binary format.
+          example: false
+    TradeData:
+      type: object
+      properties:
+        v:
+          type: string
+          description: Transaction record ID.
+          example: "1447335405363150849"
+        t:
+          type: integer
+          description: Timestamp corresponding to the transaction time in milliseconds.
+          example: 1687271825415
+        p:
+          type: string
+          description: Traded price.
+          example: "10001"
+        q:
+          type: string
+          description: Traded quantity.
+          example: "0.001"
+        m:
+          type: boolean
+          description: Indicates whether it is a maker or taker order.
+          example: false
+    DepthParams:
+      type: object
+      properties:
+        realtimeInterval:
+          type: string
+          description: The interval for real-time data.
+          example: 24h
+        binary:
+          type: boolean
+          description: Whether the data is in binary format.
+          example: false
+    DepthData:
+      type: object
+      properties:
+        e:
+          type: integer
+          description: Latest transaction record ID.
+          example: 301
+        s:
+          type: string
+          description: The symbol of the currency pair.
+          example: BTCUSDT
+        t:
+          type: integer
+          description: Timestamp corresponding to the data time in milliseconds.
+          example: 1688199202314
+        v:
+          type: string
+          description: Base asset volume.
+          example: "6881_18"
+        b:
+          type: array
+          description: List of bid prices and quantities.
+          items:
+            type: array
+            items:
+              type: string
+            example: ["10004", "0.001"]
+        a:
+          type: array
+          description: List of ask prices and quantities.
+          items:
+            type: array
+            items:
+              type: string
+            example: ["10004", "0.001"]
+    AccountSchema:
+      type: object
+      properties:
+        e:
+          $ref: "#/components/schemas/AccountEnum"
+          example: outboundAccountInfo
+        E:
+          type: integer
+          description: Event time
+          example: 1499405658849
+        T:
+          type: boolean
+          description: Can trade
+          example: true
+        W:
+          type: boolean
+          description: Can withdraw
+          example: true
+        D:
+          type: boolean
+          description: Can deposit
+          example: true
+        B:
+          type: array
+          description: Balances that changed
+          items:
+            $ref: "#/components/schemas/AccountArray"
+    AccountArray:
+      type: object
+      properties:
+        a:
+          type: string
+          description: Asset name
+          example: LTC
+        f:
+          type: string
+          description: Free amount
+          example: "17366.18538083"
+        l:
+          type: string
+          description: Locked amount
+          example: "0.00000000"
+    OrderSchema:
+      type: object
+      properties:
+        e:
+          type: string
+          description: Event type
+          example: executionReport
+        E:
+          type: integer
+          description: Event time
+          example: 1499405658658
+        s:
+          type: string
+          description: Symbol of the order
+          example: ETHBTC
+        c:
+          type: string
+          description: Client order ID
+          example: 1000087761
+        S:
+          type: string
+          description: Order side
+          example: BUY
+        o:
+          type: string
+          description: Order type
+          example: LIMIT
+        f:
+          type: string
+          description: Time in force
+          example: GTC
+        q:
+          type: string
+          description: Order quantity
+          example: "1.00000000"
+        p:
+          type: string
+          description: Order price
+          example: "0.10264410"
+        reqAmt:
+          type: string
+          description: Requested cash amount (to be released)
+          example: "1000"
+        X:
+          $ref: "#/components/schemas/OrderEnum"
+          example: NEW
+        d:
+          type: string
+          description: Execution ID
+          example: 1234567890123456789
+        i:
+          type: integer
+          description: Order ID
+          example: 4293153
+        l:
+          type: string
+          description: Last executed quantity
+          example: "0.00000000"
+        r:
+          type: string
+          description: Unfilled quantity
+          example: "0"
+        z:
+          type: string
+          description: Cumulative filled quantity
+          example: "0.00000000"
+        L:
+          type: string
+          description: Last executed price
+          example: "0.00000000"
+        V:
+          type: string
+          description: Average executed price
+          example: "26105.5"
+        n:
+          type: string
+          description: Commission amount
+          example: "0"
+        N:
+          type: string
+          description: Commission asset
+          example: null
+        u:
+          type: boolean
+          description: Is the trade normal?
+          example: true
+        w:
+          type: boolean
+          description: Is the order working?
+          example: true
+        m:
+          type: boolean
+          description: Is this trade on the maker side?
+          example: false
+        O:
+          type: integer
+          description: Order creation time
+          example: 1499405658657
+        Z:
+          type: string
+          description: Cumulative quote asset transacted quantity
+          example: "0.00000000"
+        x:
+          type: string
+          description: Order cancel reject reason
+          example: USER_CANCEL
+    TicketSchema:
+      type: object
+      properties:
+        e:
+          type: string
+          description: Event type
+          example: ticketInfo
+        E:
+          type: string
+          description: Event time (latest order info update time when the message is created)
+          example: "1668693440976"
+        s:
+          type: string
+          description: Symbol
+          example: BTCUSDT
+        q:
+          type: string
+          description: Quantity
+          example: "0.205"
+        t:
+          type: string
+          description: Order created time
+          example: "1668693440899"
+        p:
+          type: string
+          description: Price
+          example: "441.0"
+        T:
+          type: string
+          description: Ticket ID
+          example: "1291488620385157122"
+        o:
+          type: string
+          description: Order ID
+          example: "1291488620167835136"
+        c:
+          type: string
+          description: Client order ID
+          example: "1668693440093"
+        O:
+          type: string
+          description: Match order ID
+          example: "1291354087841869312"
+        a:
+          type: string
+          description: Account ID
+          example: "1286424214388204801"
+        A:
+          type: integer
+          description: Ignore (for future use)
+          example: 0
+        m:
+          type: boolean
+          description: Is maker
+          example: false
+        S:
+          type: string
+          description: Side of the order (SELL or BUY)
+          example: SELL
+    OrderEnum:
+      type: string
+      description: Current order status
+      enum:
+        [NEW, PARTIALLY_FILLED, FILLED, PARTIALLY_CANCELED, CANCELED, REJECTED]
+    AccountEnum:
+      type: string
+      description: Event type
+      enum:
+        [
+          outboundAccountInfo,
+          outboundCustodyAccountInfo,
+          outboundFiatAccountInfo,
+        ]
+    PongPayload:
+      type: object
+      properties:
+        pong:
+          type: integer
+          description: The server's current timestamp.
+          example: 1691473283965
+    KlinePayload:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The currency pair symbol.
+          example: BTCUSDT
+        symbolName:
+          type: string
+          description: The name of the currency pair.
+          example: BTCUSDT
+        topic:
+          type: string
+          description: The Kline topic.
+          example: kline
+        params:
+          $ref: "#/components/schemas/KlineParams"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/KlineData"
+        f:
+          type: boolean
+          description: Whether it is the first return value.
+          example: true
+        sendTime:
+          type: integer
+          description: The timestamp when the message was sent.
+          example: 1688199705619
+        id:
+          type: string
+          description: The message ID.
+          example: 1
+    DepthPayload:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The currency pair symbol.
+          example: BTCUSDT
+        symbolName:
+          type: string
+          description: The name of the currency pair.
+          example: BTCUSDT
+        topic:
+          type: string
+          description: The Depth topic.
+          example: depth
+        params:
+          $ref: "#/components/schemas/DepthParams"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DepthData"
+        f:
+          type: boolean
+          description: Whether it is the first return value.
+          example: true
+        sendTime:
+          type: integer
+          description: The timestamp when the message was sent.
+          example: 1688199482822
+        shared:
+          type: boolean
+          description: Whether the message is shared.
+          example: false
+        id:
+          type: string
+          description: The message ID.
+          example: 1
+    TradePayload:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The currency pair symbol.
+          example: BTCUSDT
+        symbolName:
+          type: string
+          description: The name of the currency pair.
+          example: BTCUSDT
+        topic:
+          type: string
+          description: The Trade topic.
+          example: trade
+        params:
+          $ref: "#/components/schemas/TradeParams"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TradeData"
+        f:
+          type: boolean
+          description: Whether it is the first return value.
+          example: true
+        sendTime:
+          type: integer
+          description: The timestamp when the message was sent.
+          example: 1688198964293
+        shared:
+          type: boolean
+          description: Whether the message is shared.
+          example: false
+        id:
+          type: string
+          description: The message ID.
+          example: 1
+    RealtimePayload:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The currency pair symbol.
+          example: BTCUSDT
+        symbolName:
+          type: string
+          description: The name of the currency pair.
+          example: BTCUSDT
+        topic:
+          type: string
+          description: The Realtimes topic.
+          example: realtimes
+        params:
+          $ref: "#/components/schemas/RealtimeParams"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/RealtimeData"
+        f:
+          type: boolean
+          description: Whether it is the first return value.
+          example: true
+        sendTime:
+          type: integer
+          description: The timestamp when the message was sent.
+          example: 1688199337756
+        id:
+          type: string
+          description: The message ID.
+          example: 1
