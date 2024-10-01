@@ -17,7 +17,7 @@ Most of the trading strategies require data and execution at different exchanges
 | [hummingbot](https://github.com/hummingbot/hummingbot) | yes            | python, cpp      | n/a                 |
 | [openlimits](https://github.com/nash-io/openlimits)    | yes            | rust             | python, js, go      |
 | [barter-rs](https://github.com/barter-rs/barter-rs)    | yes            | rust             | n/a                 |
-| [kelp](https://github.com/stellar-deprecated/kelp)     | yes            | rust             | n/a                 |
+| [kelp](https://github.com/stellar-deprecated/kelp)     | yes            | go               | n/a                 |
 
 They have issues in the below aspects:
 1. **marginal integration effort**: there are many crypto exchanges (N) and programming languages (L). The effort to convert those written API doc into exchange library is B, then the overall effort is N * L * B.
