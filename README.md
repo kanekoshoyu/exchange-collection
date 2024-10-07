@@ -85,13 +85,13 @@ Missing now, I am hiring node.js dev to work on this one
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
 | Exchange API                                              | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
 | --------------------------------------------------------- | --------- | -------------- | ------------- |
-| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)       | /         | done           | unavailable   |
-| [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | done          |
-| [bitwyre](https://docs.bitwyre.com)                       | no        | done           | planned       |
-| [binance](https://binance-docs.github.io)                 | yes       | done           | done          |
-| [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | done          |
-| [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | done          |
-| [dydx](https://docs.dydx.exchange)                        | no        | planned        | planned       |
+| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)        | /         | done           | unavailable   |
+| [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | testing       |
+| [bitwyre](https://docs.bitwyre.com)                       | no        | done           | testing       |
+| [binance](https://binance-docs.github.io)                 | yes       | done           | testing       |
+| [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | testing       |
+| [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | testing       |
+| [dydx](https://docs.dydx.exchange)                        | no        | postponed      | unavailable   |
 | [polkadex](https://docs.polkadex.trade)                   | no        | planned        | planned       |
 | [zkex](https://docs.zkex.com)                             | no        | planned        | planned       |
 | [gmx](https://gmx-docs.io)                                | no        | planned        | planned       |

@@ -1,0 +1,907 @@
+asyncapi: 2.1.0
+info:
+  title: Bitwyre Websocket API
+  version: 2.0.0
+  description: 'WebSocket endpoints are available for real-time data streaming on Bitwyre exchange.'
+servers:
+  Private Endpoints:
+    url: 'wss://api.bitwyre.com/ws/private'
+    protocol: wss  
+    description: 'Websocket Private API Request Data'
+  Public Endpoints:
+    url: 'wss://api.bitwyre.com/ws/public'
+    protocol: wss  
+    description: 'Websocket Public API Request Data'
+channels:
+  /time:
+    description: This helps in approximating the time difference between the server and client.
+    publish:
+      message:
+        $ref: '#/components/messages/timeMessage'
+  /stream:
+    description: To subscribe to topics, send them as a comma-separated list in your connection string.
+    publish:
+      message:        
+        $ref: '#/components/messages/StreamResponse'
+    subscribe:
+      message:
+        contentType: application/json
+        payload:
+          $ref: '#/components/messages/StreamRequest'
+  /account/balance:
+    description: Retrieve all user's fiat and crypto balance.
+    bindings:
+      security:
+        - jwt: []  # JWT token based authentication (optional)
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/accountBalanceMessage'
+  /account/statement:
+    description: Retrieve user's withdraw and deposit history.
+    bindings:
+      security:
+        - jwt: []  # JWT token based authentication (optional)
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/accountStatementMessage'
+  /orders/control:
+    description: Create Order Request
+    bindings:
+      security:
+        - jwt: []
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/OrderMessage'
+  /orders/status:
+    description: get order status
+    bindings:
+      security:
+        - jwt: []
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/OrderMessage'
+  /orders/events:
+    description: Subscribe to eventual broadcasts on order status changes, can only be filtered by instrument/Asset Pair symbol.
+    bindings:
+      security:
+        - jwt: []
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/OrderMessage'
+  /trades/history:
+    description: Retrieves some or all latest buying/selling transaction histories.
+    bindings:
+      security:
+        - jwt: []
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/TradeHistoryMessage'
+  /chat/:
+    description: Retrieve all user's chat message encrypted in Elliptic Curve Integrated Encryption Scheme (ECIES).
+    bindings:
+      security:
+        - jwt: []
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/ChatHistory'
+  /chats:
+    description: send chat
+    bindings:
+      security:
+        - jwt: []
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/sentMessage'
+  /notifications:
+    description: get notifications
+    bindings:
+      security:
+        - jwt: []
+      authorization:
+        - api_key:
+    subscribe:
+      message:
+        payload:
+          $ref: '#/components/schemas/accountBalanceSubscribeRequest'
+    publish:
+      message:
+        $ref: '#/components/messages/notification'
+
+
+
+components:
+  messages:
+    timeMessage:
+      payload:
+        $ref: "#/components/schemas/timeMessagePayload"
+    StreamRequest:
+      payload:
+        $ref: "#/components/schemas/StreamSubscription"
+    StreamResponse:
+      payload:
+        $ref: "#/components/schemas/StreamResponse"
+    accountBalanceMessage:
+      payload:
+        $ref: "#/components/schemas/accountBalanceMessage"
+    accountStatementMessage:
+      payload:
+        $ref: "#/components/schemas/accountStatement"
+    OrderMessage:
+      payload:
+          $ref: "#/components/schemas/orderMessage"
+    TradeHistoryMessage:
+      payload:
+        $ref: "#/components/schemas/TradeHistoryMessage"
+    ChatHistory:
+      payload:
+        $ref: "#/components/schemas/ChatHistory"
+    sentMessage:
+      payload:
+        $ref: "#/components/schemas/sentMessage"
+    notification:
+      payload:
+        $ref: "#/components/schemas/notification"
+  schemas:
+    timeMessagePayload:
+      type: object
+      required:
+        - unixtime
+      properties:
+        unixtime:
+          type: integer
+          format: int64
+          description: Unix time in nanoseconds
+    StreamSubscription:
+      type: object
+      properties:
+        success:
+            type: boolean
+            example: true
+        subscribe:
+            type: string
+            example: "announcements"
+        request:
+          $ref: "#/components/schemas/StreamRequest"
+    StreamRequest:
+      type: object
+      required:
+        - op
+        - args
+      properties:
+        op:
+          type: string
+          description: Operation type (e.g., "subscribe")
+        args:
+          type: array
+          items:
+            type: string
+            description: Arguments for the operation (e.g., "depthl2:btc_usdt_spot") 
+            example: ["depthl2:btc_usdt_spot","instruments:crypto_spot_ID",'instruments:crypto_futures_PA',"ticker:btc_usdt_spot","trades:btc_usdt_options","depthl2_25:btcusdtx_usdt_200607F1000000"]
+    StreamResponse:
+      type: object
+      required:
+        - table
+        - action
+        - data
+        - keys
+        - types
+      properties:
+        keys:
+          type: array
+          items:
+            type: string
+          description: List of keys in the data
+        types:
+          type: object
+          description: Types of the keys
+        
+        table:
+          type: string
+          description: Table name (e.g., "depthl2")
+        action:
+          type: string
+          description: Action type (e.g., "snapshot", "update",'insert','delete')
+        data:
+          $ref: '#/components/schemas/depthL2Data'
+    depthL2Data:
+      type: object
+      properties:
+        instrument:
+          type: string
+          description: Instrument name (e.g., "btc_usdt_spot")
+        bids:
+          type: array
+          items:
+            $ref: '#/components/schemas/depthL2Order'
+        asks:
+          type: array
+          items:
+            $ref: '#/components/schemas/depthL2Order'
+    depthL2Order:
+      type: object
+      properties:
+        price:
+          type: string
+          description: Order price
+        qty:
+          type: string
+          description: Order quantity
+    dataSchema:
+      type: array
+      items:
+        oneOf:
+        - $ref: '#/components/schemas/instrumentData'
+        - $ref: "#/components/schemas/TickerStream"
+        - $ref: "#/components/schemas/TradeStream"
+        - $ref: "#/components/schemas/AnnouncementStream"
+        - $ref: "#/components/schemas/ContractStream"
+    instrumentData:
+      type: object
+      properties:
+        instrument:
+          type: string
+          description: Instrument name
+        symbol:
+          type: string
+          description: Instrument symbol
+    TickerStream:
+      type: object
+      properties:
+        instrument:
+          type: string
+          example: "btc_usdt_spot"
+        asset_base:
+          type: string
+          example: "btc"
+        asset_quote:
+          type: string
+          example: "usdt"
+        high:
+          type: string
+          example: "126989000"
+        low:
+          type: string
+          example: "115201000"
+        percent_change:
+          type: string
+          example: "-2.123"
+        vol_base:
+          type: string
+          example: "611.66499447"
+        vol_quote:
+          type: string
+          example: "7434324.9431"
+        last:
+          type: string
+          example: "124783000"
+        best_bid:
+          type: string
+          example: "124761000"
+        best_ask:
+          type: string
+          example: "124777000"
+        timestamp:
+          type: integer
+          example: 1571744594571020435
+        market:
+          type: string
+          example: "crypto"
+        product:
+          type: string
+          example: "spot"
+        is_frozen:
+          type: boolean
+          example: false
+    TradeStream:
+      type: object
+      properties:
+        instrument:
+          type: string
+          example: "btc_usdt_options"
+        price:
+          type: string
+          example: "9000"
+        volume:
+          type: string
+          example: "2"
+        value:
+          type: string
+          example: "18000"
+        side:
+          type: integer
+          example: 1
+        id:
+          type: string
+          example: "a911b7c0-e431-424f-9f05-49a8ef0c7d93"
+        timestamp:
+          type: integer
+          example: 1571744594571020435
+    AnnouncementStream:
+      type: object
+      required:
+        - unixtime
+        - announcement
+      properties:
+        unixtime:
+          type: integer
+          format: int64
+          description: Unix time in nanoseconds
+        announcement:
+          type: string
+          description: The announcement message
+    ContractStream:
+      type: object
+      properties:
+        instrument:
+          type: string
+          description: Instrument name
+        symbol:
+          type: string
+          description: Instrument symbol
+        details:
+          type: string
+          description: Contract details
+        pricing_source:
+          type: string
+          description: Pricing source
+        bitwyre_index_price:
+          type: string
+          description: Bitwyre index price
+        bitwyre_index_price_currency:
+          type: string
+          description: Bitwyre index price currency
+        "24h_volume":
+          type: string
+          description: 24-hour volume
+        "24h_volume_currency":
+          type: string
+          description: 24-hour volume currency
+        open_interest:
+          type: string
+          description: Open interest
+        interest_rate:
+          type: string
+          description: Interest rate
+        contract_value:
+          type: string
+          description: Contract value
+        initial_margin_base_value:
+          type: string
+          description: Initial margin base value
+        maintenance_margin_base_value:
+          type: string
+          description: Maintenance margin base value
+    accountBalanceSubscribeRequest:
+      type: object
+      required:
+        - command
+        # Only required for API Key authentication
+        - nonce
+        - checksum
+        # Only required for API Key authentication
+        - api_key
+        # Only required for API Key authentication
+        - api_sign
+      properties:
+        command:
+          type: string
+          description: Command (always "get")
+        nonce:
+          type: integer
+          description: Nonce for API Key authentication (see REST Private API Request Data)
+        checksum:
+          type: string
+          description: Checksum for API Key authentication (see REST Private API Request Data)
+        api_key:
+          type: string
+          description: API Key for API Key authentication
+        api_sign:
+          type: string
+          description: API Signature for API Key authentication
+        payload:
+          $ref: "#/components/schemas/payloadUnion"
+    payloadUnion:
+      oneOf:
+          - $ref: "#/components/schemas/stringValue"
+          - $ref: "#/components/schemas/OrderRequest"
+          - $ref: "#/components/schemas/OrderCancel"
+          - $ref: "#/components/schemas/bulkCancel"
+          - $ref: "#/components/schemas/orderEvents"
+          - $ref: "#/components/schemas/tradeHistoryRequest"
+          - $ref: "#/components/schemas/ChatRequest"
+    stringValue:
+        type: string
+    accountBalanceMessage:
+      type: object
+      required:
+        - assets
+      properties:
+        assets:
+          $ref: "#/components/schemas/assetUnion"
+    assetUnion:
+        type: object
+        patternProperties:
+          '^[a-z]+$':  # Match any lowercase string
+            $ref: '#/components/schemas/assetBalance'
+    assetBalance:
+      type: object
+      properties:
+        locked_balance:
+          type: string
+          description: Amount of locked balance
+        available_balance:
+          type: string
+          description: Available asset balance
+        total_balance:
+          type: string
+          description: Total amount of balance
+    accountStatement:
+      type: object
+      required:
+        - deposit
+        - withdrawal
+      properties:
+        deposit:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/depositHistory'
+        withdrawal:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/withdrawalHistory'
+    depositHistory:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/transactionHistory'
+    withdrawalHistory:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/transactionHistory'
+    transactionHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+        transaction_uuid:
+          type: string
+        tx_id:
+          type: string
+        user_uuid:
+          type: string
+        transaction_type:
+          type: integer
+        asset:
+          type: string
+        status:
+          type: string
+        type:
+          type: string
+        provider:
+          type: string
+        address:
+          type: string
+        gross_amount:
+          type: string
+        fee:
+          type: string
+        nett_amount:
+          type: string
+        network_confirmation:
+          type: integer
+        centralized_confirmation:
+          type: integer
+        submit_time:
+          type: integer
+        success_time:
+          type: integer
+    OrderRequest:
+      type: object
+      properties:
+        instrument:
+          type: string
+          example: "btc_usdt_spot"
+        ordtype:
+          type: integer
+          example: 1
+        side:
+          type: integer
+          example: 2
+        orderqty:
+          type: string
+          example: "2.9301"
+    orderMessage:
+      type: object
+      required:
+        - OrderID
+        - ClOrdID
+        - OrigClID
+        - OrdStatusReqID
+        - ExecID
+        - ExecType
+        - OrdStatus
+        - OrdRejReason
+        - Account
+        - Instrument
+        - Side
+        - TransactTime
+        - OrderQty
+        - Timestamp
+        - OrdType
+        - Price
+        - StopPx
+        - TimeInForce
+        - ExpireTime
+        - CancelOnDisconnect
+        - LastQty
+        - LastPx
+        - LastLiquidityInd
+        - LeavesQty
+        - CumQty
+        - AvgPx
+      properties:
+        OrderID:
+          type: string
+          description: Server generated order id
+        ClOrdID:
+          type: string
+          description: Client generated order id, if supplied
+        OrigClID:
+          type: string
+          description: Original order id, will be different when a order cancellation occured
+        OrdStatusReqID:
+          type: string
+          description: An echo of order status request/query id
+        ExecID:
+          type: string
+          description: This report id
+        ExecType:
+          $ref: "#/components/schemas/execEnum"
+        OrdStatus:
+          $ref: "#/components/schemas/orderEnum"
+        OrdRejReason:
+          $ref: "#/components/schemas/RejectionEnum"
+        Account:
+          type: string
+          description: Account uniqute id of the current API Key
+        Instrument:
+          type: string
+          description: Asset pair symbol
+        Side:
+          type: integer
+          description: Order side, "buy" or "sell"
+        TransactTime:
+          type: integer
+          format: int64
+          description: Execution report timestamp, unix time in nanoseconds
+        OrderQty:
+          type: string
+          description: Base asset quantity, in float string
+        Timestamp:
+          type: integer
+          format: int64
+          description: Order timestamp, when accepted by server, unix time in nanoseconds
+        OrdType:
+          type: integer
+          description: Market (1), limit (2), stop (3), and stop_limit (4)
+        Price:
+          type: string
+          description: '"limit" or "stop_limit" price of the order'
+        StopPx:
+          type: string
+          description: Stop price for "stop" and "stop_limit"
+        TimeInForce:
+          $ref: "#/components/schemas/timeEnum"
+        ExpireTime:
+          type: integer
+          format: int64
+          description: Order expire time, mandatory for Good-Till-Date, unixtime in nanoseconds
+        CancelOnDisconnect:
+          type: boolean
+          description: Cancel on disconnection, currently only supported by Websocket API
+        LastQty:
+          type: string
+          description: Last executed quantity in a trade-match
+        LastPx:
+          type: string
+          description: Last executed price in a trade-match
+        LastLiquidityInd:
+          type: string
+          description: Last executed liquidity index
+        LeavesQty:
+          type: string
+          description: Remaining quantity of the order
+        CumQty:
+          type: string
+          description: Total executed quantity
+        AvgPx:
+          type: string
+          description: Average price of executed order
+    typeEnum:
+      type: string
+      enum: ["buy", "sell"]
+    execEnum:
+      type: integer
+      enum:
+        - 0
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 16
+        - 17
+        - 18
+    orderEnum:
+      type: integer
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+        - 11
+        - 12
+        - 13
+        - 14
+        - 15
+        - 16
+        - 17
+        - 18
+        - 19
+    RejectionEnum:
+      type: integer
+      enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+          - 6
+          - 7
+          - 8
+          - 9
+          - 10
+          - 11
+          - 12
+          - 13
+          - 14
+          - 15
+          - 16
+          - 18
+          - 19
+          - 20
+          - 21
+          - 22
+          - 23
+          - 24
+          - 25
+          - 26
+          - 27
+          - 28
+          - 29
+          - 30
+          - 31
+          - 32
+          - 99
+    timeEnum:
+      type: integer
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+    OrderCancel:
+      type: object
+      properties:
+        order_id:
+          type: string
+          example: "31911e87-b547-480f-b8d1-4515529ca2fd"
+        qtys:
+          type: integer
+          example: -1
+    bulkCancel:
+      type: array
+      items:
+        $ref: "#/components/schemas/OrderCancel"
+    orderEvents:
+      type: object
+      properties:
+        instrument:
+          type: string
+          example: "btc_usdt_spot"
+    tradeHistoryRequest:
+      type: object
+      properties:
+        instrument:
+          type: string
+          example: "btc_usdt_spot"
+        count:
+          type: integer
+          example: 100
+        from_time:
+          type: integer
+          format: int64
+          example: 1537913405774945493
+        to_time:
+          type: integer
+          format: int64
+          example: 1537913405774945493
+      required:
+        - instrument
+        - count
+    TradeHistoryMessage:
+      type: array
+      items:
+        $ref: "#/components/schemas/Trades"
+    Trades:
+      type: object
+      patternProperties:
+        ^[a-zA-Z_]+_[a-zA-Z_]+_[a-zA-Z_]+$:
+          $ref: "#/components/schemas/TradeItems"
+    TradeItems:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        time:
+          type: integer
+          format: int64
+        type:
+          $ref: "#/components/schemas/typeEnum"
+        price:
+          type: string
+          format: float
+        volume:
+          type: string
+          format: float
+        total:
+          type: string
+          format: float
+        fee_percentage:
+          type: string
+          format: float
+        fee:
+          type: string
+          format: float
+        fee_currency:
+          type: string
+      required:
+      - id
+      - time
+      - type
+      - price
+      - volume
+      - total
+      - fee_percentage
+      - fee
+      - fee_currency
+    ChatRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "satoshi"
+    ChatHistory:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "satoshi"
+        chats:
+          type: array
+          items:
+            $ref: "#/components/schemas/chatList"
+    chatList:
+      sender:
+        type: string
+        example: "satoshi"
+      receiver:
+        type: string
+        example: "vitalik"
+      timestamp:
+        type: integer
+        example: 1590654209220763000
+      message:
+        type: string
+        example: "hi how r u?"
+      is_read:
+        type: boolean
+        example: true
+    sentMessage:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+          example: 1590654854095640000
+        message_id:
+          type: string
+          example: "3e00e9f4-fe7a-45c9-9ed7-456d9e6518b3"
+    notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_uuid:
+          type: string
+          example: "77ee8e45-d8fa-47a4-9435-188b96bf3846"
+        notification_type:
+          type: integer
+          example: 0
+        notification_message:
+          type: string
+          example: "notification message"
+        timestamp:
+          type: integer
+          example: 1618904418000
+
+
+
