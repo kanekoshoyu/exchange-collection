@@ -85,7 +85,7 @@ Missing now, I am hiring node.js dev to work on this one
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
 | Exchange API                                              | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
 | --------------------------------------------------------- | --------- | -------------- | ------------- |
-| [ccxt-rest](https://github.com/ccxt-rest/ccxt-rest)       | /         | planned        | unavailable   |
+| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)       | /         | done           | unavailable   |
 | [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | done          |
 | [bitwyre](https://docs.bitwyre.com)                       | no        | done           | planned       |
 | [binance](https://binance-docs.github.io)                 | yes       | done           | done          |
