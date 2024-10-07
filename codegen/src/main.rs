@@ -589,7 +589,7 @@ mod tests {
             .canonicalize()
             .unwrap();
         let protocol_crate = ProtocolCrate::from_path(dir).unwrap();
-        assert_eq!(protocol_crate.version, Version::from_str("1.0.0").unwrap());
+        assert_eq!(protocol_crate.version, Version::from_str("1.1.0").unwrap());
         assert_eq!(protocol_crate.protocol, Protocol::Rest);
     }
 
@@ -597,7 +597,7 @@ mod tests {
     fn test_exchange_crate_from_dir() {
         let dir = PathBuf::from_str("../target/rust/src/binance").unwrap();
         let protocol_crate = ExchangeCrate::from_path(dir).unwrap();
-        assert_eq!(protocol_crate.version, Version::from_str("2.0.0").unwrap());
+        assert_eq!(protocol_crate.version, Version::from_str("2.2.0").unwrap());
         assert_eq!(protocol_crate.protocol_crates.len(), 2);
         assert_eq!(protocol_crate.exchange_name, "binance");
     }
@@ -606,7 +606,7 @@ mod tests {
     fn test_collecion_crate_from_dir() {
         let dir = PathBuf::from_str("../target/rust").unwrap();
         let protocol_crate = CollectionCrate::from_path(dir).unwrap();
-        assert_eq!(protocol_crate.version, Version::from_str("2.0.0").unwrap());
+        assert_eq!(protocol_crate.version, Version::from_str("2.2.0").unwrap());
         assert_eq!(protocol_crate.exchange_crates.len(), 1);
     }
 
@@ -615,4 +615,6 @@ mod tests {
         let version = Version::current_crate().unwrap();
         assert_eq!(version, Version::from_str("0.1.0").unwrap())
     }
+
+    // TODO: generate a new test_target and check if the generated target is in the right format
 }
