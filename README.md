@@ -83,15 +83,15 @@ Missing now, I am hiring node.js dev to work on this one
 
 ## exchange integration status
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
-| Exchange                                                  | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
+| Exchange API                                              | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
 | --------------------------------------------------------- | --------- | -------------- | ------------- |
+| [ccxt-rest](https://github.com/ccxt-rest/ccxt-rest)       | /         | planned        | unavailable   |
 | [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | done          |
+| [bitwyre](https://docs.bitwyre.com)                       | no        | done           | planned       |
 | [binance](https://binance-docs.github.io)                 | yes       | done           | done          |
 | [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | done          |
-| [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | planned       |
-| [bitwyre](https://docs.bitwyre.com)                       | no        | planned        | planned       |
+| [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | done          |
 | [dydx](https://docs.dydx.exchange)                        | no        | planned        | planned       |
-| [injective](https://docs.injective.network)               | no        | planned        | planned       |
 | [polkadex](https://docs.polkadex.trade)                   | no        | planned        | planned       |
 | [zkex](https://docs.zkex.com)                             | no        | planned        | planned       |
 | [gmx](https://gmx-docs.io)                                | no        | planned        | planned       |
@@ -105,6 +105,7 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | [bitflyer](https://lightning.bitflyer.com/docs)           | yes       | planned        | planned       |
 | [coincheck](https://coincheck.com/documents/exchange/api) | yes       | planned        | planned       |
 | [korbit](https://apidocs.korbit.co.kr)                    | yes       | planned        | planned       |
+
 
 I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix) due to limited number of supported exchanges. But it is definitely an interesting one to try in the future.  
 
