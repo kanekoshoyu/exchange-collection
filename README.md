@@ -2,11 +2,9 @@
 > crypto orderbook exchange OpenAPI(REST) and AsyncAPI(WS) doc and clients
 
 [![doc](https://img.shields.io/badge/doc-rapidoc-blue)](https://repoch.co/exchange-collection)
-[![license](https://img.shields.io/github/license/kanekoshoyu/kucoin_arbitrage)](https://github.com/kanekoshoyu/kucoin_arbitrage/blob/master/LICENSE)
-[![ci](https://img.shields.io/github/actions/workflow/status/kanekoshoyu/kucoin_arbitrage/rust.yml)](https://github.com/kanekoshoyu/kucoin_arbitrage/actions)
-[![issues](https://img.shields.io/github/issues/kanekoshoyu/kucoin_arbitrage)](https://github.com/kanekoshoyu/kucoin_arbitrage/issues)
-[![discussions](https://img.shields.io/github/discussions/kanekoshoyu/kucoin_arbitrage)](https://github.com/kanekoshoyu/kucoin_arbitrage/discussions)
+[![license](https://img.shields.io/github/license/kanekoshoyu/exchange-collection)](https://github.com/kanekoshoyu/exchange-collection/blob/master/LICENSE)
 [![discord](https://img.shields.io/discord/1153997271294283827)](https://discord.gg/q3j5MYdwnm)  
+
 
 ## problem with other cross-exchange libraries/frameworks
 Most of the trading strategies require data and execution at different exchanges. There are trading libraries that provides abstraction over multiple exchanges.
@@ -85,21 +83,21 @@ Missing now, I am hiring node.js dev to work on this one
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
 | Exchange API                                              | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
 | --------------------------------------------------------- | --------- | -------------- | ------------- |
-| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)        | /         | done           | unavailable   |
+| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)        | /         | done           | /             |
 | [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | testing       |
 | [bitwyre](https://docs.bitwyre.com)                       | no        | done           | testing       |
 | [binance](https://binance-docs.github.io)                 | yes       | done           | testing       |
 | [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | testing       |
 | [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | testing       |
-| [dydx](https://docs.dydx.exchange)                        | no        | postponed      | unavailable   |
-| [polkadex](https://docs.polkadex.trade)                   | no        | planned        | planned       |
+| [kraken](https://docs.kraken.com/api)                     | yes       | WIP            | WIP           |
+| [gateio](https://www.gate.io/docs/developers/apiv4)       | yes       | WIP            | WIP           |
+| [dydx](https://docs.dydx.exchange)                        | no        | postponed      | /             |
+| [polkadex](https://docs.polkadex.trade)                   | no        | /              | /             |
 | [zkex](https://docs.zkex.com)                             | no        | planned        | planned       |
 | [gmx](https://gmx-docs.io)                                | no        | planned        | planned       |
 | [bybit](https://bybit-exchange.github.io/docs/)           | yes       | planned        | planned       |
 | [okx](https://www.okx.com/docs-v5/en)                     | yes       | planned        | planned       |
-| [gateio](https://www.gate.io/docs/developers/apiv4)       | yes       | planned        | planned       |
 | [kucoin](https://www.kucoin.com/docs)                     | yes       | planned        | planned       |
-| [kraken](https://docs.kraken.com/api)                     | yes       | planned        | planned       |
 | [htx](https://www.htx.com/en-us/opend/newApiPages/)       | yes       | planned        | planned       |
 | [bitget](https://www.bitget.com/api-doc)                  | yes       | planned        | planned       |
 | [bitflyer](https://lightning.bitflyer.com/docs)           | yes       | planned        | planned       |
@@ -143,12 +141,13 @@ If you want to get an exchange integrated, I can help get that up for an one-off
 Please contact [Sho Kaneko](https://github.com/kanekoshoyu) for details.  
 
 ## recruitment
-#### OpenAPI / AsyncAPI author
-I am gathering API doc and it would be great if people can help me with it.  
-#### javascript AsyncAPI template developer
+#### OpenAPI / AsyncAPI Author
+I am gathering API doc with @pakTech786  would be great if more people can help with it.  
+#### TypeScript AsyncAPI Template Developer
 > [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template)
 
-I have set up a repo to develop AsyncAPI template for Rust WS in React. I am not a React expert, so I would love to have expert to accelarate development.  
+I have set up a repo to develop AsyncAPI template for Rust WS in React.  
+I am not a TS expert, so I would love to have an expert to accelarate development.  
 
 ## see also
 - [guilder](https://github.com/kanekoshoyu/guilder) - Unopinionated Cross-Exchange Crypto Trading Library

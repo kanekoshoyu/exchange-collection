@@ -4,7 +4,7 @@ members = [
     # code generator
     "codegen",
     # generated rust `exchange-collection` crate, only enable after codegen for sanity check.
-    "target/rust",
+    # "target/rust",
 ]
 
 [workspace.dependencies]
