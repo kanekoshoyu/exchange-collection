@@ -89,7 +89,7 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | [binance](https://binance-docs.github.io)                 | yes       | done           | testing       |
 | [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | testing       |
 | [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | testing       |
-| [kraken](https://docs.kraken.com/api)                     | yes       | WIP            | WIP           |
+| [krakenfutures](https://docs.kraken.com/api)              | yes       | done           | done          |
 | [gateio](https://www.gate.io/docs/developers/apiv4)       | yes       | WIP            | WIP           |
 | [dydx](https://docs.dydx.exchange)                        | no        | postponed      | /             |
 | [polkadex](https://docs.polkadex.trade)                   | no        | /              | /             |

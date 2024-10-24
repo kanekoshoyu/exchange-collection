@@ -1,0 +1,4535 @@
+openapi: 3.0.0
+info:
+  title: Kraken API 
+  version: 1.0.0
+  description: |
+    
+servers:
+  - url: https://futures.kraken.com
+    description: Futures REST API
+tags:
+  - name: Trading
+  - name: History
+  - name: Charts
+security:
+  - APIKeyAuth: []
+  - AuthentKey: []
+paths:
+  /derivatives/api/v3/history:
+    get:
+      tags: 
+       -  Trading
+      summary: Get trade history-Market Data
+      description: "This endpoint returns the most recent 100 trades prior to the specified lastTime value up to past 7 days or recent trading engine restart (whichever is sooner).<br>If no lastTime specified, it will return 100 most recent trades."
+      parameters:
+        - in: query
+          name: symbol
+          required: false
+          schema:
+            type: string
+            example: "The symbol of the Futures"
+        - in: query
+          name: lastTime
+          required: false
+          schema:
+            type: string
+            example: "Returns the last 100 trades from the specified lastTime value."
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/successResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/orderbook:
+    get:
+      tags: 
+       -  Trading
+      summary: Get Orderbook-Market Data
+      description: "This endpoint returns the entire non-cumulative order book of currently listed Futures contracts."
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+            example: "The symbol of the Futures"
+        
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/orderbookResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/tickers:
+    get:
+      tags: 
+       -  Trading
+      summary: Get tickers-Market Data
+      description: "This endpoint returns current market data for all currently listed Futures contracts and indices."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tickersResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/tickers/{symbol}:
+    get:
+      tags: 
+       -  Trading
+      summary: Get tickers by symbol-Market Data
+      description: "This endpoint returns current market data for all currently listed Futures contracts and indices."
+      parameters:
+        - in: path
+          name: symbol
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tickersItems"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/instruments:
+    get:
+      tags: 
+       -  Trading
+      summary: Get Instrument-Instrument Details
+      description: "This endpoint returns specifications for all currently listed Futures contracts and indices."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/instrumentsResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/instruments/status:
+    get:
+      tags: 
+       -  Trading
+      summary: Get instrument status list-Instrument Details
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/instrumentStatusResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/instruments/{tradeable}/status:
+    get:
+      tags: 
+       -  Trading
+      summary: Get instrument status-Instrument Details
+      parameters:
+        - in: path
+          name: tradeable
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tradeableResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/feeschedules:
+    get:
+      tags: 
+       -  Trading
+      summary: Get Fee schedules-Fee Schedules
+      description: "This endpoint lists all fee schedules."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/feeResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/feeschedules/volumes:
+    get:
+      tags: 
+       -  Trading
+      summary: Get Fee schedules Volumes-Fee Schedules
+      description: "Returns your fee schedule volumes for each fee schedule."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/feeVolumeResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/accounts:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get Wallets-Account Information
+      description: "This endpoint returns key information relating to all your accounts which may either be cash accounts or margin accounts. This includes digital asset balances, instrument balances, margin requirements, margin trigger estimates and auxiliary information such as available funds, PnL of open positions and portfolio value."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountsResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/openpositions:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get open positions-Account Information
+      description: "This endpoint returns the size and average entry price of all open positions in Futures contracts. This includes Futures contracts that have matured but have not yet been settled."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/openPositionsResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/unwindqueue:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get position percentile-Account Information
+      description: "This endpoint returns the percentile of the open position in case of unwinding."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/positionResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/batchorder:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Batch order management-Order Management
+      description: "This endpoint allows sending limit or stop order(s) and/or cancelling open order(s) and/or editing open order(s) for a currently listed Futures contract in batch.<br>When editing an order, if the trailingStopMaxDeviation and trailingStopDeviationUnit parameters are sent unchanged, the system will recalculate a new stop price upon successful order modification."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/batchOrderRequest"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/batchOrderResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/cancelallorders:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Batch order Cancel-Order Management
+      description: "This endpoint allows cancelling orders which are associated with a future's contract or a margin account. If no arguments are specified all open orders will be cancelled."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                  description: "A futures product to cancel all open orders."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/cancelOrderResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/cancelallordersafter:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Dead man's Switch-Order Management
+      description: "This endpoint provides a Dead Man's Switch mechanism to protect the user from network malfunctions. The user can send a request with a timeout in seconds which will trigger a countdown timer that will cancel all user orders when timeout expires. The user has to keep sending request to push back the timeout expiration or they can deactivate the mechanism by specifying a timeout of zero (0).<br>The recommended mechanism usage is making a call every 15 to 20 seconds and provide a timeout of 60 seconds. This allows the user to keep the orders in place on a brief network failure, while keeping them safe in case of a network breakdown."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                timeout:
+                  type: string
+                  description: "The timeout specified in seconds."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/deadManSwitchResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/cancelorder:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Cancel Order-Order Management
+      description: "This endpoint allows cancelling an open order for a Futures contract."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order_id:
+                  type: string
+                  description: The unique identifier of the order to be cancelled.
+                cliOrdId:
+                  type: string
+                  description: The client unique identifier of the order to be cancelled.
+                processBefore:
+                  type: string
+                  format: date-time
+                  description: The time before which the request should be processed; otherwise, it is rejected
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/cancelResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/editorder:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Edit Order-Order Management
+      description: "This endpoint allows editing an existing order for a currently listed Futures contract.<br>When editing an order, if the trailingStopMaxDeviation and trailingStopDeviationUnit parameters are sent unchanged, the system will recalculate a new stop price upon successful order modification."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/editOrder"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/editOrderResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/openorders:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Open Order-Order Management
+      description: "This endpoint returns information on all open orders for all Futures contracts."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/openOrderResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/sendorder:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Send Order-Order Management
+      description: "This endpoint allows sending a limit, stop, take profit or immediate-or-cancel order for a currently listed Futures contract."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/sendOrderRequest"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/sendOrderResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/orders/status:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get Specific Orders' Status-Order Management
+      description: "Returns information on specified orders which are open or were filled/cancelled in the last 5 seconds."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orderIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: UIDs associated with orders or triggers.
+                cliOrdIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Client Order IDs associated with orders or triggers.
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/orderResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/initialmargin:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get initial margin requirements-Order Management
+      description: "Get initial margin requirements."
+      parameters:
+        - in: query
+          name: orderType
+          required: true
+          description: The order type.
+          schema:
+            type: string
+            enum: [lmt, mkt]
+            example: lmt
+        - in: query
+          name: symbol
+          required: true
+          description: The symbol of the Futures.
+          schema:
+            type: string
+            example: BTCUSD
+        - in: query
+          name: side
+          required: true
+          description: The direction of the order.
+          schema:
+            type: string
+            enum: [buy, sell]
+            example: buy
+        - in: query
+          name: size
+          required: true
+          description: The size associated with the order.
+          schema:
+            type: number
+            example: 1.0
+        - in: query
+          name: limitPrice
+          description: The limit price associated with the order.
+          schema:
+            type: number
+            example: 50000.0
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/orderMarginResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/initialmargin/maxordersize:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get maximum order size-Order Management
+      description: "This endpoint is only supported for multi-collateral futures."
+      parameters:
+        - in: query
+          name: orderType
+          required: true
+          description: The order type.
+          schema:
+            type: string
+            enum: [lmt, mkt]
+            example: lmt
+        - in: query
+          name: symbol
+          required: true
+          description: The symbol of the Futures.
+          schema:
+            type: string
+            example: BTCUSD
+        - in: query
+          name: limitPrice
+          description: The limit price associated with the order.
+          schema:
+            type: number
+            example: 50000.0
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/maxOrderResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/subaccount/{subaccountUid}/trading-enabled:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: subaccount status-Subaccounts
+      description: "Check if a subaccount has trading enabled or disabled."
+      parameters:
+        - in: path
+          name: subaccountUid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: boolean
+                example: true
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+    put:
+        tags: 
+         -  Trading
+        security:
+          - APIKeyAuth: []
+          - AuthentKey: []
+        summary: subaccount status-Subaccounts
+        description: "Enable or disable trading on a subaccount"
+        parameters:
+          - in: path
+            name: subaccountUid
+            required: true
+            schema:
+              type: string
+          - in: query
+            name: tradingEnabled
+            required: true
+            schema:
+              type: boolean
+              example: true
+        responses:
+          '200':
+            description: SUCCESSFUL REQUEST
+            content:
+              application/json:
+                schema:
+                  type: boolean
+                  example: true
+          '404':
+            description: Error
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/subaccounts:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: get subaccounts-Subaccounts
+      description: "Return information about subaccounts, including balances and UIDs."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/subaccountsResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/transfer:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Initiate wallet transfer - Transfers
+      description: "This endpoint allows you to transfer funds between two margin accounts with the same collateral currency, or between a margin account and your cash account."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/transferRequest"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/generalResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/transfer/subaccount:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: transfer subaacount - Transfers
+      description: "This endpoint allows you to transfer funds between the current account and a sub account, between two margin accounts with the same collateral currency, or between a margin account and your cash account."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/transferSubaccountRequest"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/generalResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/withdrawal:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Initiate withdrawal to Spot wallet - Transfers
+      description: "This endpoint allows you to request to withdraw digital assets to your Kraken Spot wallet.<br>Wallet names can be found in the 'accounts' structure in the Get Wallets /accounts response."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/withdrawalRequest"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/generalResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/assignmentprogram/current:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: This endpoint returns information on currently active assignment programs - Assignment Program
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  participants:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/participants"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/assignmentprogram/add:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: This endpoint adds an assignment program preference - Assignment Program
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentProgramRequest"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  participants:
+                    $ref: "#/components/schemas/participants"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/assignmentprogram/delete:
+    post:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Deletes an assignment program preference - Assignment Program
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  participants:
+                    $ref: "#/components/schemas/participants"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/assignmentprogram/history:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Lists all changes in assignment program preferences - Assignment Program
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  participants:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/participants"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/pnlpreferences:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: pnlpreferences - Multi Collateral
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  preferences:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Preference"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+    put:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: set PNL Currency - Multi Collateral
+      description:
+        "The PNL currency preference is used to determine which currency to pay out when realizing PNL gains. Calling this API can result in the following error codes:<br>87: Contract does not exist<br>88: Contract not a multi-collateral futures contract<br>89: Currency does not exist<br>90: Currency is not enabled for multi-collateral futures<br>41: Would cause liquidation"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                preference:
+                  type: string
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/generalResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/leveragepreferences:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get the leverage setting for a market - Multi Collateral
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  leveragePreferences:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/leveragePref"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+    put:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Set the leverage setting for a market - Multi Collateral
+      description: "Sets a contract's margin mode, either 'isolated' or 'cross' margin.<br>When specifying a max leverage, the contract's margin mode will be isolated.<br>Calling this endpoint can result in the following error codes:<br>87: Contract does not exist<br>88: Contract not a multi-collateral futures contract<br>41: Would cause liquidation"
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: maxLeverage
+          required: true
+          schema:
+            type: integer
+            example: When present, the symbol's margin mode will be set to "isolated".
+        
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/generalResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/notifications:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Platefroms Notifications - General
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  notifications:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/notification"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/fills:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get Your fills - Historical Data
+      description: "This endpoint returns information on your filled orders for all futures contracts."
+      parameters:
+        - in: query
+          name: lastFillTime
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  fills:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/fills"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/historicalfundingrates:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary:  Historical Funding Rates
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  rates:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/rates"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /derivatives/api/v3/self-trade-strategy:
+    get:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get current self trade strategy
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  strategy:
+                    type: string
+                    enum: ["REJECT_MAKER","CANCEL_MAKER_SELF","CANCEL_MAKER_CHILD","CANCEL_MAKER_ANY"]
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+    put:
+      tags: 
+       -  Trading
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Update self trade strategy
+      parameters:
+        - in: query
+          name: startegy
+          required: true
+          schema:
+            type: string
+            enum: ["REJECT_MAKER","CANCEL_MAKER_SELF","CANCEL_MAKER_CHILD","CANCEL_MAKER_ANY"]
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  serverTime:
+                    type: string
+                  result:
+                    type: string
+                  strategy:
+                    type: string
+                    enum: ["REJECT_MAKER","CANCEL_MAKER_SELF","CANCEL_MAKER_CHILD","CANCEL_MAKER_ANY"]
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/history/v3/executions:
+    get:
+      tags: 
+       -  History
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get execution events - Account History
+      description: "Lists executions/trades for authenticated account."
+      parameters:
+        - name: since
+          in: query
+          description: Timestamp in milliseconds to start listing events from.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1609459200000
+        - name: before
+          in: query
+          description: Timestamp in milliseconds to stop listing events before.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1612137600000
+        - name: sort
+          in: query
+          description: Determines the order of events in the response.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+            example: desc
+        - name: continuation_token
+          in: query
+          description: Continuation token from the Next-Continuation-Token header used to continue listing events.
+          required: false
+          schema:
+            type: string
+            format: base64
+            example: "eyJjb250aW51YXRpb25fdG9rZW4iOiAiMTIzIn0="
+        - name: count
+          in: query
+          description: The maximum number of results to return. The upper bound is determined by a global limit.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 100
+        - name: tradeable
+          in: query
+          description: If present, events of other tradeables are filtered out.
+          required: false
+          schema:
+            type: string
+            example: "BTC-USD"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/history/v3/orders:
+    get:
+      tags: 
+       -  History
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get order events - Account History
+      parameters:
+        - name: since
+          in: query
+          description: Timestamp in milliseconds to start listing events from.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1609459200000
+        - name: before
+          in: query
+          description: Timestamp in milliseconds to stop listing events before.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1612137600000
+        - name: sort
+          in: query
+          description: Determines the order of events in the response.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+            example: desc
+        - name: continuation_token
+          in: query
+          description: Continuation token from the Next-Continuation-Token header used to continue listing events.
+          required: false
+          schema:
+            type: string
+            format: base64
+            example: "eyJjb250aW51YXRpb25fdG9rZW4iOiAiMTIzIn0="
+        - name: count
+          in: query
+          description: The maximum number of results to return. The upper bound is determined by a global limit.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 100
+        - name: tradeable
+          in: query
+          description: If present, events of other tradeables are filtered out.
+          required: false
+          schema:
+            type: string
+            example: "BTC-USD"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/history/v3/triggers:
+    get:
+      tags: 
+       -  History
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get trigger events - Account History
+      parameters:
+        - name: since
+          in: query
+          description: Timestamp in milliseconds to start listing events from.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1609459200000
+        - name: before
+          in: query
+          description: Timestamp in milliseconds to stop listing events before.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1612137600000
+        - name: sort
+          in: query
+          description: Determines the order of events in the response.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+            example: desc
+        - name: continuation_token
+          in: query
+          description: Continuation token from the Next-Continuation-Token header used to continue listing events.
+          required: false
+          schema:
+            type: string
+            format: base64
+            example: "eyJjb250aW51YXRpb25fdG9rZW4iOiAiMTIzIn0="
+        - name: count
+          in: query
+          description: The maximum number of results to return. The upper bound is determined by a global limit.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 100
+        - name: tradeable
+          in: query
+          description: If present, events of other tradeables are filtered out.
+          required: false
+          schema:
+            type: string
+            example: "BTC-USD"
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionResponse"
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/history/v3/account-log:
+    get:
+      tags: 
+       -  History
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get account logs - Account History
+      description: "Lists account log entries, paged by timestamp or by ID.<br>To request entries by time range, use the since and before parameters. To request entries by ID range, use the from and to parameters. Any combination of since, before, from and to can be used to restrict the requested range of entries."
+      parameters:
+        - name: since
+          in: query
+          description: Timestamp in milliseconds to start listing events from.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1609459200000
+        - name: before
+          in: query
+          description: Timestamp in milliseconds to stop listing events before.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1612137600000
+        - name: sort
+          in: query
+          description: Determines the order of events in the response.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+            example: desc
+        - name: info
+          in: query
+          required: false
+          schema:
+            type: string
+            
+        - name: count
+          in: query
+          description: The maximum number of results to return. The upper bound is determined by a global limit.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 100
+        
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accountUid:
+                    type: string
+                  logs:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/logs"
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/history/v3/accountlogcsv:
+    get:
+      tags: 
+       -  History
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get account logs (CSV) - Account History
+      description: "Lists recent account log entries in CSV format."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: string
+                description: "A CSV formatted response of most recent account log entries."
+                    
+        '401':
+          description: Error
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Credentials Required"
+        '429':
+          description: Error
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "Rate limited. Check Rate-Limit-Reset header for how long until next access is allowed in seconds."
+  /api/history/v3/market/{tradeable}/executions:
+    get:
+      tags: 
+       -  History
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get public execution events - Market History
+      parameters:
+        - in: path
+          name: tradeable
+          required: true
+          schema:
+            type: string
+        - name: since
+          in: query
+          description: Timestamp in milliseconds to start listing events from.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1609459200000
+        - name: before
+          in: query
+          description: Timestamp in milliseconds to stop listing events before.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1612137600000
+        - name: sort
+          in: query
+          description: Determines the order of events in the response.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+            example: desc
+        - name: continution_token
+          in: query
+          required: false
+          schema:
+            type: string
+            
+        - name: count
+          in: query
+          description: The maximum number of results to return. The upper bound is determined by a global limit.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 100
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionResponse"
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/history/v3/market/{tradeable}/orders:
+    get:
+      tags: 
+       -  History
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Lists order events for a market - Market History
+      parameters:
+        - in: path
+          name: tradeable
+          required: true
+          schema:
+            type: string
+        - name: since
+          in: query
+          description: Timestamp in milliseconds to start listing events from.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1609459200000
+        - name: before
+          in: query
+          description: Timestamp in milliseconds to stop listing events before.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1612137600000
+        - name: sort
+          in: query
+          description: Determines the order of events in the response.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+            example: desc
+        - name: continution_token
+          in: query
+          required: false
+          schema:
+            type: string
+            
+        - name: count
+          in: query
+          description: The maximum number of results to return. The upper bound is determined by a global limit.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 100
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionResponse"
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/history/v3/market/{tradeable}/price:
+    get:
+      tags: 
+       -  History
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Lists price events for a market - Market History
+      parameters:
+        - in: path
+          name: tradeable
+          required: true
+          schema:
+            type: string
+        - name: since
+          in: query
+          description: Timestamp in milliseconds to start listing events from.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1609459200000
+        - name: before
+          in: query
+          description: Timestamp in milliseconds to stop listing events before.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1612137600000
+        - name: sort
+          in: query
+          description: Determines the order of events in the response.
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+            example: desc
+        - name: continution_token
+          in: query
+          required: false
+          schema:
+            type: string
+            
+        - name: count
+          in: query
+          description: The maximum number of results to return. The upper bound is determined by a global limit.
+          required: false
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 100
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutionResponse"
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/charts/v1/:
+    get:
+      tags: 
+       -  Charts
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Tick Types - Candles
+      description: "Returns all available tick types to use with the markets endpoint."
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  enum: ["spot","mark","trade"]
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/charts/v1/{tick_type}:
+    get:
+      tags: 
+       -  Charts
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Markets - Candles
+      description: "Markets available for specified tick type.<br>List of available tick types can be fetched from the tick types endpoint."
+      parameters:
+        - in: path
+          name: tick_type
+          required: true
+          schema:
+            type: string
+            enum: ["spot","trade","mark"]
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  enum: ["PI_XRPUSD"]
+                        
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/charts/v1/{tick_type}/{symbol}:
+    get:
+      tags: 
+       -  Charts
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Resolutions - Candles
+      description: "Candle resolutions available for specified tick type and market.<br>List of available tick types can be fetched from the tick types endpoint. List of available markets can be fetched from the markets endpoint."
+      parameters:
+        - in: path
+          name: tick_type
+          required: true
+          schema:
+            type: string
+            enum: ["spot","trade","mark"]
+        - in: path
+          name: symbol
+          required: true
+          schema:
+            type: string
+            
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  enum: ["1m","5m","15m","30m","1h","4h","12h","1w","1d"]
+                        
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+        
+  /api/charts/v1/{tick_type}/{symbol}/{resolution}:
+    get:
+      tags: 
+       -  Charts
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Market Candles - Candles
+      description: "Candles for specified tick type, market, and resolution.<br>List of available tick types can be fetched from the tick types endpoint. List of available markets can be fetched from the markets endpoint. List of available resolutions can be fetched from the resolutions endpoint."
+      parameters:
+        - in: path
+          name: tick_type
+          required: true
+          schema:
+            type: string
+            enum: ["spot","trade","mark"]
+        - in: path
+          name: symbol
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: resolution
+          required: true
+          schema:
+            type: string
+            example: "1h"
+            enum: ["1m","5m","15m","30m","1h","4h","12h","1w","1d"]
+            
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Candles"
+                        
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/charts/v1/analytics/liquidity-pool:
+    get:
+      tags: 
+       -  Charts
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Get liquidity pool statistic - Anlytics
+      parameters:
+        - name: since
+          in: query
+          required: true
+          description: Epoch time in seconds.
+          schema:
+            type: integer
+            format: int64
+        - name: interval
+          in: query
+          required: true
+          description: Resolution in seconds.
+          schema:
+            type: integer
+            enum: [60, 300, 900, 1800, 3600, 14400, 43200, 86400, 604800]
+        - name: to
+          in: query
+          required: false
+          description: Epoch time in seconds, default is now.
+          schema:
+            type: integer
+            format: int64      
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/poolStatistics"
+                        
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+  /api/charts/v1/analytics/{symbol}/{analytics_type}:
+    get:
+      tags: 
+       -  Charts
+      security:
+        - APIKeyAuth: []
+        - AuthentKey: []
+      summary: Market Analytics divided into time buckets - Anlytics
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Market symbol
+          schema:
+            type: string
+        - name: analytics_type
+          in: path
+          required: true
+          description: Type of analytics
+          schema:
+            type: string
+            enum: [open-interest, aggressor-differential, trade-volume, trade-count, liquidation-volume, rolling-volatility, long-short-ratio, long-short-info, cvd, top-traders, orderbook, spreads, liquidity, slippage, future-basis]
+        - name: since
+          in: query
+          required: true
+          description: Epoch time in seconds
+          schema:
+            type: integer
+            format: int64
+        - name: interval
+          in: query
+          required: true
+          description: Resolution in seconds
+          schema:
+            type: integer
+            enum: [60, 300, 900, 1800, 3600, 14400, 43200, 86400, 604800]
+        - name: to
+          in: query
+          required: false
+          description: Epoch time in seconds, default now
+          schema:
+            type: integer     
+      responses:
+        '200':
+          description: SUCCESSFUL REQUEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/poolStatistics"
+                        
+                    
+        '404':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/errorResponse"
+        
+        
+
+
+
+components:
+  securitySchemes:
+    APIKeyAuth:
+      type: apiKey
+      in: header
+      name: APIKey
+      description: "API key for authenticating requests."
+    AuthentKey:
+      type: apiKey
+      in: header
+      name: Authent
+      description: "Secondary key for authentication."
+  schemas:
+    errorResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "error"
+        error:
+          type: string
+          example: "requireddArgumentMissing"
+          enum:
+            - accountInactive
+            - apiLimitExceeded
+            - authenticationError
+            - insufficientFunds
+            - invalidAccount
+            - invalidAmount
+            - invalidArgument
+            - invalidUnit
+            - jsonParseError    
+            - marketUnavailable
+            - nonceBelowThreshold
+            - nonceDuplicate
+            - notFound
+            - requiredArgumentMissing
+            - serverError 
+            - unavailable
+            - unknownError
+    successResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/historyItems"
+    historyItems:
+      type: object
+      properties:
+        price:
+          type: number
+          description: "For futures: The price of a fill. For indices: The calculated value."
+        side:
+          type: string
+          nullable: true
+          description: "The classification of the taker side in the matched trade: 'buy' if the taker is a buyer, 'sell' if the taker is a seller."
+        size:
+          type: string
+          nullable: true
+          description: "For futures: The size of a fill. For indices: Not returned because N/A."
+        time:
+          type: string
+          format: date-time
+          description: "The date and time of a trade or index computation."
+        trade_id:
+          type: integer
+          format: int32
+          description: "For futures: A continuous index starting at 1 for the first fill in a Futures contract maturity. For indices: Not returned because N/A."
+        type:
+          type: string
+          nullable: true
+          enum: [fill, liquidation, assignment, termination, block]
+          description: "The classification of the matched trade in an orderbook."
+        uid:
+          type: string
+          nullable: true
+        instrument_identification_type:
+          type: string
+          nullable: true
+        isin:
+          type: string
+          nullable: true
+        execution_venue:
+          type: string
+          nullable: true
+        price_notation:
+          type: string
+          nullable: true
+        price_currency:
+          type: string
+          nullable: true
+        notional_amount:
+          type: number
+          nullable: true
+        notional_currency:
+          type: string
+          nullable: true
+        publication_time:
+          type: string
+          nullable: true
+        publication_venue:
+          type: string
+          nullable: true
+        transaction_identification_code:
+          type: string
+          nullable: true
+        to_be_cleared:
+          type: boolean
+          nullable: true
+    orderbookResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        orderBook:
+          type: array
+          items:
+            $ref: "#/components/schemas/orderBookItems"
+    orderBookItems:
+      type: object
+      properties:
+        asks:
+          type: array
+          description: "The outer list is sorted ascending by ask price."
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: number
+          example: [[100.5, 10], [101.0, 5]]
+        bids:
+          type: array
+          description: "The outer list is sorted descending by bid price."
+          items:
+            type: array
+            minItems: 2
+            maxItems: 2
+            items:
+              type: number
+          example: [[99.5, 15], [99.0, 8]]
+    tickersResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        tickers:
+          type: array
+          items:
+            $ref: "#/components/schemas/tickersItems"
+    tickersItems:
+      type: object
+      properties:
+        tag:
+          type: string
+          description: "The tag for the type of instrument."
+          example: "perpetual"
+        pair:
+          type: string
+          description: "The currency pair."
+          example: "XBT:USD"
+        symbol:
+          type: string
+          description: "The symbol for the instrument."
+          example: "PI_XBTUSD"
+        markPrice:
+          type: number
+          description: "The mark price of the instrument."
+          example: 30209.9
+        bid:
+          type: number
+          description: "The current bid price."
+          example: 8634
+        bidSize:
+          type: integer
+          description: "The size of the current bid."
+          example: 1000
+        ask:
+          type: number
+          description: "The current ask price."
+          example: 49289
+        askSize:
+          type: integer
+          description: "The size of the current ask."
+          example: 139984
+        vol24h:
+          type: integer
+          description: "The volume traded in the last 24 hours."
+          example: 15304
+        openInterest:
+          type: integer
+          description: "The open interest in the market."
+          example: 149655
+        open24h:
+          type: number
+          description: "The opening price in the last 24 hours."
+          example: 49289
+        indexPrice:
+          type: number
+          description: "The index price of the instrument."
+          example: 21087.8
+        last:
+          type: number
+          description: "The last traded price."
+          example: 49289
+        lastTime:
+          type: string
+          format: date-time
+          description: "The timestamp of the last trade."
+          example: "2022-06-17T10:46:35.705Z"
+        lastSize:
+          type: integer
+          description: "The size of the last trade."
+          example: 100
+        suspended:
+          type: boolean
+          description: "Whether the market is currently suspended."
+          example: false
+        fundingRate:
+          type: number
+          format: double
+          description: "The current funding rate."
+          example: 1.18588737106e-7
+        fundingRatePrediction:
+          type: number
+          format: double
+          description: "The predicted funding rate."
+          example: 1.1852486794e-7
+        postOnly:
+          type: boolean
+          description: "Whether the order is post-only."
+          example: false
+        change24h:
+          type: number
+          description: "The percentage change in price over the last 24 hours."
+          example: 1.9974017538161748
+    instrumentsResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        instruments:
+          type: array
+          items:
+            $ref: "#/components/schemas/instrumentItems"
+    instrumentItems:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: "The symbol of the futures contract."
+          example: "PI_XBTUSD"
+        type:
+          type: string
+          description: "The type of contract."
+          example: "futures_inverse"
+        underlying:
+          type: string
+          description: "The underlying asset for the futures contract."
+          example: "rr_xbtusd"
+        tickSize:
+          type: number
+          description: "The minimum price increment for the contract."
+          example: 0.5
+        contractSize:
+          type: integer
+          description: "The size of one contract."
+          example: 1
+        tradeable:
+          type: boolean
+          description: "Whether the contract is tradeable."
+          example: true
+        impactMidSize:
+          type: integer
+          description: "The size used for calculating impact on the mid price."
+          example: 1
+        maxPositionSize:
+          type: integer
+          description: "The maximum position size allowed."
+          example: 1000000
+        openingDate:
+          type: string
+          format: date-time
+          description: "The date the contract opens for trading."
+          example: "2022-01-01T00:00:00.000Z"
+        marginLevels:
+          type: array
+          description: "The margin requirements for different contract sizes."
+          items:
+            $ref: "#/components/schemas/retailMargin"
+          example:
+            - contracts: 0
+              initialMargin: 0.02
+              maintenanceMargin: 0.01
+            - contracts: 500000
+              initialMargin: 0.04
+              maintenanceMargin: 0.02
+        fundingRateCoefficient:
+          type: number
+          description: "The coefficient used to calculate funding rates."
+          example: 8
+        maxRelativeFundingRate:
+          type: number
+          description: "The maximum relative funding rate."
+          example: 0.001
+        isin:
+          type: string
+          description: "The International Securities Identification Number (ISIN)."
+          example: "GB00J62YGL67"
+        contractValueTradePrecision:
+          type: integer
+          description: "The trade precision for the contract value."
+          example: 0
+        postOnly:
+          type: boolean
+          description: "Whether the contract only accepts post-only orders."
+          example: false
+        feeScheduleUid:
+          type: string
+          description: "The UID of the fee schedule."
+          example: "eef90775-995b-4596-9257-0917f6134766"
+        retailMarginLevels:
+          type: array
+          description: "The margin levels for retail traders."
+          items:
+            $ref: "#/components/schemas/retailMargin"
+          example:
+            - contracts: 0
+              initialMargin: 0.5
+              maintenanceMargin: 0.25
+        category:
+          type: string
+          description: "The category of the futures contract."
+          example: ""
+        tags:
+          type: array
+          description: "A list of tags associated with the contract."
+          items:
+            type: string
+          example: []
+    retailMargin:
+      type: object
+      properties:
+        contracts:
+          type: integer
+          description: "The number of contracts."
+        initialMargin:
+          type: number
+          description: "The initial margin requirement."
+        maintenanceMargin:
+          type: number
+          description: "The maintenance margin requirement."
+    instrumentStatusResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        instrumentStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/instrumentStatusItems"
+    instrumentStatusItems:
+      type: object
+      properties:
+        tradeable:
+          type: string
+          description: "Indicates if the market is tradeable."
+          example: "true"
+        isExperiencingDislocation:
+          type: boolean
+          description: "Indicates if the market is experiencing price dislocation."
+          example: true
+        priceDislocationDirection:
+          type: string
+          nullable: true
+          description: "The direction of the price dislocation."
+          enum:
+            - ABOVE_UPPER_BOUND
+            - BELOW_LOWER_BOUND
+          example: "ABOVE_UPPER_BOUND"
+        isExperiencingExtremeVolatility:
+          type: boolean
+          description: "Indicates if the market is experiencing extreme volatility."
+          example: false
+        extremeVolatilityInitialMarginMultiplier:
+          type: integer
+          description: "Multiplier applied to initial margin due to extreme volatility."
+          example: 2
+    tradeableResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        tradeable:
+          type: string
+          description: "Indicates if the market is tradeable."
+          example: "true"
+        isExperiencingDislocation:
+          type: boolean
+          description: "Indicates if the market is experiencing price dislocation."
+          example: true
+        priceDislocationDirection:
+          type: string
+          nullable: true
+          description: "The direction of the price dislocation."
+          enum:
+            - ABOVE_UPPER_BOUND
+            - BELOW_LOWER_BOUND
+          example: "ABOVE_UPPER_BOUND"
+        isExperiencingExtremeVolatility:
+          type: boolean
+          description: "Indicates if the market is experiencing extreme volatility."
+          example: true
+        extremeVolatilityInitialMarginMultiplier:
+          type: integer
+          description: "Multiplier applied to initial margin due to extreme volatility."
+          example: 3
+    feeResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        feeSchedules:
+          type: array
+          items:
+            $ref: "#/components/schemas/feeScheduleItems"
+    feeScheduleItems:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "The name of the fee schedule."
+          example: "Standard Fee Schedule"
+        uid:
+          type: string
+          description: "Unique identifier of the fee schedule."
+          example: "eef90775-995b-4596-9257-0917f6134766"
+        tiers:
+          type: array
+          description: "A list of fee tiers."
+          items:
+            $ref: '#/components/schemas/FeeTier'
+          example:
+            - makerFee: 0.001
+              takerFee: 0.002
+              usdVolume: 1000000
+            - makerFee: 0.0008
+              takerFee: 0.0015
+              usdVolume: 5000000
+    FeeTier:
+      type: object
+      properties:
+        makerFee:
+          type: number
+          description: "Percentage value of the maker fee in the tier."
+          example: 0.001
+        takerFee:
+          type: number
+          description: "Percentage value of the taker fee in the tier."
+          example: 0.002
+        usdVolume:
+          type: number
+          description: "Minimum 30-day USD volume for the fee tier to be applicable."
+          example: 1000000
+    feeVolumeResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        volumesByFeeSchedule:
+          type: object
+          description: "An object containing the 30-day trading volumes for each fee schedule."
+          additionalProperties:
+            type: number
+            description: "The 30-day trading volume for a specific fee schedule."
+          example:
+            "standard_fee_schedule": 5000000
+            "vip_fee_schedule": 15000000
+    AccountsResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        accounts:
+          $ref: "#/components/schemas/Accounts"
+    Accounts:
+      type: object
+      properties:
+        cash:
+          $ref: "#/components/schemas/Cash"
+        flex:
+          $ref: "#/components/schemas/FlexCurrencySummary"
+        additionalProperties:
+          $ref: "#/components/schemas/MarginAccount"
+    Cash:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [cashAccount]
+          description: "The type of the account (always cashAccount)."
+        balances:
+          type: object
+          description: "A structure containing account balances."
+          additionalProperties:
+            type: number
+          example:
+            available: 1000
+            total: 5000
+    currencies:
+      type: object
+      properties:
+        quantity:
+          type: number
+          description: "Quantity of the asset."
+          example: 0.1185308247
+        value:
+          type: number
+          description: "USD value of the asset."
+          example: 4998.721054420551
+        collateralValue:
+          type: number
+          description: "USD value of the asset usable for margin."
+          example: 4886.49976674881
+        available:
+          type: number
+          description: "Quantity of asset available for trading."
+          example: 0.1185308247
+    FlexCurrencySummary:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [multiCollateralMarginAccount]
+          description: "The type of the account (always multiCollateralMarginAccount)."
+        currencies:
+          type: object
+          description: "Structure with collateral currency details."
+          additionalProperties:
+            $ref: '#/components/schemas/currencies'
+        availableMargin:
+          type: number
+          description: "Margin available for trading."
+        initialMargin:
+          type: number
+          description: "Total initial margin held for open positions (USD)."
+        initialMarginWithOrders:
+          type: number
+          description: "Total initial margin held for open positions and open orders (USD)."
+        maintenanceMargin:
+          type: number
+          description: "Total maintenance margin held for open positions (USD)."
+        balanceValue:
+          type: number
+          description: "USD value of all collateral in multi-collateral wallet."
+        portfolioValue:
+          type: number
+          description: "Balance value plus unrealised PnL in USD."
+        collateralValue:
+          type: number
+          description: "USD value of balances in account usable for margin."
+        pnl:
+          type: number
+          description: "Unrealised PnL in USD."
+        unrealizedFunding:
+          type: number
+          description: "Unrealised funding from funding rate (USD)."
+        totalUnrealized:
+          type: number
+          description: "Total USD value of unrealised funding and unrealised PnL."
+        totalUnrealizedAsMargin:
+          type: number
+          description: "Unrealised pnl and unrealised funding that is usable as margin."
+        marginEquity:
+          type: number
+          description: "Balance Value in USD adjusted for haircut and unrealised profit/loss."
+    MarginAccount:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [marginAccount]
+          description: "The type of the account (always marginAccount)."
+        currency:
+          type: string
+          nullable: true
+          description: "The currency of the account."
+        balances:
+          type: object
+          description: "A structure containing account balances."
+          additionalProperties:
+            type: number
+          example:
+            total: 2000
+            available: 1500
+        auxiliary:
+          type: object
+          description: "A structure containing auxiliary account information."
+          properties:
+            usd:
+              type: number
+              description: "The portfolio value of the account, in currency."
+            pv:
+              type: number
+              description: "The portfolio value of the account, in currency."
+            pnl:
+              type: number
+              description: "The PnL of current open positions of the account, in currency."
+            af:
+              type: number
+              description: "The available funds of the account, in currency."
+            funding:
+              type: number
+              description: "Funding related to the account."
+        marginRequirements:
+          type: object
+          description: "A structure containing the account's margin requirements."
+          properties:
+            im:
+              type: number
+              description: "The initial margin requirement of the account."
+            mm:
+              type: number
+              description: "The maintenance margin requirement of the account."
+            lt:
+              type: number
+              description: "The liquidation threshold of the account."
+            tt:
+              type: number
+              description: "The termination threshold of the account."
+        triggerEstimates:
+          type: object
+          description: "A structure containing the account's margin trigger estimates."
+          properties:
+            im:
+              type: number
+              description: "The initial margin requirement of the account."
+            mm:
+              type: number
+              description: "The maintenance margin requirement of the account."
+            lt:
+              type: number
+              description: "The liquidation threshold of the account."
+            tt:
+              type: number
+              description: "The termination threshold of the account."
+    openPositionsResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        openPositions:
+          type: array
+          items:
+            $ref: "#/components/schemas/openPositions"
+    openPositions:
+      type: object
+      properties:
+        side:
+          type: string
+          description: "The side of the trade."
+          enum: [long, short]
+          example: "short"
+        symbol:
+          type: string
+          description: "The trading symbol."
+          example: "PI_XBTUSD"
+        price:
+          type: number
+          description: "The price at which the trade was executed."
+          example: 9392.749993345933
+        fillTime:
+          type: string
+          format: date-time
+          description: "The timestamp when the trade was filled."
+          example: "2020-07-22T14:39:12.376Z"
+        size:
+          type: number
+          description: "The size of the trade."
+          example: 10000
+        unrealizedFunding:
+          type: number
+          description: "The unrealized funding related to the trade."
+          example: 0.00001045432180096817
+    positionResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        queue:
+          type: array
+          items:
+            $ref: "#/components/schemas/Position"
+    Position:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: "The symbol of the futures to which the order refers."
+          example: "PI_XBTUSD"
+        percentile:
+          type: number
+          description: "The percentile rank of the trader's position in the unwind queue."
+          enum: [20, 40, 80, 100]
+          example: 40
+    batchOrderRequest:
+      type: object
+      properties:
+        processBefore:
+          type: string
+          description: "The time before which the request should be processed, otherwise it is rejected."
+          example: "2024-10-18T14:00:00Z"
+        json:
+          type: string
+          description: "This parameter is required to be encoded as a JSON string."
+          example: "{batchOrder}"
+    batchOrder:
+      type: array
+      description: "A list containing structures of order sending and order cancellation instructions."
+      items:
+        oneOf:
+          - $ref: "#/components/schemas/BatchOrderSend"
+          - $ref: "#/components/schemas/BatchOrderEdit"
+          - $ref: "#/components/schemas/BatchOrderCancel"
+    BatchOrderSend:
+      type: object
+      properties:
+        order:
+          type: string
+          enum: [send]
+          description: Always send.
+        order_tag:
+          type: string
+          description: An arbitrary string provided client-side to tag the order for mapping order sending instructions to the API's response.
+        orderType:
+          type: string
+          enum: [lmt, ioc, post, stp, take_profit, trailing_stop]
+          description: Type of the order.
+        symbol:
+          type: string
+          description: The symbol of the Futures.
+        side:
+          type: string
+          enum: [buy, sell]
+          description: The direction of the order.
+        size:
+          type: number
+          description: The size associated with the order.
+        limitPrice:
+          type: number
+          description: The limit price associated with the order. Leave undefined if placing a trailing_stop order.
+        stopPrice:
+          type: number
+          description: The stop price associated with a stop order. Required if orderType is stp.
+        cliOrdId:
+          type: string
+          maxLength: 100
+          description: The globally unique order identity specified by the user.
+        triggerSignal:
+          type: string
+          enum: [mark, spot, last]
+        reduceOnly:
+          type: boolean
+          default: false
+          description: Set to true if the order should only reduce an existing position.
+        trailingStopMaxDeviation:
+          type: number
+          description: Required if the order type is trailing_stop. The maximum distance the trailing stop's trigger price may trail behind the trigger signal.
+        trailingStopDeviationUnit:
+          type: string
+          enum: [PERCENT, QUOTE_CURRENCY]
+          description: Defines how the trailing trigger price is calculated from the requested trigger signal.
+      required:
+        - order
+        - order_tag
+        - orderType
+        - symbol
+        - side
+        - size  
+    BatchOrderEdit:
+      type: object
+      properties:
+        cliOrdId:
+          type: string
+          nullable: true
+          maxLength: 100
+          description: Unique client order identifier.
+        order_id:
+          type: string
+          format: uuid
+          description: Order ID.
+        order:
+          type: string
+          enum: [edit]
+          description: Always edit.
+        size:
+          type: number
+          description: The size associated with the order.
+        limitPrice:
+          type: number
+          description: The limit price associated with the order.
+        stopPrice:
+          type: number
+          description: The stop price associated with a stop order. Required if old orderType is stp.
+        trailingStopMaxDeviation:
+          type: number
+          minimum: 0.1
+          maximum: 50
+          description: Maximum distance the trailing stop's trigger price may trail behind the trigger signal.
+        trailingStopDeviationUnit:
+          type: string
+          enum: [PERCENT, QUOTE_CURRENCY]
+          description: Defines how the trailing trigger price is calculated from the requested trigger signal.
+    BatchOrderCancel:
+      type: object
+      properties:
+        cliOrdId:
+          type: string
+          nullable: true
+          maxLength: 100
+          description: Unique client order identifier.
+        order_id:
+          type: string
+          format: uuid
+          description: Order ID.
+        order:
+          type: string
+          enum: [cancel]
+          description: Always cancel.
+    batchOrderResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        batchStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/BatchStatusObject"
+    BatchStatusObject:
+      type: object
+      properties:
+        cliOrdId:
+          type: string
+          description: The unique client order identifier. This field is returned only if the order has a client order ID.
+        dateTimeReceived:
+          type: string
+          nullable: true
+          format: date-time
+          description: The date and time the order was received.
+        orderEvents:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/placeEvent"
+              - $ref: "#/components/schemas/cancelEvent"
+              - $ref: "#/components/schemas/editEvent"
+              - $ref: "#/components/schemas/rejectEvent"
+              - $ref: "#/components/schemas/executeEvent"
+              - $ref: "#/components/schemas/placeTriggerEvent"
+        order_id:
+          type: string
+          nullable: true
+          description: The unique identifier of the order.
+        order_tag:
+          type: string
+          nullable: true
+          description: The arbitrary string provided client-side when the order was sent for mapping order sending instructions to the API's response.
+        status:
+          type: string
+          enum:
+            - placed
+            - cancelled
+            - invalidOrderType
+            - invalidSide
+            - invalidSize
+            - invalidPrice
+            - insufficientAvailableFunds
+            - selfFill
+            - tooManySmallOrders
+            - marketSuspended
+            - marketInactive
+            - clientOrderIdAlreadyExist
+            - clientOrderIdTooLong
+            - outsidePriceCollar
+            - postWouldExecute
+            - iocWouldNotExecute
+          description: The status of the order.
+    placeEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [place, cancel, edit, reject, execution]
+          description: The type of the API order event. Always "place".
+        order:
+          $ref: "#/components/schemas/Order"
+    cancelEvent:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: "Unique id of order"  
+        type:
+          type: string
+          enum: [place, cancel, edit, reject, execution]
+          description: The type of the API order event. Always "place".
+        order:
+          $ref: "#/components/schemas/Order"
+    editEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [place, cancel, edit, reject, execution]
+          description: The type of the API order event. Always "place".
+        old:
+          $ref: "#/components/schemas/Order"
+        new:
+          $ref: "#/components/schemas/Order"
+        reducedQuantity:
+          type: number
+          description:  "The amount of quantity that was removed from the edited order or null if the order is not a reduce only."
+    rejectEvent:
+      type: object
+      properties:
+        uid:
+          type: string
+          description: "Unique id of order"  
+        order:
+          $ref: "#/components/schemas/Order" 
+        reason: 
+          type: string
+          enum: ["postWouldExecute","iocWouldNotExecute","wouldNotReducePosition","orderForEditNotFound"]
+          description: The rejection reason for the order.
+    executeEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [place, cancel, edit, reject, execution]
+          description: The type of the API order event. Always "execution".
+        executionId:
+          type: string
+          description: The UID associated with the execution.
+        orderPriorEdit:
+          $ref: "#/components/schemas/Order"
+        orderPriorExecution:
+          $ref: "#/components/schemas/Order"
+        takerReducedQuantity:
+          type: number
+          nullable: true
+          description: The amount of quantity that was removed from the order before execution, or null if the order is not reduce-only.
+        price:
+          type: number
+          description: The price of the execution.
+        amount:
+          type: number
+          description: The executed amount.
+    placeTriggerEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [place, cancel, edit, reject, execution]
+          description: The type of the API order event. Always "place".
+        orderTrigger:
+          $ref: "#/components/schemas/Order"
+    Order:
+      type: object
+      properties:
+        orderId:
+          type: string
+          description: The UID associated with the order.
+        cliOrdId:
+          type: string
+          nullable: true
+          description: The client order id, or null if the order does not have one.
+        type:
+          type: string
+          enum: [lmt, ioc, post, liquidation, assignment, stp, unwind, block]
+          description: The type of the order.
+        symbol:
+          type: string
+          description: The symbol of the Futures.
+        side:
+          type: string
+          enum: [buy, sell]
+          description: The side associated with the order.
+        quantity:
+          type: number
+          description: The quantity (size) associated with the order.
+        filled:
+          type: number
+          description: The total amount of the order that has been filled.
+        limitPrice:
+          type: number
+          description: The limit price associated with a limit order.
+        reduceOnly:
+          type: boolean
+          description: Whether the order is reduce-only or not.
+        timestamp:
+          type: string
+          format: date-time
+          description: The date and time the order was placed.
+        lastUpdateTimestamp:
+          type: string
+          format: date-time
+          description: The date and time the order was last updated.
+        reducedQuantity:
+          type: number
+          nullable: true
+          description: The amount of quantity that was removed before placement, or null if the order is not reduce-only.
+    cancelOrderResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+        batcStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/cancelStatus" 
+    cancelStatus:
+      type: object
+      properties:
+        cancelOnly:
+            type: string
+            description: The symbol of the futures or "all" for cancelling all orders.
+        cancelledOrders:
+          type: array
+          items:
+            type: object
+            properties:
+              cliOrdId:
+                type: string
+                nullable: true
+                maxLength: 100
+                description: Unique client order identifier.
+              order_id:
+                type: string
+                format: uuid
+                description: Order ID.
+        orderEvents:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                enum: [place, cancel, edit, reject, execution]
+                description: The type of the order event. Always "cancel".
+              uid:
+                type: string
+                description: The UID associated with the order.
+              order:
+                $ref: "#/components/schemas/Order"
+        receivedTime:
+          type: string
+          format: date-time
+          description: The date and time the order cancellation was received.
+        status:
+          type: string
+          enum: [noOrdersToCancel, cancelled]
+          description: The status of the order cancellation.
+    deadManSwitchResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+          description: Server time in Coordinated Universal Time (UTC).
+        result:
+          type: string
+          enum: [success]
+          description: The result of the operation. Always "success".
+        status:
+          type: object
+          description: The status of the switch.
+          properties:
+            currentTime:
+              type: string
+              format: date-time
+              description: The server date and time when the request was received.
+            triggerTime:
+              type: string
+              format: date-time
+              description: The server date and time when the switch will be activated.
+    cancelResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+          description: Server time in Coordinated Universal Time (UTC).
+        result:
+          type: string
+          enum: [success]
+          description: The result of the cancellation operation. Always "success".
+        order_id:
+          type: string
+          format: uuid
+          description: The cancelled order ID.
+        OrderEvents:
+          $ref: "#/components/schemas/BatchStatusObject"
+        receivedTime:
+          type: string
+          format: date-time
+          description: The date and time the order cancellation was received.
+        status:
+          type: string
+          enum:
+            - cancelled
+            - filled
+            - notFound
+          description: The status of the order cancellation.
+        cancelStatus:
+          type: object
+          properties:
+            cliOrdId:
+              type: string
+              nullable: true
+              description: The client order ID. Shown only if the client specified one.
+    editOrder:
+      type: object
+      properties:
+        processBefore:
+          type: string
+          format: date-time
+          description: The time before which the request should be processed; otherwise, it is rejected.
+        orderId:
+          type: string
+          description: ID of the order you wish to edit. Required if `cliOrdId` is not included.
+        cliOrdId:
+          type: string
+          description: The order identity specified by the user. It must be globally unique. Required if `orderId` is not included.
+        size:
+          type: number
+          description: The size associated with the order.
+        limitPrice:
+          type: number
+          description: The limit price associated with the order. Must not exceed the tick size of the contract.
+        stopPrice:
+          type: number
+          description: The stop price associated with a stop order. Required if the old `orderType` is stp. Must not exceed the tick size of the contract. For stp orders, `limitPrice` is also required and denotes the worst price at which the stp order can get filled.
+        trailingStopMaxDeviation:
+          type: number
+          minimum: 0.1
+          maximum: 50
+          description: Maximum value of 50%, minimum value of 0.1% for 'PERCENT' `maxDeviationUnit`. Relevant only for trailing stop orders.
+        trailingStopDeviationUnit:
+          type: string
+          enum: [PERCENT, QUOTE_CURRENCY]
+          description: Defines how the trailing trigger price is calculated from the requested trigger signal. Relevant only for trailing stop orders.
+    editOrderResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+          description: Server time in Coordinated Universal Time (UTC).
+        result:
+          type: string
+          enum: [success]
+          description: The result of the cancellation operation. Always "success".
+        editStatus:
+          $ref: "#/components/schemas/Order"
+    openOrderResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+          description: Server time in Coordinated Universal Time (UTC).
+        result:
+          type: string
+          enum: [success]
+          description: The result of the cancellation operation. Always "success".
+        openOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+    sendOrderRequest:
+      type: object
+      properties:
+        processBefore:
+          type: string
+          format: date-time
+          description: The time before which the request should be processed; otherwise, it is rejected.
+        orderType:
+          type: string
+          enum: [lmt, post, ioc, mkt, stp, take_profit, trailing_stop]
+          description: The type of order.
+        symbol:
+          type: string
+          description: The symbol of the Futures.
+        side:
+          type: string
+          enum: [buy, sell]
+          description: The direction of the order.
+        size:
+          type: number
+          description: The size associated with the order. Note that different Futures have different contract sizes.
+        limitPrice:
+          type: number
+          description: The limit price associated with the order. For stop orders, this denotes the worst price for the stp or take_profit order. If no limitPrice is provided, the stp or take_profit order will trigger a market order. Leave undefined for trailing_stop orders.
+        stopPrice:
+          type: number
+          description: The stop price associated with a stop or take profit order. Required if orderType is stp or take_profit; leave undefined for trailing_stop orders.
+        cliOrdId:
+          type: string
+          maxLength: 100
+          description: The unique order identifier specified by the user.
+        triggerSignal:
+          type: string
+          enum: [mark, spot, last]
+          description: The signal used for triggering stp, take_profit, or trailing_stop orders.
+        reduceOnly:
+          type: boolean
+          default: false
+          description: Set as true if the order should only reduce an existing position; any order increasing a position will be rejected.
+        trailingStopMaxDeviation:
+          type: number
+          minimum: 0.1
+          maximum: 50
+          description: Maximum value of 50%, minimum value of 0.1% for 'PERCENT' maxDeviationUnit. Required if order type is trailing_stop.
+        trailingStopDeviationUnit:
+          type: string
+          enum: [PERCENT, QUOTE_CURRENCY]
+          description: Defines how the trailing trigger price is calculated from the requested trigger signal. Required if order type is trailing_stop.
+        limitPriceOffsetValue:
+          type: number
+          description: Can only be set for triggers (e.g., order types take_profit, stop, and trailing_stop). Defines a relative limit price based on the trigger stopPrice. The offset can be positive or negative, with potential restrictions on value depending on limitPriceOffsetUnit.
+        limitPriceOffsetUnit:
+          type: string
+          enum: [QUOTE_CURRENCY, PERCENT]
+          description: Defines the unit for the relative limit price distance from the trigger's stopPrice. Must be set together with limitPriceOffsetValue.
+    sendOrderResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          format: date-time
+          description: Server time in Coordinated Universal Time (UTC).
+        result:
+          type: string
+          enum: [success]
+          description: Indicates the success of the request.
+        order_id:
+          type: string
+          format: uuid
+          description: The unique identifier of the order.
+        receivedTime:
+          type: string
+          format: date-time
+          description: The date and time the order was received.
+        orderEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/placeEvent"
+        status:
+          type: string
+          enum: [
+            placed, partiallyFilled, filled, cancelled, edited, marketSuspended,
+            marketInactive, invalidPrice, invalidSize, tooManySmallOrders,
+            insufficientAvailableFunds, wouldCauseLiquidation,
+            clientOrderIdAlreadyExist, clientOrderIdTooBig, maxPositionViolation,
+            outsidePriceCollar, wouldIncreasePriceDislocation, notFound,
+            orderForEditNotAStop, orderForEditNotFound, postWouldExecute,
+            iocWouldNotExecute, selfFill, wouldNotReducePosition,
+            marketIsPostOnly, tooManyOrders, fixedLeverageTooHigh,
+            clientOrderIdInvalid, cannotEditTriggerPriceOfTrailingStop,
+            cannotEditLimitPriceOfTrailingStop, wouldProcessAfterSpecifiedTime
+          ]
+          description: The status of the order.
+        sendStatus:
+          type: object
+          properties:
+            cliOrdId:
+              type: string
+              nullable: true
+              description: The unique client order identifier. This field is returned only if the order has a client order ID.
+    orderResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+    orderMarginResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          description: Server time in Coordinated Universal Time (UTC)
+        result:
+          type: string
+          enum: [success]
+        initialMargin:
+          type: number
+          description: The initial margin requirement or null if there is no market
+        price:
+          type: number
+          description: The limit price of the order or null if the order type was mkt and there is no market
+        error:
+          type: string
+          enum: [
+            MARKET_SUSPENDED,
+            MARKET_NOT_FOUND,
+            INVALID_PRICE,
+            INVALID_QUANTITY,
+            SMALL_ORDER_LIMIT_EXCEEDED,
+            INSUFFICIENT_MARGIN,
+            WOULD_CAUSE_LIQUIDATION,
+            CLIENT_ORDER_ID_IN_USE,
+            CLIENT_ORDER_ID_TOO_LONG,
+            MAX_POSITION_EXCEEDED,
+            PRICE_COLLAR,
+            PRICE_DISLOCATION,
+            EDIT_HAS_NO_EFFECT,
+            ORDER_FOR_CANCELLATION_NOT_FOUND,
+            ORDER_FOR_EDIT_NOT_FOUND,
+            ORDER_CANNOT_HAVE_TRIGGER_PRICE,
+            POST_WOULD_EXECUTE,
+            IOC_WOULD_NOT_EXECUTE,
+            WOULD_EXECUTE_SELF,
+            WOULD_NOT_REDUCE_POSITION,
+            REJECTED_AFTER_EXECUTION,
+            MARKET_IS_POST_ONLY,
+            ORDER_LIMIT_EXCEEDED,
+            FIXED_LEVERAGE_TOO_HIGH,
+            CANNOT_EDIT_TRIGGER_PRICE_OF_TRAILING_STOP,
+            CANNOT_EDIT_LIMIT_PRICE_OF_TRAILING_STOP,
+            TRAILING_STOP_ORDER_LIMIT_EXCEEDED,
+            TRAILING_STOP_PERCENT_DEVIATION_EXCEEDS_MAX_DECIMAL_PLACES,
+            TRAILING_STOP_QUOTE_DEVIATION_NOT_MULTIPLE_OF_TICK_SIZE,
+            TRAILING_STOP_MAX_DEVIATION_TOO_LARGE,
+            TRAILING_STOP_MAX_DEVIATION_TOO_SMALL,
+            INSUFFICIENT_HEADROOM_AROUND_CURRENT_PRICE_TO_EDIT_TRAILING_STOP,
+            NO_REFERENCE_PRICE_AVAILABLE_FOR_CALCULATING_TRAILING_STOP_TRIGGER_PRICE,
+            INSUFFICIENT_CLOSING_MARGIN,
+            LIMIT_PRICE_SET_AS_ABSOLUTE_AND_RELATIVE,
+            LIMIT_PRICE_OFFSET_VALUE_INVALID,
+            LIMIT_PRICE_OFFSET_UNIT_INVALID,
+            LIMIT_PRICE_OFFSET_MUST_HAVE_VALUE_AND_UNIT,
+            LIMIT_PRICE_OFFSET_QUOTE_CURRENCY_VALUE_MUST_BE_MULTIPLE_OF_TICK_SIZE,
+            LIMIT_PRICE_OFFSET_PERCENT_VALUE_TOO_MANY_DECIMAL_PLACES,
+            LIMIT_PRICE_OFFSET_TOO_HIGH,
+            LIMIT_PRICE_OFFSET_TOO_LOW
+          ]
+          description: Possible error values related to the order.
+    maxOrderResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          description: Server time in Coordinated Universal Time (UTC)
+        result:
+          type: string
+          enum: [success]
+        maxBuySize:
+          type: number
+          description: The maximum size of a buy order at the limit price or null if there is no market
+        maxSellSize:
+          type: number
+          description: The maximum size of a sell order at the limit price or null if there is no market
+        buyPrice:
+          type: number
+          description: The limit price of the buy order or null if the order type was mkt and there is no market
+        sellPrice:
+          type: number
+          description: The limit price of the sell order or null if the order type was mkt and there is no market
+    subaccountsResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+          description: Server time in Coordinated Universal Time (UTC)
+        result:
+          type: string
+          enum: [success]
+          description: Possible values for the result of the request
+        masterAccountUid:
+          type: string
+          description: Master account UID
+        subaccounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubAccountsArray"
+    SubAccountsArray: 
+      type: object
+      properties:
+        accountUid:
+          type: string
+          description: The account UID
+        email:
+          type: string
+          description: The email associated with the account
+        fullName:
+          type: string
+          nullable: true
+          description: The full name associated with the account (nullable)
+        holdingAccounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoldingAccounts'
+        futuresAccounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/futuresAccounts'
+        flexAccount:
+          $ref: "#/components/schemas/Accounts"
+    HoldingAccounts:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: The currency of the account. All figures shown in this currency.
+        amount:
+          type: number
+          description: The amount of currency in the holding account.
+    futuresAccounts:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the futures account as the account pair.
+        availableMargin:
+          type: number
+          description: The amount of currency in the holding account in the quote currency of the name pair.
+    transferRequest:
+      type: object
+      properties:
+        fromAccount:
+          type: string
+          description: The wallet (cash or margin account) from which funds should be debited
+        toAccount:
+          type: string
+          description: The wallet (cash or margin account) to which funds should be credited
+        unit:
+          type: string
+          description: The currency unit to transfer
+        amount:
+          type: string
+          description: The amount to transfer
+      required:
+        - fromAccount
+        - toAccount
+        - unit
+        - amount
+    generalResponse:
+      type: object
+      properties:
+        serverTime:
+          type: string
+        result:
+          type: string
+          example: "success"
+    transferSubaccountRequest:
+      type: object
+      properties:
+        fromUser:
+          type: string
+          description: The user account (this or a sub account) from which funds should be debited
+        toUser:
+          type: string
+          description: The user account (this or a sub account) to which funds should be credited
+        fromAccount:
+          type: string
+          description: The wallet (cash or margin account) from which funds should be debited
+        toAccount:
+          type: string
+          description: The wallet (cash or margin account) to which funds should be credited
+        unit:
+          type: string
+          description: The currency unit to transfer
+        amount:
+          type: string
+          description: The amount to transfer
+      required:
+        - fromUser
+        - toUser
+        - fromAccount
+        - toAccount
+        - unit
+    withdrawalRequest:
+      type: object
+      properties:
+        currency:
+          type: string
+          description: The digital asset that shall be withdrawn back to spot wallet.
+        amount:
+          type: string
+          description: The amount of currency that shall be withdrawn back to spot wallet.
+        sourceWallet:
+          type: string
+          description: The wallet from which the funds shall be withdrawn back to spot wallet. Default is "cash" wallet.
+      required:
+        - currency
+        - amount
+    participants:
+      type: object
+      properties:
+          id:
+            type: number
+            description: Unique identifier for the participant.
+          participant:
+            type: object
+            description: Details about the participant.
+          contractType:
+            type: string
+            description: Type of contract associated with the participant.
+          contract:
+            type: string
+            nullable: true
+            description: Contract details, nullable if not specified.
+          maxSize:
+            type: number
+            format: double
+            description: Maximum allowable size for the participant.
+          maxPosition:
+            type: number
+            format: double
+            description: Maximum position size for the participant.
+          acceptLong:
+            type: boolean
+            description: Indicates if the participant accepts long positions.
+          acceptShort:
+            type: boolean
+            description: Indicates if the participant accepts short positions.
+          timeFrame:
+            type: string
+            description: Time frame applicable for the participant.
+            enum: [all, weekdays, weekends]
+          enabled:
+            type: boolean
+            description: Indicates if the participant is enabled.
+    AssignmentProgramRequest:
+      type: object
+      properties:
+        contractType:
+          type: string
+          description: Type of contract for the assignment program preference. Options can be found in the 'accounts' structure in the Get Wallets /accounts response.
+          example: "standard"
+        contract:
+          type: string
+          description: A specific contract for this assignment program preference. Required for "flex" contracts if base/quote currencies are not included.
+          example: "BTC/USD"
+        maxSize:
+          type: number
+          description: The maximum size for an assignment.
+          example: 100.0
+        maxPosition:
+          type: number
+          description: The maximum position.
+          example: 50.0
+        acceptLong:
+          type: boolean
+          description: Indicates if long positions are accepted. This field is required.
+          example: true
+        acceptShort:
+          type: boolean
+          description: Indicates if short positions are accepted. This field is required.
+          example: false
+        timeFrame:
+          type: string
+          description: When the program preference is valid. This field is required.
+          example: "weekdays"
+        enabled:
+          type: boolean
+          description: Indicates if the assignment is enabled. This field is required.
+          example: true
+    Preference:
+      type: object
+      properties:
+        symbol:
+          type: string
+        pnlCurrency:
+          type: string
+    leveragePref:
+      type: object
+      properties:
+        symbol:
+          type: string
+        maxLeverage:
+          type: number 
+    notification:
+      type: object
+      properties:
+        effectiveTime:
+          type: string
+          description: The time that the notification is taking effect.
+          example: "2024-10-20T15:00:00Z"
+        note:
+          type: string
+          description: The notification note. A short description about the specific notification.
+          example: "Scheduled maintenance for system upgrade."
+        priority:
+          type: string
+          enum: [low, medium, high]
+          description: The notification priorities.
+          example: "high"
+        type:
+          type: string
+          enum: [new_feature, bug_fix, settlement, general, maintenance, market]
+          description: The notification types.
+          example: "maintenance"
+        expectedDowntimeMinutes:
+          type: integer
+          description: The expected downtime in minutes or absent if no downtime is expected.
+          example: 30
+    fills:
+      type: object
+      properties:
+        cliOrdId:
+          type: string
+          nullable: true
+          description: The unique client order identifier. This field is returned only if the order has a client order ID.
+          example: "ABC123"
+        fillTime:
+          type: string
+          description: The date and time the order was filled.
+          example: "2024-10-20T14:30:00Z"
+        fillType:
+          type: string
+          enum: [maker, taker, liquidation, assignor, assignee, takerAfterEdit, unwindBankrupt, unwindCounterparty]
+          description: The classification of the fill.
+          example: "maker"
+        fill_id:
+          type: string
+          format: uuid
+          description: The unique identifier of the fill. Note that several fill_id can pertain to one order_id (but not vice versa).
+          example: "d9b5c6d0-4a7c-4e27-81e1-27d92d9b2a4f"
+        order_id:
+          type: string
+          format: uuid
+          description: The unique identifier of the order.
+          example: "5dcb1c5d-8a4b-4b6f-b91b-5a8b883b6b84"
+        price:
+          type: number
+          description: The price of the fill.
+          example: 100.25
+        side:
+          type: string
+          enum: [buy, sell]
+          description: The direction of the order.
+          example: "buy"
+        size:
+          type: number
+          description: The size of the fill.
+          example: 10
+        symbol:
+          type: string
+          description: The symbol of the futures the fill occurred in.
+          example: "BTC/USD"
+    rates:
+      type: object
+      properties:
+        fundingRate:
+          type: number
+          description: The absolute funding rate for the listed time period.
+          example: 0.0005
+        relativeFundingRate:
+          type: number
+          description: The relative funding rate for the listed time period.
+          example: 0.002
+        timestamp:
+          type: string
+          format: date-time
+          description: The date and time UTC of the one-hour period to which the funding rate applies.
+          example: "2024-10-20T14:00:00Z"
+    ExecutionResponse:
+      type: object
+      properties:
+        accountUid:
+          type: string
+          format: uuid
+          description: The unique identifier of the account.
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        len:
+          type: integer
+          format: uint64
+          description: The number of elements to return in the response.
+          example: 100
+        serverTime:
+          type: string
+          format: date-time
+          description: The server time in Coordinated Universal Time (UTC).
+          example: "2024-10-20T10:15:30Z"
+        elements:
+          type: array
+          description: The list of event elements.
+          items:
+            type: object
+            properties:
+              uid:
+                type: integer
+                example: 1
+              timestamp:
+                type: string
+              event:
+                $ref: "#/components/schemas/executionEvent"
+        continuationToken:
+          type: string
+          format: base64
+          description: Opaque token to pass to the next request to continue listing events. The `sort` parameter must be the same as in the previous request to continue listing in the same direction.
+          example: "eyJjb250aW51YXRpb25fdG9rZW4iOiAiMTIzIn0="
+      required:
+        - accountUid
+        - len
+        - elements
+    executionEvent:
+      type: object
+      properties:
+        execution:
+          type: object
+          properties:
+            takerReducedQuantity:
+              type: string
+            execution:
+              $ref: "#/components/schemas/executionData"
+    executionData:
+      type: object
+      properties:
+        uid:
+          type: string
+          format: uuid
+          description: The unique identifier for the trade execution.
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        makerOrder:
+          $ref: "#/components/schemas/maker_takerOrder"
+        takerOrder:
+          $ref: "#/components/schemas/maker_takerOrder"
+        timestamp:
+          type: integer
+          format: int64
+          description: The timestamp of the trade execution in milliseconds since epoch.
+          example: 1640995200000
+        quantity:
+          type: string
+          format: big-decimal
+          description: The quantity of the trade.
+          example: "0.5"
+        price:
+          type: string
+          format: big-decimal
+          description: The price at which the trade was executed.
+          example: "45000.00"
+        markPrice:
+          type: string
+          format: big-decimal
+          description: The mark price at the time of the trade.
+          example: "45010.00"
+        limitFilled:
+          type: boolean
+          description: Whether the trade filled the limit order.
+          example: true
+        oldTakerOrder:
+          $ref: "#/components/schemas/maker_takerOrder"
+        usdValue:
+          type: string
+          format: big-decimal
+          description: The USD value of the trade.
+          example: "22500.00"
+        makerOrderData:
+          $ref: "#/components/schemas/maker_takerOrderData"
+        takerOrderData:
+          $ref: "#/components/schemas/maker_takerOrderData"
+      required:
+        - uid
+        - makerOrder
+        - takerOrder
+        - timestamp
+        - quantity
+        - price
+        - markPrice
+        - limitFilled
+        - oldTakerOrder
+        - usdValue
+        - makerOrderData
+        - takerOrderData
+    maker_takerOrder:
+      type: object
+      properties:
+        uid:
+          type: string
+          format: uuid
+          description: The unique identifier for the trade.
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        accountUid:
+          type: string
+          format: uuid
+          description: The unique identifier for the account associated with the trade.
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        tradeable:
+          type: string
+          description: The tradeable asset.
+          example: "BTC-USD"
+        direction:
+          type: string
+          description: The trade direction.
+          enum: [Buy, Sell]
+          example: "Buy"
+        quantity:
+          type: string
+          format: big-decimal
+          description: The quantity of the tradeable asset.
+          example: "0.5"
+        filled:
+          type: string
+          format: big-decimal
+          description: The filled quantity of the trade.
+          example: "0.5"
+        timestamp:
+          type: integer
+          format: int64
+          description: The time of the trade in milliseconds since epoch.
+          example: 1640995200000
+        limitPrice:
+          type: string
+          format: big-decimal
+          description: The limit price of the trade.
+          example: "45000.00"
+        orderType:
+          type: string
+          description: The type of order.
+          enum: [Limit, IoC, Post, Market, Liquidation, Assignment, Unwind]
+          example: "Limit"
+        clientId:
+          type: string
+          description: The client ID associated with the order.
+          example: "client-12345"
+        reduceOnly:
+          type: boolean
+          description: Whether the trade is a reduce-only order.
+          example: false
+        lastUpdateTimestamp:
+          type: integer
+          format: int64
+          description: The last update timestamp for the order in milliseconds.
+          example: 1640995300000
+        spotData:
+          type: string
+          nullable: true
+          description: Spot data associated with the trade, if applicable.
+          example: null
+      required:
+        - uid
+        - accountUid
+        - tradeable
+        - direction
+        - quantity
+        - filled
+        - timestamp
+        - limitPrice
+        - orderType
+        - clientId
+        - reduceOnly
+        - lastUpdateTimestamp
+    maker_takerOrderData:
+      type: object
+      properties:
+        fee:
+          type: number
+        positionSize:
+          type: number
+    logs:
+      type: object
+      properties:
+        asset:
+          type: string
+          description: The asset related to the entry.
+          example: "BTC"
+        booking_uid:
+          type: string
+          format: uuid
+          description: UID of the log entry.
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        collateral:
+          type: string
+          nullable: true
+          description: Currency of the associated entry.
+          example: "USD"
+        contract:
+          type: string
+          nullable: true
+          description: The contract related to the entry, if applicable.
+          example: "BTCUSD"
+        date:
+          type: string
+          format: date-time
+          description: The RFC 3339 formatted date-time.
+          example: "2023-10-20T14:48:00Z"
+        execution:
+          type: string
+          format: uuid
+          description: UID of the associated execution.
+          example: "456e7890-e89b-12d3-a456-426614174002"
+        fee:
+          type: number
+          format: double
+          description: Fee paid.
+          example: 5.0
+        funding_rate:
+          type: number
+          format: double
+          description: Absolute funding rate at the time of entry.
+          example: 0.0005
+        id:
+          type: integer
+          format: int64
+          description: Log entry ID.
+          example: 1
+        info:
+          type: string
+          description: Short description of the entry.
+          enum:
+            - futures trade
+            - liquidation
+            - assignor
+            - assignee
+            - unwind counterparty
+            - unwind bankrupt
+            - covered liquidation
+            - funding rate change
+            - conversion
+            - interest payment
+            - transfer
+            - cross-exchange transfer
+          example: "futures trade"
+        margin_account:
+          type: string
+          description: Name of the wallet associated with the entry.
+          example: "main"
+        mark_price:
+          type: number
+          format: double
+          description: Mark price at the time the trade was executed.
+          example: 45000.0
+        new_average_entry_price:
+          type: number
+          format: double
+          description: Average entry price of the position after this trade.
+          example: 45200.0
+        new_balance:
+          type: number
+          format: double
+          description: New balance of the wallet or position size after the action.
+          example: 1.5
+        old_average_entry_price:
+          type: number
+          format: double
+          description: Average entry price of the position before this trade.
+          example: 45000.0
+        old_balance:
+          type: number
+          format: double
+          description: Account balance before the action described in `info`.
+          example: 1.0
+        realized_funding:
+          type: number
+          format: double
+          description: Funding realized due to a position change or the end of a funding rate period.
+          example: 0.003
+        realized_pnl:
+          type: number
+          format: double
+          description: Realized profit and loss by reducing the position.
+          example: 200.0
+        trade_price:
+          type: number
+          format: double
+          description: Price at which the trade was executed.
+          example: 45500.0
+        conversion_spread_percentage:
+          type: number
+          format: double
+          description: Percentage conversion spread used in a currency conversion.
+          example: 0.1
+        liquidation_fee:
+          type: number
+          format: double
+          description: Liquidation fee associated with a liquidation or assignment entry.
+          example: 25.0
+      required:
+        - asset
+        - booking_uid
+        - collateral
+        - contract
+        - date
+        - execution
+        - fee
+        - funding_rate
+        - id
+        - info
+        - margin_account
+        - mark_price
+        - new_average_entry_price
+        - new_balance
+        - old_average_entry_price
+        - old_balance
+        - realized_funding
+        - realized_pnl
+        - trade_price
+    Candles:
+      type: object
+      properties:
+        candles:
+          type: array
+          items:
+            $ref: "#/components/schemas/candle"
+        moreCandles:
+          type: boolean
+          example: true
+    candle:
+      type: object
+      properties:
+        time:
+          type: integer
+          format: int64
+          description: Epoch time in milliseconds.
+          example: 1697817600000
+        high:
+          type: string
+          format: decimal
+          description: The highest price during the period.
+          example: "50000.00"
+        low:
+          type: string
+          format: decimal
+          description: The lowest price during the period.
+          example: "48000.00"
+        open:
+          type: string
+          format: decimal
+          description: The opening price at the beginning of the period.
+          example: "49000.00"
+        close:
+          type: string
+          format: decimal
+          description: The closing price at the end of the period.
+          example: "49500.00"
+        volume:
+          type: integer
+          format: int64
+          description: The trading volume during the period.
+          example: 1500
+      required:
+        - time
+        - high
+        - low
+        - open
+        - close
+        - volume
+    poolStatistics:
+      type: object
+      properties:
+        result:
+          $ref: "#/components/schemas/poolResult"
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/poolError"
+    poolResult:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+        data:
+          oneOf:
+            - $ref: "#/components/schemas/MOD1"
+            - $ref: "#/components/schemas/Positions"
+            - $ref: "#/components/schemas/orderBookData"
+            - $ref: "#/components/schemas/AnalyticsCvdData"
+            - $ref: "#/components/schemas/AnalyticsTopTrader"
+            - $ref: "#/components/schemas/AnalyticsLiquidityPool"
+            - $ref: "#/components/schemas/AnalyticsFutureData"
+    poolError:
+      type: object
+      properties:
+        severity:
+          type: string
+          description: Severity of the error
+          example: "high"
+        error_class:
+          type: string
+          description: Class of the error
+          example: "validation"
+        type:
+          type: string
+          description: Type of the error
+          example: "field_error"
+        msg:
+          type: string
+          description: Message associated with the error
+          example: "Invalid input"
+        value:
+          type: string
+          description: Value related to the error
+          example: "123abc"
+        field:
+          type: string
+          description: Field related to the error
+          example: "username"
+      required:
+        - severity
+        - error_class
+        - type
+        - msg
+        - value
+        - field
+    MOD1:
+      oneOf:
+        - type: object
+          properties:
+            MOD1:
+              type: number
+        - type: object
+          properties:
+            MOD2:
+              type: string
+        - type: object
+          properties:
+            ohlc:
+              type: array
+              items:
+                type: number
+    Positions:
+      type: object
+      properties:
+        longCount:
+          type: array
+          items:
+            type: integer
+          description: Array of counts for long positions
+          example: [10, 15, 20]
+        shortCount:
+          type: array
+          items:
+            type: integer
+          description: Array of counts for short positions
+          example: [5, 7, 12]
+        longPercent:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of percentages for long positions
+          example: [0.55, 0.60, 0.65]
+        shortPercent:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of percentages for short positions
+          example: [0.45, 0.40, 0.35]
+        ratio:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of ratios between long and short positions
+          example: [1.22, 1.50, 1.75]
+      required:
+        - longCount
+        - shortCount
+        - longPercent
+        - shortPercent
+        - ratio
+    orderBookData:
+      type: object
+      properties:
+        bid:
+          oneOf:
+           - $ref: "#/components/schemas/orderBookSpreadData"
+           - $ref: "#/components/schemas/orderBookLiquidityData"
+           - $ref: "#/components/schemas/orderBookSlippageData"
+           - $ref: "#/components/schemas/orderBookMatrics"
+        ask:
+          oneOf:
+           - $ref: "#/components/schemas/orderBookSpreadData"
+           - $ref: "#/components/schemas/orderBookLiquidityData"
+           - $ref: "#/components/schemas/orderBookSlippageData"
+           - $ref: "#/components/schemas/orderBookMatrics"
+    AnalyticsCvdData:
+      type: object
+      properties:
+        buyVolume:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of buy volumes
+          example: [100.50, 200.75, 150.00]
+        sellVolume:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of sell volumes
+          example: [80.25, 160.00, 120.50]
+        cvd:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of Cumulative Volume Delta values
+          example: [20.25, 40.75, 29.50]
+      required:
+        - buyVolume
+        - sellVolume
+        - cvd
+    AnalyticsTopTrader:
+      type: object
+      properties:
+        openInterest:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of open interest values
+          example: [1500.25, 2000.50, 1800.00]
+        longCount:
+          type: array
+          items:
+            type: integer
+          description: Array of long counts
+          example: [100, 120, 90]
+        shortCount:
+          type: array
+          items:
+            type: integer
+          description: Array of short counts
+          example: [80, 70, 65]
+        longPercent:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of long percentage values
+          example: [55.5, 60.0, 53.3]
+        shortPercent:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of short percentage values
+          example: [44.5, 40.0, 46.7]
+        ratio:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of ratio values
+          example: [1.23, 1.71, 1.00]
+      required:
+        - openInterest
+        - longCount
+        - shortCount
+        - longPercent
+        - shortPercent
+        - ratio
+    AnalyticsLiquidityPool:    
+      type: object
+      properties:
+        usdValue:
+          type: number
+          format: double
+          description: Array of open interest values
+          example: [1500.25, 2000.50, 1800.00]
+    AnalyticsFutureData:    
+      type: object
+      properties:
+        usdValue:
+          type: number
+          format: double
+          description: Array of open interest values
+          example: [1500.25, 2000.50, 1800.00]
+    orderBookSpreadData:
+      type: object
+      properties:
+        bestPrice:
+          type: number
+          format: double
+          description: Array of open interest values
+          example: [1500.25, 2000.50, 1800.00]
+    orderBookLiquidityData:
+      type: object
+      properties:
+        liquidity_005:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 0.05
+          example: [10.5, 20.3, 15.2]
+        liquidity_01:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 0.1
+          example: [12.1, 22.4, 18.8]
+        liquidity_025:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 0.25
+          example: [14.5, 25.0, 19.0]
+        liquidity_05:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 0.5
+          example: [16.0, 27.5, 20.2]
+        liquidity_10:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 1.0
+          example: [18.3, 30.1, 22.5]
+        liquidity_100:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 10.0
+          example: [20.0, 35.0, 25.0]
+      required:
+        - liquidity_005
+        - liquidity_01
+        - liquidity_025
+        - liquidity_05
+        - liquidity_10
+        - liquidity_100
+    orderBookSlippageData:
+      type: object
+      properties:
+        slippage_1k:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of slippage values for 1,000 units
+          example: [0.1, 0.2, 0.15]
+        slippage_10k:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of slippage values for 10,000 units
+          example: [0.2, 0.25, 0.22]
+        slippage_100k:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of slippage values for 100,000 units
+          example: [0.3, 0.35, 0.32]
+        slippage_1m:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of slippage values for 1,000,000 units
+          example: [0.4, 0.45, 0.42]
+      required:
+        - slippage_1k
+        - slippage_10k
+        - slippage_100k
+        - slippage_1m
+    orderBookMatrics:
+      type: object
+      properties:
+        slippage1k:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of slippage values for 1,000 units
+          example: [0.1, 0.2, 0.15]
+        slippage10k:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of slippage values for 10,000 units
+          example: [0.2, 0.25, 0.22]
+        slippage100k:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of slippage values for 100,000 units
+          example: [0.3, 0.35, 0.32]
+        slippage1m:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of slippage values for 1,000,000 units
+          example: [0.4, 0.45, 0.42]
+        bestPrice:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of best prices available
+          example: [100.5, 101.0, 100.8]
+        liquidity005:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 0.05
+          example: [1000, 1500, 1200]
+        liquidity01:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 0.1
+          example: [1100, 1600, 1300]
+        liquidity025:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 0.25
+          example: [1200, 1700, 1400]
+        liquidity05:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 0.5
+          example: [1300, 1800, 1500]
+        liquidity10:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 1
+          example: [1400, 1900, 1600]
+        liquidity100:
+          type: array
+          items:
+            type: number
+            format: double
+          description: Array of liquidity values at 10
+          example: [1500, 2000, 1700]
+      required:
+        - slippage1k
+        - slippage10k
+        - slippage100k
+        - slippage1m
+        - bestPrice
+        - liquidity005
+        - liquidity01
+        - liquidity025
+        - liquidity05
+        - liquidity10
+        - liquidity100
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+        
+        
+        
+        
+        
+        
+        
+          
+        
+    
+    

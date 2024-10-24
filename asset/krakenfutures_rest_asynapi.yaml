@@ -1,0 +1,2111 @@
+asyncapi: 2.6.0
+info:
+  title: Kraken Futures Websocket API
+  version: 2.0.0
+servers:
+  production:
+    url: wss://futures.kraken.com/ws/v1
+    protocol: wss
+tags:
+  - name: User Data
+  - name: Market Data
+  - name: Admin
+
+channels:
+  open_orders:
+    description: |
+      This subscription feed publishes information about user open orders.
+    subscribe:
+      summary: Subscribe to open orders
+      operationId: subscribeToOpenOrders
+      message:
+        contentType: application/json
+        summary: Request to subscribe to open orders feed
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
+    publish:
+      summary: Server publishes open orders updates
+      operationId: openOrdersUpdates
+      message:
+        oneOf:
+          - $ref: "#/components/messages/OpenOrdersSnapshotMessage"
+          - $ref: "#/components/messages/OpenOrdersUpdateMessage"
+          - $ref: "#/components/messages/OpenOrderDeltaMessage"
+          - $ref: "#/components/messages/OpenOrderCancelMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  open_orders_verbose:
+    description: |
+      This subscription feed publishes information about user open orders. This feed adds extra information about all the post-only orders that failed to cross the book.
+    subscribe:
+      summary: Subscribe to open orders verbose
+      operationId: subscribeToOpenOrdersVerbose
+      message:
+        contentType: application/json
+        summary: Request to subscribe to open orders feed
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
+    publish:
+      summary: Server publishes open orders updates
+      operationId: openOrdersVerbose
+      message:
+        oneOf:
+          - $ref: "#/components/messages/OpenOrdersSnapshotMessage"
+          - $ref: "#/components/messages/OpenOrdersUpdateMessage"
+          - $ref: "#/components/messages/OpenOrderDeltaMessage"
+          - $ref: "#/components/messages/OpenOrderCancelMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  fills:
+    description: |
+      This subscription feed publishes fills information.
+    subscribe:
+      summary: Subscribe to fills
+      operationId: subscribeToFills
+      message:
+        contentType: application/json
+        summary: Request to subscribe to open orders feed
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
+    publish:
+      summary: Server publishes fills
+      operationId: PublishToFills
+      message:
+        oneOf:
+          - $ref: "#/components/messages/FillsMessage"
+          - $ref: "#/components/messages/FillsSnapshotMessage"
+          - $ref: "#/components/messages/FillsDeltaMessage"
+          - $ref: "#/components/messages/OpenOrderCancelMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  balances:
+    description: |
+      This feed returns balance information for holding wallets, single collateral wallets and multi-collateral wallets.
+    subscribe:
+      summary: Subscribe to balance
+      operationId: subscribeToBalance
+      message:
+        contentType: application/json
+        summary: Request to subscribe to Balance
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
+    publish:
+      summary: Server publishes fills
+      operationId: PublishToBalance
+      message:
+        oneOf:
+          - $ref: "#/components/messages/BalanceMessage"
+          - $ref: "#/components/messages/BalanceSnapshotMessage"
+          - $ref: "#/components/messages/BalanceDeltaMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  open_positions:
+    description: |
+      This subscription feed publishes the open positions of the user account.
+    subscribe:
+      summary: Subscribe to open positions
+      operationId: subscribeToPositions
+      message:
+        contentType: application/json
+        summary: Request to subscribe to open positions
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
+    publish:
+      summary: Server publishes open positions
+      operationId: PublishToPosition
+      message:
+        oneOf:
+          - $ref: "#/components/messages/openPositionsMessage"
+          - $ref: "#/components/messages/PositionSnapshotMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  account_log:
+    description: |
+      This subscription feed publishes account log.
+    subscribe:
+      summary: Subscribe to account logs
+      operationId: subscribeToLogs
+      message:
+        contentType: application/json
+        summary: Request to subscribe to account logs
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
+    publish:
+      summary: Server publishes open positions
+      operationId: PublishToLogs
+      message:
+        oneOf:
+          - $ref: "#/components/messages/LogsMessage"
+          - $ref: "#/components/messages/LogsSnapshotMessage"
+          - $ref: "#/components/messages/LogsDeltaMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  notifications_auth:
+    description: |
+      This subscription feed publishes notifications to the client.Authentication is required.
+    subscribe:
+      summary: Subscribe to notifications
+      operationId: subscribeToNotifications
+      message:
+        contentType: application/json
+        summary: Request to subscribe to account logs
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
+    publish:
+      summary: Server publishes notifications
+      operationId: PublishToNotifications
+      message:
+        oneOf:
+          - $ref: "#/components/messages/LogsMessage"
+          - $ref: "#/components/messages/NotificationsSnapshotMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  ticker:
+    description: |
+      The ticker feed returns ticker information about listed products. Only tradeable markets are available via individual WebSocket market data feeds. Delta messages are throttled such that they are published every 1s.
+    subscribe:
+      summary: Subscribe to notifications
+      operationId: subscribeToTicker
+      message:
+        contentType: application/json
+        summary: Request to subscribe to Ticker
+        payload:
+          $ref: "#/components/schemas/TickerRequest"
+    publish:
+      summary: Server publishes ticker
+      operationId: PublishToTicker
+      message:
+        oneOf:
+          - $ref: "#/components/messages/TickerMessage"
+          - $ref: "#/components/messages/TickerSnapshotMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  ticker_lite:
+    description: |
+      The ticker lite feed returns ticker information about listed products. Delta messages are throttled such that they are published every 1s.
+
+    subscribe:
+      summary: Subscribe to ticker lite
+      operationId: subscribeToTickerLite
+      message:
+        contentType: application/json
+        summary: Request to subscribe to Ticker
+        payload:
+          $ref: "#/components/schemas/TickerRequest"
+    publish:
+      summary: Server publishes ticker
+      operationId: PublishToTickerLite
+      message:
+        oneOf:
+          - $ref: "#/components/messages/TickerMessage"
+          - $ref: "#/components/messages/TickerLiteSnapshotMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  book:
+    description: |
+      The book feed returns information about the order book.
+
+    subscribe:
+      summary: Subscribe to order book
+      operationId: subscribeToOrderBook
+      message:
+        contentType: application/json
+        summary: Request to subscribe to order book
+        payload:
+          $ref: "#/components/schemas/TickerRequest"
+    publish:
+      summary: Server publishes order book
+      operationId: PublishToOrderBook
+      message:
+        oneOf:
+          - $ref: "#/components/messages/TickerMessage"
+          - $ref: "#/components/messages/BookSnapshotMessage"
+          - $ref: "#/components/messages/BookDeltaMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  trade:
+    description: |
+      The trade feed returns information about executed trades
+    subscribe:
+      summary: Subscribe to trade
+      operationId: subscribeToTrade
+      message:
+        contentType: application/json
+        summary: Request to subscribe to trade
+        payload:
+          $ref: "#/components/schemas/TickerRequest"
+    publish:
+      summary: Server publishes trade
+      operationId: PublishToTrade
+      message:
+        oneOf:
+          - $ref: "#/components/messages/TickerMessage"
+          - $ref: "#/components/messages/TradeSnapshotMessage"
+          - $ref: "#/components/messages/TradeDeltaMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  challenge:
+    description: |
+      This request returns a challenge to be used in handshake for user authentication.
+    subscribe:
+      summary: Subscribe to challenge
+      operationId: subscribeToChallenge
+      message:
+        contentType: application/json
+        summary: Request to subscribe to challenge
+        payload:
+          $ref: "#/components/schemas/ChallengeRequest"
+    publish:
+      summary: Server publishes Challenge
+      operationId: PublishToChallenge
+      message:
+        oneOf:
+          - $ref: "#/components/messages/ChallengeMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+  heartbeat:
+    description: |
+      The heartbeat feed publishes a heartbeat message at timed intervals.
+    subscribe:
+      summary: Subscribe to heartbeat
+      operationId: subscribeToHeartbeat
+      message:
+        contentType: application/json
+        summary: Request to subscribe to heartbeat
+        payload:
+          $ref: "#/components/schemas/HeartbeatRequest"
+    publish:
+      summary: Server publishes heartbeat
+      operationId: PublishToHeartbeat
+      message:
+        oneOf:
+          - $ref: "#/components/messages/HeartbeatMessage"
+          - $ref: "#/components/messages/HeartbeatSnapshotMessage"
+          - $ref: "#/components/messages/ErrorMessage"
+
+components:
+  messages:
+    OpenOrdersSnapshotMessage:
+      contentType: application/json
+      summary: Snapshot of open orders when subscribed
+      payload:
+        $ref: "#/components/schemas/OpenOrdersSnapshot"
+    OpenOrdersUpdateMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/OpenOrdersResponse"
+    OpenOrderDeltaMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/OpenOrdersDeltaResponse"
+    OpenOrderCancelMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/OpenOrdersCancelResponse"
+    ErrorMessage:
+      contentType: application/json
+      summary: error
+      payload:
+        $ref: "#/components/schemas/ErrorResponse"
+    FillsMessage:
+      contentType: application/json
+      summary: error
+      payload:
+        $ref: "#/components/schemas/FillsResponse"
+    FillsSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/FillsSnapshotResponse"
+    FillsDeltaMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/FillsSnapshotResponse"
+    BalanceMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/OpenOrdersResponse"
+    BalanceSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/FillsSnapshotResponse"
+    BalanceDeltaMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        oneOf:
+          - $ref: "#/components/schemas/HoldingWalletResponse"
+          - $ref: "#/components/schemas/MultiCollateralResponse"
+          - $ref: "#/components/schemas/SingleCollateralResponse"
+    openPositionsMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/OpenOrdersResponse"
+    PositionSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on open positions
+      payload:
+        $ref: "#/components/schemas/PositionsSnapshotResponse"
+    LogsMessage:
+      contentType: application/json
+      summary: Real-time updates on account logs
+      payload:
+        $ref: "#/components/schemas/OpenOrdersResponse"
+    LogsSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on account logs
+      payload:
+        $ref: "#/components/schemas/LogsSnapshotResponse"
+    LogsDeltaMessage:
+      contentType: application/json
+      summary: Real-time updates on open orders
+      payload:
+        $ref: "#/components/schemas/LogsDeltaResponse"
+    NotificationsSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on account logs
+      payload:
+        $ref: "#/components/schemas/NotificationsSnapshotResponse"
+    TickerSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on account logs
+      payload:
+        $ref: "#/components/schemas/TickerSnapshotResponse"
+    TickerMessage:
+      contentType: application/json
+      summary: Real-time updates on account logs
+      payload:
+        $ref: "#/components/schemas/TickerResponse"
+    TickerLiteSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on account logs
+      payload:
+        $ref: "#/components/schemas/TickerLiteSnapshotResponse"
+    BookSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on order book
+      payload:
+        $ref: "#/components/schemas/BookSnapshotResponse"
+    BookDeltaMessage:
+      contentType: application/json
+      summary: Real-time updates on order book
+      payload:
+        $ref: "#/components/schemas/BookDeltaResponse"
+    TradeSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on order book
+      payload:
+        $ref: "#/components/schemas/TradeSnapshotResponse"
+    TradeDeltaMessage:
+      contentType: application/json
+      summary: Real-time updates on order book
+      payload:
+        $ref: "#/components/schemas/TradeDeltaResponse"
+    ChallengeMessage:
+      contentType: application/json
+      summary: Real-time updates on challenge
+      payload:
+        $ref: "#/components/schemas/ChallengeResponse"
+    HeartbeatMessage:
+      contentType: application/json
+      summary: Real-time updates on heartbeat
+      payload:
+        $ref: "#/components/schemas/HeartbeatRequest"
+    HeartbeatSnapshotMessage:
+      contentType: application/json
+      summary: Real-time updates on heartbeat
+      payload:
+        $ref: "#/components/schemas/HeartbeaSnapshotRequest"
+
+  schemas:
+    OpenOrdersRequest:
+      type: object
+      required:
+        - event
+        - feed
+        - api_key
+        - original_challenge
+        - signed_challenge
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+          description: The event type (subscribe or unsubscribe)
+        feed:
+          $ref: "#/components/schemas/feedEnum"
+          description: The requested subscription feed
+        api_key:
+          type: string
+          description: The user’s API key
+        original_challenge:
+          type: string
+          description: The message that is received from a challenge request
+        signed_challenge:
+          type: string
+          description: The signed challenge message with user’s API secret
+    eventEnum:
+      type: string
+      enum:
+        - subscribe
+        - unsubscribe
+        - subscribed_failed
+        - unsubscribed_failed
+    feedEnum:
+      type: string
+      enum:
+        - open_orders
+        - open_orders_verbose
+        - fills
+        - balances
+    OpenOrdersResponse:
+      type: object
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+          description: The result of the subscription request
+        feed:
+          $ref: "#/components/schemas/feedEnum"
+          description: The subscription feed
+        api_key:
+          type: string
+          description: The user’s API key
+        original_challenge:
+          type: string
+          description: The message that is received from a challenge request
+        signed_challenge:
+          type: string
+          description: The signed challenge message with user’s API secret
+    OpenOrdersSnapshot:
+      type: object
+      required:
+        - feed
+        - account
+        - orders
+      properties:
+        feed:
+          $ref: "#/components/schemas/feedEnum"
+        account:
+          type: string
+          description: Account ID
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+    Order:
+      type: object
+      required:
+        - instrument
+        - time
+        - last_update_time
+        - qty
+        - filled
+        - type
+        - order_id
+        - direction
+        - reduce_only
+      properties:
+        instrument:
+          type: string
+        time:
+          type: integer
+          format: int64
+        last_update_time:
+          type: integer
+          format: int64
+        qty:
+          type: number
+          format: float
+        filled:
+          type: number
+          format: float
+        limit_price:
+          type: number
+          format: float
+        stop_price:
+          type: number
+          format: float
+        type:
+          $ref: "#/components/schemas/typeEnum"
+        order_id:
+          type: string
+        direction:
+          $ref: "#/components/schemas/directionEnum"
+        reduce_only:
+          type: boolean
+        triggerSignal:
+          $ref: "#/components/schemas/signalEnum"
+        trailing_stop_options:
+          $ref: "#/components/schemas/TrailingStopOptions"
+    typeEnum:
+      type: string
+      enum:
+        - stop
+        - trailing_stop
+        - limit
+    directionEnum:
+      type: integer
+      enum:
+        - 1
+        - -1
+    signalEnum:
+      type: string
+      enum:
+        - last
+        - mark
+    TrailingStopOptions:
+      type: object
+      required:
+        - max_deviation
+        - unit
+      properties:
+        max_deviation:
+          type: number
+          format: float
+        unit:
+          $ref: "#/components/schemas/unitEnum"
+    unitEnum:
+      type: string
+      enum:
+        - percent
+    OpenOrdersDeltaResponse:
+      type: object
+      required:
+        - feed
+        - order
+        - is_cancel
+        - reason
+      properties:
+        feed:
+          $ref: "#/components/schemas/feedEnum"
+        order:
+          $ref: "#/components/schemas/Order"
+        is_cancel:
+          type: boolean
+        reason:
+          $ref: "#/components/schemas/reasonEnum"
+    reasonEnum:
+      type: string
+      enum:
+        - new_placed_order_by_user
+        - canceled_by_user
+        - other_reasons
+    OpenOrdersCancelResponse:
+      type: object
+      required:
+        - feed
+        - order_id
+        - is_cancel
+        - reason
+      properties:
+        feed:
+          $ref: "#/components/schemas/feedEnum"
+        order_id:
+          type: string
+          description: Unique ID of the order
+        is_cancel:
+          type: boolean
+        reason:
+          $ref: "#/components/schemas/reasonEnum"
+    ErrorResponse:
+      type: object
+      required:
+        - event
+        - message
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+        message:
+          type: string
+          description: Error message detail
+    FillsResponse:
+      type: object
+      required:
+        - event
+        - feed
+        - product_ids
+        - api_key
+        - original_challenge
+        - signed_challenge
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+          description: The result of the subscription event
+        feed:
+          type: string
+          description: The requested subscription feed (e.g., fills)
+        product_ids:
+          type: array
+          items:
+            type: string
+          description: List of product identifiers to subscribe for
+        api_key:
+          type: string
+          description: The user's API key
+        original_challenge:
+          type: string
+          description: The message that is received from a challenge request
+        signed_challenge:
+          type: string
+          description: The signed challenge message with the user's API secret
+    FillsSnapshotResponse:
+      type: object
+      required:
+        - feed
+        - account
+        - fills
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., fills)
+        account:
+          type: string
+          description: The user account
+        fills:
+          type: array
+          items:
+            $ref: "#/components/schemas/Fill"
+    Fill:
+      type: object
+      required:
+        - instrument
+        - time
+        - price
+        - seq
+        - buy
+        - qty
+        - remaining_order_qty
+        - order_id
+        - fill_id
+        - fill_type
+      properties:
+        instrument:
+          type: string
+          description: The fill instrument (also referred to as symbol or product_id)
+        time:
+          type: integer
+          format: int64
+          description: The server UTC date and time in milliseconds
+        price:
+          type: number
+          format: float
+          description: The price at which the order was filled
+        seq:
+          type: integer
+          format: int64
+          description: The subscription message sequence number
+        buy:
+          type: boolean
+          description: A flag that indicates if the filled order was a buy
+        qty:
+          type: number
+          format: float
+          description: The quantity that was filled
+        remaining_order_qty:
+          type: number
+          format: float
+          description: The remaining unfilled quantity in the order
+        order_id:
+          type: string
+          format: uuid
+          description: The order ID that was filled
+        cli_ord_id:
+          type: string
+          format: uuid
+          description: The unique client order identifier (returned only if the order has a client order ID)
+        fill_id:
+          type: string
+          format: uuid
+          description: The fill ID
+        fill_type:
+          $ref: "#/components/schemas/fillEnum"
+        fee_paid:
+          type: number
+          format: float
+          description: Fee paid on fill
+        fee_currency:
+          type: string
+          description: Currency in which the fee was charged
+        taker_order_type:
+          type: string
+          description: The order type
+        order_type:
+          type: string
+          description: The absolute funding rate
+    fillEnum:
+      type: string
+      description: The classification of the fill (e.g., maker, taker, liquidation, etc.)
+      enum:
+        - maker
+        - taker
+        - liquidation
+        - assignee
+        - assignor
+        - unwindBankrupt
+        - unwindCounterparty
+        - takerAfterEdit
+    BalanceResponse:
+      type: object
+      required:
+        - event
+        - feed
+        - api_key
+        - original_challenge
+        - signed_challenge
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+          description: The result of the subscription event
+        feed:
+          $ref: "#/components/schemas/feedEnum"
+          description: The requested subscription feed
+        api_key:
+          type: string
+          description: The user's API key
+        original_challenge:
+          type: string
+          description: The message that is received from a challenge request
+        signed_challenge:
+          type: string
+          description: The signed challenge message with the user's API secret
+    BalanceSnapshotResponse:
+      type: object
+      required:
+        - feed
+        - account
+        - timestamp
+        - seq
+        - holding
+        - name
+        - pair
+        - unit
+        - portfolio_value
+        - balance
+        - maintenance_margin
+        - initial_margin
+        - available
+        - unrealized_funding
+        - pnl
+        - futures
+        - flex_futures
+        - currencies
+        - isolated
+        - cross
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., balances)
+        account:
+          type: string
+          description: The user account
+        timestamp:
+          type: integer
+          format: int64
+          description: The unix timestamp of the balance state in milliseconds
+        seq:
+          type: integer
+          format: int64
+          description: The subscription message sequence number
+        holding:
+          $ref: "#/components/schemas/holdings"
+        name:
+          type: string
+          description: The name of the account
+        pair:
+          type: string
+          description: The wallet currency pair
+        unit:
+          type: string
+          description: The wallet settlement unit
+        portfolio_value:
+          type: number
+          format: float
+          description: The current balance with haircuts and any unrealized margin from open positions in settlement units
+        balance:
+          type: number
+          format: float
+          description: The current balance in settlement units
+        maintenance_margin:
+          type: number
+          format: float
+          description: The maintenance margin for open positions
+        initial_margin:
+          type: number
+          format: float
+          description: The initial margin for open positions and open orders
+        available:
+          type: number
+          format: float
+          description: The current portfolio value minus initial margin
+        unrealized_funding:
+          type: number
+          format: float
+          description: The total unrealized funding for open positions
+        pnl:
+          type: number
+          format: float
+          description: The total profit and loss for open positions
+        futures:
+          $ref: "#/components/schemas/FutureSchema"
+        flex_futures:
+          $ref: "#/components/schemas/FlexFutures"
+          description: The multi-collateral wallet structure
+        currencies:
+          $ref: "#/components/schemas/currencyProperty"
+        isolated:
+          $ref: "#/components/schemas/isolatedProperty"
+        cross:
+          $ref: "#/components/schemas/crossProperty"
+    FutureSchema:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/FuturesWallet"
+      description: A map from single collateral wallet names to collateral wallet structure
+    currencyProperty:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/CurrencyWallet"
+      description: A map from collateral wallet names to collateral wallet structure
+    holdings:
+      type: object
+      additionalProperties:
+        type: number
+        format: float
+      description: A map from currency names to balance quantity
+    isolatedProperty:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/IsolatedWallet"
+      description: A map from collateral wallet names to collateral wallet structure
+    FuturesWallet:
+      type: object
+      required:
+        - name
+        - pair
+        - unit
+        - portfolio_value
+        - balance
+        - maintenance_margin
+        - initial_margin
+        - available
+        - unrealized_funding
+        - pnl
+      properties:
+        name:
+          type: string
+          description: The name of the account
+        pair:
+          type: string
+          description: The wallet currency pair
+        unit:
+          type: string
+          description: The wallet settlement unit
+        portfolio_value:
+          type: number
+          format: float
+          description: The current balance with haircuts and any unrealized margin from open positions in settlement units
+        balance:
+          type: number
+          format: float
+          description: The current balance in settlement units
+        maintenance_margin:
+          type: number
+          format: float
+          description: The maintenance margin for open positions
+        initial_margin:
+          type: number
+          format: float
+          description: The initial margin for open positions and open orders
+        available:
+          type: number
+          format: float
+          description: The current portfolio value minus initial margin
+        unrealized_funding:
+          type: number
+          format: float
+          description: The total unrealized funding for open positions
+        pnl:
+          type: number
+          format: float
+          description: The total profit and loss for open positions
+    crossProperty:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/CrossWallet"
+      description: The current margin information for cross position(s)
+    FlexFutures:
+      type: object
+      required:
+        - balance_value
+        - portfolio_value
+        - collateral_value
+        - initial_margin
+        - initial_margin_without_orders
+        - maintenance_margin
+        - pnl
+        - unrealized_funding
+        - total_unrealized
+        - total_unrealized_as_margin
+        - margin_equity
+        - available_margin
+      properties:
+        balance_value:
+          type: number
+          format: float
+          description: The current USD balance of the account
+        portfolio_value:
+          type: number
+          format: float
+          description: The current collateral value with unrealized margin from any open positions
+        collateral_value:
+          type: number
+          format: float
+          description: The current USD balance with haircuts
+        initial_margin:
+          type: number
+          format: float
+          description: The total initial margin for open positions and open orders
+        initial_margin_without_orders:
+          type: number
+          format: float
+          description: The total initial margin for open positions
+        maintenance_margin:
+          type: number
+          format: float
+          description: The total maintenance margin for open positions
+        pnl:
+          type: number
+          format: float
+          description: The total profit and loss for open positions
+        unrealized_funding:
+          type: number
+          format: float
+          description: The total unrealized funding for open positions
+        total_unrealized:
+          type: number
+          format: float
+          description: The total unrealized funding and pnl
+        total_unrealized_as_margin:
+          type: number
+          format: float
+          description: The total unrealized in USD
+        margin_equity:
+          type: number
+          format: float
+          description: The current collateral value and unrealized margin
+        available_margin:
+          type: number
+          format: float
+          description: The margin equity minus initial margin
+    CurrencyWallet:
+      type: object
+      required:
+        - quantity
+        - value
+        - collateral_value
+        - available
+        - haircut
+        - conversion_spread
+      properties:
+        quantity:
+          type: number
+          format: float
+          description: The currency quantity
+        value:
+          type: number
+          format: float
+          description: The USD value of the currency balance
+        collateral_value:
+          type: number
+          format: float
+          description: The current USD balance with haircuts
+        available:
+          type: number
+          format: float
+          description: The total available margin valued in the wallet currency
+        haircut:
+          type: number
+          format: float
+          description: The rate of reduction in the value of a collateral asset that may be used as margin
+        conversion_spread:
+          type: number
+          format: float
+          description: The conversion spread used to calculate the conversion fee for multi-collateral wallets
+    IsolatedWallet:
+      type: object
+      required:
+        - initial_margin
+        - initial_margin_without_orders
+        - maintenance_margin
+        - pnl
+        - unrealized_funding
+        - total_unrealized
+        - total_unrealized_as_margin
+      properties:
+        initial_margin:
+          type: number
+          format: float
+          description: Initial margin for any position plus open orders
+        initial_margin_without_orders:
+          type: number
+          format: float
+          description: Initial margin for any position
+        maintenance_margin:
+          type: number
+          format: float
+          description: Maintenance margin for any position
+        pnl:
+          type: number
+          format: float
+          description: Total profit and loss for any position
+        unrealized_funding:
+          type: number
+          format: float
+          description: Unrealized funding for any position
+        total_unrealized:
+          type: number
+          format: float
+          description: Unrealized funding plus pnl
+        total_unrealized_as_margin:
+          type: number
+          format: float
+          description: Total unrealized as USD
+    CrossWallet:
+      type: object
+      required:
+        - initial_margin
+        - initial_margin_without_orders
+        - maintenance_margin
+        - pnl
+        - unrealized_funding
+        - total_unrealized
+        - total_unrealized_as_margin
+        - balance_value
+        - collateral_value
+        - portfolio_value
+        - margin_equity
+        - available_margin
+      properties:
+        initial_margin:
+          type: number
+          format: float
+          description: Initial margin for all positions plus open orders
+        initial_margin_without_orders:
+          type: number
+          format: float
+          description: Initial margin for all positions
+        maintenance_margin:
+          type: number
+          format: float
+          description: Maintenance margin for all positions
+        pnl:
+          type: number
+          format: float
+          description: Total profit and loss for all positions
+        unrealized_funding:
+          type: number
+          format: float
+          description: Unrealized funding for all positions
+        total_unrealized:
+          type: number
+          format: float
+          description: Unrealized funding plus pnl
+        total_unrealized_as_margin:
+          type: number
+          format: float
+    HoldingWalletResponse:
+      type: object
+      required:
+        - feed
+        - account
+        - holding
+        - timestamp
+        - seq
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., balances)
+        account:
+          type: string
+          description: The user account
+        holding:
+          type: object
+          additionalProperties:
+            type: number
+            format: float
+          description: A map from currency names to balance quantity
+        futures:
+          type: object
+          description: A map representing futures wallet information, if applicable
+        timestamp:
+          type: integer
+          format: int64
+          description: The unix timestamp of the balance state in milliseconds
+        seq:
+          type: integer
+          format: int64
+          description: The subscription message sequence number
+    MultiCollateralResponse:
+      type: object
+      required:
+        - feed
+        - account
+        - flex_futures
+        - timestamp
+        - seq
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., balances)
+        account:
+          type: string
+          description: The user account
+        flex_futures:
+          $ref: "#/components/schemas/flexFuturesSchema"
+        timestamp:
+          type: integer
+          format: int64
+          description: The unix timestamp of the balance state in milliseconds
+        seq:
+          type: integer
+          format: int64
+          description: The subscription message sequence number
+    flexFuturesSchema:
+      type: object
+      properties:
+        currencies:
+          $ref: "#/components/schemas/currencySchema"
+        balance_value:
+          type: number
+          format: float
+        portfolio_value:
+          type: number
+          format: float
+        collateral_value:
+          type: number
+          format: float
+        initial_margin:
+          type: number
+          format: float
+        initial_margin_without_orders:
+          type: number
+          format: float
+        maintenance_margin:
+          type: number
+          format: float
+        pnl:
+          type: number
+          format: float
+        unrealized_funding:
+          type: number
+          format: float
+        total_unrealized:
+          type: number
+          format: float
+        total_unrealized_as_margin:
+          type: number
+          format: float
+        margin_equity:
+          type: number
+          format: float
+        available_margin:
+          type: number
+          format: float
+        isolated:
+          $ref: "#/components/schemas/isolatedSchema"
+        cross:
+          $ref: "#/components/schemas/crossSchema"
+    currencySchema:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          quantity:
+            type: number
+            format: float
+          value:
+            type: number
+            format: float
+          collateral_value:
+            type: number
+            format: float
+          available:
+            type: number
+            format: float
+          haircut:
+            type: number
+            format: float
+          conversion_spread:
+            type: number
+            format: float
+    isolatedSchema:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          initial_margin:
+            type: number
+            format: float
+          initial_margin_without_orders:
+            type: number
+            format: float
+          maintenance_margin:
+            type: number
+            format: float
+          pnl:
+            type: number
+            format: float
+          unrealized_funding:
+            type: number
+            format: float
+          total_unrealized:
+            type: number
+            format: float
+          total_unrealized_as_margin:
+            type: number
+            format: float
+    crossSchema:
+      type: object
+      properties:
+        balance:
+          type: number
+          format: float
+        portfolio_value:
+          type: number
+          format: float
+        collateral_value:
+          type: number
+          format: float
+        initial_margin:
+          type: number
+          format: float
+        initial_margin_without_orders:
+          type: number
+          format: float
+        maintenance_margin:
+          type: number
+          format: float
+        pnl:
+          type: number
+          format: float
+        unrealized_funding:
+          type: number
+          format: float
+        total_unrealized:
+          type: number
+          format: float
+        total_unrealized_as_margin:
+          type: number
+          format: float
+        margin_equity:
+          type: number
+          format: float
+        available_margin:
+          type: number
+          format: float
+        effective_leverage:
+          type: number
+          format: float
+    SingleCollateralResponse:
+      type: object
+      required:
+        - feed
+        - account
+        - futures
+        - timestamp
+        - seq
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., balances)
+        account:
+          type: string
+          description: The user account
+        holding:
+          type: object
+          description: An empty map for future balance enhancements
+        futures:
+          $ref: "#/components/schemas/Futures"
+        timestamp:
+          type: integer
+          format: int64
+          description: The unix timestamp of the balance state in milliseconds
+        seq:
+          type: integer
+          format: int64
+          description: The subscription message sequence number
+    Futures:
+      type: object
+      additionalProperties:
+        type: object
+        description: A map of futures with balance details
+        properties:
+          name:
+            type: string
+            description: The name of the futures contract
+          pair:
+            type: string
+            description: The currency pair of the futures contract
+          unit:
+            type: string
+            description: The settlement unit of the futures contract
+          portfolio_value:
+            type: number
+            format: float
+            description: The current value of the futures contract in settlement units
+          balance:
+            type: number
+            format: float
+            description: The balance of the futures contract in settlement units
+          maintenance_margin:
+            type: number
+            format: float
+            description: The maintenance margin for the futures contract
+          initial_margin:
+            type: number
+            format: float
+            description: The initial margin for the futures contract
+          available:
+            type: number
+            format: float
+            description: The available margin for the futures contract
+          unrealized_funding:
+            type: number
+            format: float
+            description: The unrealized funding for the futures contract
+          pnl:
+            type: number
+            format: float
+            description: The profit and loss for the futures contract
+    PositionsSnapshotResponse:
+      type: object
+      required:
+        - feed
+        - account
+        - positions
+        - seq
+        - timestamp
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., open_positions)
+        account:
+          type: string
+          description: The user account
+        positions:
+          type: array
+          description: A list of open positions
+          items:
+            $ref: "#/components/schemas/OpenPosition"
+        seq:
+          type: integer
+          format: int64
+          description: The subscription message sequence number
+        timestamp:
+          type: integer
+          format: int64
+          description: The unix timestamp of the balance state in milliseconds
+    OpenPosition:
+      type: object
+      required:
+        - instrument
+        - balance
+        - pnl
+        - entry_price
+        - mark_price
+        - index_price
+        - liquidation_threshold
+        - effective_leverage
+        - return_on_equity
+        - initial_margin
+        - maintenance_margin
+      properties:
+        instrument:
+          type: string
+          description: The instrument identifier (e.g., "PI_XRPUSD")
+        balance:
+          type: number
+          format: float
+          description: The current balance for the position
+        pnl:
+          type: number
+          format: float
+          description: The profit and loss for the position
+        entry_price:
+          type: number
+          format: float
+          description: The price at which the position was opened
+        mark_price:
+          type: number
+          format: float
+          description: The current mark price of the instrument
+        index_price:
+          type: number
+          format: float
+          description: The current index price of the instrument
+        liquidation_threshold:
+          type: number
+          format: float
+          description: The liquidation threshold price of the position
+        effective_leverage:
+          type: number
+          format: float
+          description: The leverage applied to the position
+        return_on_equity:
+          type: number
+          format: float
+          description: The return on equity for the position
+        initial_margin:
+          type: number
+          format: float
+          description: The initial margin required for the position
+        initial_margin_with_orders:
+          type: number
+          format: float
+          description: The initial margin required for the position including open orders
+        maintenance_margin:
+          type: number
+          format: float
+          description: The maintenance margin required for the position
+        pnl_currency:
+          type: string
+          description: The currency in which the profit and loss is denominated
+        unrealized_funding:
+          type: number
+          format: float
+          description: The unrealized funding for the position (if available)
+    LogsSnapshotResponse:
+      type: object
+      required:
+        - feed
+        - logs
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., account_log_snapshot)
+        logs:
+          type: array
+          description: A list of account log entries
+          items:
+            $ref: "#/components/schemas/AccountLogEntry"
+    AccountLogEntry:
+      type: object
+      required:
+        - id
+        - date
+        - asset
+        - info
+        - booking_uid
+        - margin_account
+        - old_balance
+        - new_balance
+        - old_average_entry_price
+        - new_average_entry_price
+        - trade_price
+        - mark_price
+        - realized_pnl
+        - fee
+        - execution
+        - collateral
+        - funding_rate
+        - realized_funding
+        - conversion_spread_percentage
+        - liquidation_fee
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the log entry
+        date:
+          type: string
+          format: date-time
+          description: Timestamp of the log entry in ISO 8601 format
+        asset:
+          type: string
+          description: The asset involved (e.g., "bch")
+        info:
+          type: string
+          description: Additional information about the log (e.g., "funding rate change")
+        booking_uid:
+          type: string
+          description: Unique identifier for the booking associated with this log
+        margin_account:
+          type: string
+          description: The margin account associated with this log
+        old_balance:
+          type: number
+          format: float
+          description: The balance before the log entry
+        new_balance:
+          type: number
+          format: float
+          description: The balance after the log entry
+        old_average_entry_price:
+          type: number
+          format: float
+          description: The average entry price before the log entry
+        new_average_entry_price:
+          type: number
+          format: float
+          description: The average entry price after the log entry
+        trade_price:
+          type: number
+          format: float
+          description: The trade price involved in the log, if applicable
+        mark_price:
+          type: number
+          format: float
+          description: The mark price at the time of the log entry
+        realized_pnl:
+          type: number
+          format: float
+          description: The realized profit and loss
+        fee:
+          type: number
+          format: float
+          description: Any associated fees with the log entry
+        execution:
+          type: string
+          description: Execution details, if applicable
+        collateral:
+          type: string
+          description: The collateral asset involved (e.g., "bch")
+        funding_rate:
+          type: number
+          format: float
+          description: The funding rate at the time of the log entry
+        realized_funding:
+          type: number
+          format: float
+          description: The realized funding amount
+        conversion_spread_percentage:
+          type: number
+          format: float
+          description: The conversion spread percentage applied
+        liquidation_fee:
+          type: number
+          format: float
+          description: The liquidation fee, if applicable
+    LogsDeltaResponse:
+      type: object
+      required:
+        - feed
+        - new_entry
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., account_log)
+        new_entry:
+          $ref: "#/components/schemas/AccountLogEntry"
+    NotificationsSnapshotResponse:
+      type: object
+      required:
+        - feed
+        - notifications
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed (e.g., notifications_auth)
+        notifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+    Notification:
+      type: object
+      required:
+        - id
+        - type
+        - priority
+        - note
+        - effective_time
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the notification
+        type:
+          type: string
+          description: The type of notification (e.g., "market")
+        priority:
+          type: string
+          description: Priority level of the notification (e.g., "low", "high")
+        note:
+          type: string
+          description: A brief description or note about the notification
+        effective_time:
+          type: integer
+          format: int64
+          description: The time when the notification becomes effective, in epoch milliseconds
+    TickerRequest:
+      type: object
+      required:
+        - event
+        - feed
+        - product_ids
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+        feed:
+          type: string
+          description: The feed being requested, in this case, "ticker"
+          example: ticker
+        product_ids:
+          type: array
+          description: A list of product symbols for which the user will receive ticker information (e.g., ["XBTUSD", "ETHUSD"])
+          items:
+            type: string
+    TickerResponse:
+      type: object
+      required:
+        - event
+        - feed
+        - product_ids
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+        feed:
+          type: string
+          description: The feed that was requested, in this case, "ticker"
+          example: ticker
+        product_ids:
+          type: array
+          description: A list of product symbols that the user will receive information upon, represented as strings
+          items:
+            type: string
+    TickerSnapshotResponse:
+      type: object
+      required:
+        - time
+        - product_id
+        - feed
+        - bid
+        - ask
+        - bid_size
+        - ask_size
+        - volume
+      properties:
+        time:
+          type: integer
+          description: The UTC time of the server in milliseconds
+          example: 1640995200000
+        product_id:
+          type: string
+          description: The subscribed product (also referred to as instrument or symbol)
+          example: "PI_XBTUSD"
+        funding_rate:
+          type: number
+          description: The current funding rate. If zero, field is not populated (for perpetuals only)
+          example: 0.0006
+          nullable: true
+        funding_rate_prediction:
+          type: number
+          description: The estimated next funding rate. If zero, field is not populated (for perpetuals only)
+          example: 0.0007
+          nullable: true
+        relative_funding_rate:
+          type: number
+          description: The absolute funding rate relative to the spot price at the time of funding rate calculation (for perpetuals only)
+          example: 0.0005
+          nullable: true
+        relative_funding_rate_prediction:
+          type: number
+          description: The estimated next absolute funding rate relative to the current spot price (for perpetuals only)
+          example: 0.0008
+          nullable: true
+        next_funding_rate_time:
+          type: integer
+          description: The time until the next funding rate in milliseconds (for perpetuals only)
+          example: 3600000
+          nullable: true
+        feed:
+          type: string
+          description: The subscribed feed
+          example: "ticker"
+        bid:
+          type: number
+          description: The price of the current best bid
+          example: 29950.0
+        ask:
+          type: number
+          description: The price of the current best ask
+          example: 30000.0
+        bid_size:
+          type: number
+          description: The size of the current best bid
+          example: 2.5
+        ask_size:
+          type: number
+          description: The size of the current best ask
+          example: 3.0
+        volume:
+          type: number
+          description: The sum of the sizes of all fills observed in the last 24 hours
+          example: 1250.0
+        dtm:
+          type: integer
+          description: The days until maturity
+          example: 14
+          nullable: true
+        leverage:
+          type: string
+          description: The leverage of the product
+          example: "10x"
+        index:
+          type: number
+          description: The real-time index of the product
+          example: 29995.0
+        change:
+          type: number
+          description: The 24-hour change in price
+          example: 150.0
+        suspended:
+          type: boolean
+          description: True if the market is suspended
+          example: false
+        tag:
+          type: string
+          description: Market tag such as perpetual, month, or quarter. Other tags may be added without notice
+          example: "perpetual"
+        pair:
+          type: string
+          description: The currency pair of the instrument
+          example: "XBT/USD"
+        openInterest:
+          type: number
+          description: The current open interest of the instrument
+          example: 1000.5
+        markPrice:
+          type: number
+          description: The market price of the instrument
+          example: 29995.5
+        maturityTime:
+          type: integer
+          description: The UTC time in milliseconds at which the contract will stop trading
+          example: 1640995200000
+          nullable: true
+        post_only:
+          type: boolean
+          description: True if the market is in post-only mode
+          example: false
+        volumeQuote:
+          type: number
+          description: The same as volume, except for multi-collateral futures where it is converted to the non-base currency
+          example: 50000.0
+    TickerLiteSnapshotResponse:
+      type: object
+      required:
+        - feed
+        - product_id
+        - bid
+        - ask
+        - volume
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed
+          example: "ticker"
+        product_id:
+          type: string
+          description: The subscribed product (also referred to as instrument or symbol)
+          example: "PI_XBTUSD"
+        bid:
+          type: number
+          description: The price of the current best bid
+          example: 29950.0
+          minimum: 0
+        ask:
+          type: number
+          description: The price of the current best ask
+          example: 30000.0
+          minimum: 0
+        change:
+          type: number
+          description: The 24-hour change in price
+          example: 150.0
+        premium:
+          type: number
+          description: The premium associated with the product
+          example: 0.05
+        volume:
+          type: number
+          description: The sum of the sizes of all fills observed in the last 24 hours
+          example: 1250.0
+          minimum: 0
+        tag:
+          type: string
+          description: Market tag such as week, month, or quarter. Other tags may be added without notice
+          example: "week"
+        pair:
+          type: string
+          description: The currency pair of the instrument
+          example: "XBT/USD"
+        dtm:
+          type: integer
+          description: The days until maturity
+          example: 7
+        maturityTime:
+          type: integer
+          description: The maturity time in milliseconds
+          example: 1640995200000
+          minimum: 0
+        volumeQuote:
+          type: number
+          description: The same as volume, but for multi-collateral futures, it is converted to the non-base currency
+          example: 50000.0
+          minimum: 0
+    BookSnapshotResponse:
+      type: object
+      required:
+        - feed
+        - product_id
+        - seq
+        - timestamp
+        - bids
+        - asks
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed
+          example: "ticker"
+        product_id:
+          type: string
+          description: The subscribed product (also referred to as instrument or symbol)
+          example: "PI_XBTUSD"
+        seq:
+          type: integer
+          description: The subscription message sequence number
+          example: 12345
+          minimum: 1
+        timestamp:
+          type: integer
+          description: Timestamp in milliseconds
+          example: 1640995200000
+          minimum: 0
+        tickSize:
+          type: string
+          description: Always null
+          nullable: true
+          example: null
+        bids:
+          type: array
+          description: List of current best bid entries
+          items:
+            $ref: "#/components/schemas/bids"
+        asks:
+          type: array
+          description: List of current best ask entries
+          items:
+            $ref: "#/components/schemas/bids"
+    bids:
+      type: object
+      required:
+        - qty
+        - price
+      properties:
+        qty:
+          type: number
+          description: The quantity of the entry
+          example: 0.5
+          minimum: 0
+        price:
+          type: number
+          description: The price of the entry
+          example: 29950.0
+          minimum: 0
+    BookDeltaResponse:
+      type: object
+      required:
+        - feed
+        - product_id
+        - seq
+        - timestamp
+        - side
+        - price
+        - qty
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed
+          example: "order_entry"
+        product_id:
+          type: string
+          description: The subscribed product (also referred to as instrument or symbol)
+          example: "PI_XBTUSD"
+        seq:
+          type: integer
+          description: The subscription message sequence number
+          example: 12345
+          minimum: 1
+        timestamp:
+          type: integer
+          description: Timestamp in milliseconds
+          example: 1640995200000
+          minimum: 0
+        side:
+          type: string
+          description: The side of the entry (e.g., "buy" or "sell")
+          example: "buy"
+        price:
+          type: number
+          description: The price of the entry
+          example: 29950.0
+          minimum: 0
+        qty:
+          type: number
+          description: The quantity of the entry
+          example: 0.5
+          minimum: 0
+    TradeSnapshotResponse:
+      type: object
+      required:
+        - feed
+        - product_id
+        - trades
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed
+          example: "trades"
+        product_id:
+          type: string
+          description: The subscribed product (also referred to as instrument or symbol)
+          example: "PI_XBTUSD"
+    trades:
+      type: array
+      items:
+        $ref: "#/components/schemas/Trade"
+    Trade:
+      type: object
+      required:
+        - uid
+        - side
+        - type
+        - seq
+        - time
+        - qty
+        - price
+      properties:
+        uid:
+          type: string
+          description: Unique identifier for the matched trade
+          example: "abc123"
+        side:
+          $ref: "#/components/schemas/sideEnum"
+          example: "buy"
+        type:
+          $ref: "#/components/schemas/typeEnum"
+          example: "fill"
+        seq:
+          type: integer
+          description: The subscription message sequence number
+          example: 12345
+          minimum: 1
+        time:
+          type: integer
+          description: The UTC or GMT time of the trade in milliseconds
+          example: 1640995200000
+          minimum: 0
+        qty:
+          type: number
+          description: The quantity of the traded product
+          example: 0.5
+          minimum: 0
+        price:
+          type: number
+          description: The price that the product got traded
+          example: 29950.0
+          minimum: 0
+    sideEnum:
+      type: string
+      description: The classification of the taker side in the matched trade
+      enum:
+        - buy
+        - sell
+    TradeDeltaResponse:
+      type: object
+      required:
+        - feed
+        - product_id
+        - uid
+        - side
+        - type
+        - seq
+        - time
+        - qty
+        - price
+      properties:
+        feed:
+          type: string
+          description: The subscribed feed
+          example: "trades"
+        product_id:
+          type: string
+          description: The subscribed product (also referred to as instrument or symbol)
+          example: "PI_XBTUSD"
+        uid:
+          type: string
+          description: Unique identifier for the matched trade
+          example: "abc123"
+        side:
+          $ref: "#/components/schemas/sideEnum"
+          example: "buy"
+        type:
+          $ref: "#/components/schemas/typeEnum"
+          example: "fill"
+        seq:
+          type: integer
+          description: The subscription message sequence number
+          example: 12345
+          minimum: 1
+        time:
+          type: integer
+          description: The UTC or GMT time of the trade in milliseconds
+          example: 1640995200000
+          minimum: 0
+        qty:
+          type: number
+          description: The quantity of the traded product
+          example: 0.5
+          minimum: 0
+        price:
+          type: number
+          description: The price that the product got traded
+          example: 29950.0
+          minimum: 0
+    ChallengeRequest:
+      type: object
+      properties:
+        event:
+          type: string
+        api_key:
+          type: string
+    ChallengeResponse:
+      type: object
+      required:
+        - event
+        - message
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+        message:
+          type: string
+          description: The message that user will have to sign for authentication reasons
+    HeartbeatRequest:
+      type: object
+      required:
+        - event
+        - message
+      properties:
+        event:
+          $ref: "#/components/schemas/eventEnum"
+        feed:
+          type: string
+          description: The requested subscription feed heartbeat
+    HeartbeaSnapshotRequest:
+      type: object
+      required:
+        - feed
+        - time
+      properties:
+        feed:
+          type: string
+          description: The subscribed feeds
+          example: "ticker"
+        time:
+          type: integer
+          description: The UTC time of the server in milliseconds
+          example: 1640995200000
+          minimum: 0
