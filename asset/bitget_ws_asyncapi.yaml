@@ -1,0 +1,965 @@
+asyncapi: 2.6.0
+info:
+  title: Bitget Websocket API
+  version: 1.0.0
+servers:
+  Public:
+    url: wss://ws.bitget.com/v2/ws/public
+    protocol: wss
+    description: Public Channel
+  Private:
+    url: wss://ws.bitget.com/v2/ws/private
+    protocol: wss
+    description: Private Channel
+tags:
+  - name: Spot API
+  - name: Futures API
+channels:
+  ticker:
+    description: |
+      Get the product's latest price, bid price, bid price and 24h trading volume information. Frequency of data push: 100ms ~ 300ms
+    publish:
+      summary: Server publishes market Data to subscriber
+      operationId: PublishToMarketData
+      message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+    subscribe:
+      operationId: SubscribeToMarketData
+      message:
+        $ref: "#/components/messages/Subscription"
+  candlestick:
+    description: |
+      Get the candlestick data of the product.After first subscription, it will push the recent snapshot data and then push the update data
+    publish:
+      summary: Server publishes Candlestick Data to subscriber
+      operationId: PublishToCandleData
+      message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+    subscribe:
+      operationId: SubscribeToCandleData
+      message:
+        $ref: "#/components/messages/Subscription"
+  trade:
+    description: |
+      Push once if any trade is matched(taker orders).After first subscription, it will push the recent snapshot data and then push the update data
+    publish:
+      summary: Server publishes Trade Data to subscriber
+      operationId: PublishToTradeData
+      message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+    subscribe:
+      operationId: SubscribeToTradeData
+      message:
+        $ref: "#/components/messages/Subscription"
+  depth:
+    description: |
+      Use books for full data, book1 for 1 depth level, book5 for 5 depth levels, book15 for 15 depth levels.Default data push frequency is 200ms.Default data push frequency for books1 is 60ms
+    publish:
+      summary: Server publishes book depth Data to subscriber
+      operationId: PublishToBookData
+      message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+    subscribe:
+      operationId: SubscribeToBookData
+      message:
+        $ref: "#/components/messages/Subscription"
+  fill:
+    description: |
+      Trade details channels
+    publish:
+      summary: Server publishes fill Data to subscriber
+      operationId: PublishToFillData
+      message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+    subscribe:
+      operationId: SubscribeToFillData
+      message:
+        $ref: "#/components/messages/Subscription"
+  orders:
+    description: |
+      Get order information. Initial subscriptions will not trigger any push notifications.Data will be pushed when the following events occurred:<br><ul><li>Place orders</li><li>Orders are filled</li>Cancel orders</li><li>Modify orders</li></ul>
+    publish:
+      summary: Server publishes fill Data to subscriber
+      operationId: PublishToOrderData
+      message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+    subscribe:
+      operationId: SubscribeToOrderData
+      message:
+        $ref: "#/components/messages/Subscription"
+  trigger:
+    description: |
+      Subscribe trigger order channel
+    publish:
+      summary: Server publishes trigger Data to subscriber
+      operationId: PublishToTriggerData
+      message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+    subscribe:
+      operationId: SubscribeToTriggerData
+      message:
+        $ref: "#/components/messages/Subscription"
+  account:
+    description: |
+      Get account information, push data according to the subscription dimensions for the first subscription.Data will be pushed when the following events occurred:<br><ul><li>Orders are filled</li><li>Transfer</li><li>Deposit</li><li>Withdrawal</li></ul>
+    publish:
+      summary: Server publishes trigger Data to subscriber
+      operationId: PublishToAccountData
+      message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+    subscribe:
+      operationId: SubscribeToAccountData
+      message:
+        $ref: "#/components/messages/Subscription"
+components:
+  messages:
+    Subscription:
+      payload:
+        $ref: "#/components/schemas/Payload"
+  schemas:
+    Payload:
+      oneOf:
+        - $ref: "#/components/schemas/GeneralResponse"
+        - $ref: "#/components/schemas/PushResponse"
+    PublishedMessage:
+      type: object
+      properties:
+        op:
+          $ref: "#/components/schemas/opEnum"
+        args:
+          type: array
+          items:
+            $ref: "#/components/schemas/Args"
+    Args:
+      oneOf:
+        - $ref: "#/components/schemas/GeneralRequest"
+        - $ref: "#/components/schemas/LoginRequest"
+    opEnum:
+      type: string
+      enum: ["subscribe", "snapshot", "login"]
+    GeneralRequest:
+      type: object
+      properties:
+        InstType:
+          type: string
+          example: "SPOT"
+          ennum: ["SPOT", "USDT-FUTURES", "COIN-FUTURES", "USDC-FUTURES"]
+        InstId:
+          type: string
+          example: ETHUSDT
+        channel:
+          $ref: "#/components/schemas/channelEnum"
+    channelEnum:
+      type: string
+      description: "Channel name, e.g., candle1m for 1 minute, candle5m for 5 minutes, candle15m for 15 minutes, etc."
+      enum:
+        - ticker
+        - candle1m
+        - candle5m
+        - candle15m
+        - candle30m
+        - candle1H
+        - candle4H
+        - candle6H
+        - candle12H
+        - candle1D
+        - candle3D
+        - candle1W
+        - candle1M
+        - candle6Hutc
+        - candle12Hutc
+        - candle1Dutc
+        - candle3Dutc
+        - candle1Wutc
+        - candle1Mutc
+        - trade
+        - book
+        - book1
+        - book5
+        - book15
+        - fill
+        - orders
+        - orders-algo
+        - account
+        - positions
+    GeneralResponse:
+      type: object
+      properties:
+        InstType:
+          type: string
+          example: "SPOT"
+          ennum: ["SPOT"]
+        InstId:
+          type: string
+          example: ETHUSDT
+        channel:
+          $ref: "#/components/schemas/channelEnum"
+        code:
+          type: string
+          example: "500"
+        msg:
+          type: string
+          example: "something went wrong"
+    PushResponse:
+      type: object
+      properties:
+        action:
+          type: string
+          description: "Type of action, e.g., snapshot or update"
+        arg:
+          $ref: "#/components/schemas/GeneralRequest"
+
+        data:
+          type: array
+          items:
+            - $ref: "#/components/schemas/DataItem"
+            - $ref: "#/components/schemas/SubscriptionData"
+            - $ref: "#/components/schemas/TradeData"
+            - $ref: "#/components/schemas/BookData"
+            - $ref: "#/components/schemas/FillData"
+            - $ref: "#/components/schemas/OrderData"
+            - $ref: "#/components/schemas/TriggerData"
+            - $ref: "#/components/schemas/Account"
+            - $ref: "#/components/schemas/FutureData"
+            - $ref: "#/components/schemas/FuturesAccountData"
+            - $ref: "#/components/schemas/FuturesPositionData"
+            - $ref: "#/components/schemas/FuturesFillData"
+        ts:
+          type: string
+          description: "Timestamp of the request"
+    DataItem:
+      type: object
+      properties:
+        instId:
+          type: string
+          description: "Product ID, e.g., ETHUSDT"
+        lastPr:
+          type: string
+          description: "Last price"
+        open24h:
+          type: string
+          description: "Open price for the last 24 hours"
+        high24h:
+          type: string
+          description: "High price for the last 24 hours"
+        low24h:
+          type: string
+          description: "Low price for the last 24 hours"
+        change24h:
+          type: string
+          description: "Change in price over the last 24 hours"
+        bidPr:
+          type: string
+          description: "Bid price"
+        askPr:
+          type: string
+          description: "Ask price"
+        bidSz:
+          type: string
+          description: "Bid size"
+        askSz:
+          type: string
+          description: "Ask size"
+        baseVolume:
+          type: string
+          description: "Base volume"
+        quoteVolume:
+          type: string
+          description: "Quote volume"
+        openUtc:
+          type: string
+          description: "Open price in UTC"
+        changeUtc24h:
+          type: string
+          description: "Price change in UTC over 24 hours"
+        ts:
+          type: string
+          description: "Timestamp of data item"
+      required:
+        - instId
+        - lastPr
+        - ts
+    SubscriptionData:
+      type: array
+      items:
+        type: string
+      minItems: 8
+      maxItems: 8
+      description: "Array of candlestick data in a predefined order"
+      properties:
+        "0":
+          type: string
+          description: "Start time, milliseconds format of Unix timestamp, e.g., 1597026383085"
+        "1":
+          type: string
+          description: "Opening price"
+        "2":
+          type: string
+          description: "Highest price"
+        "3":
+          type: string
+          description: "Lowest price"
+        "4":
+          type: string
+          description: "Closing price"
+        "5":
+          type: string
+          description: "Trading volume of the coin"
+        "6":
+          type: string
+          description: "Trading volume of quote currency"
+        "7":
+          type: string
+          description: "Trading volume (USDT) or candlestick status"
+    TradeData:
+      type: object
+      properties:
+        ts:
+          type: string
+          description: "Timestamp of the trade in milliseconds format, e.g., 1695709835822"
+        price:
+          type: string
+          description: "Trade price, e.g., 26293.4"
+        size:
+          type: string
+          description: "Trade size, e.g., 0.0013"
+        side:
+          type: string
+          description: "Side of the trade, e.g., 'buy' or 'sell'"
+        tradeId:
+          type: string
+          description: "Unique trade ID, e.g., 1000000000"
+      required:
+        - ts
+        - price
+        - size
+        - side
+        - tradeId
+    BookData:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/DepthItem"
+      description: "List of subscription data for market depth"
+    DepthItem:
+      type: object
+      properties:
+        asks:
+          type: array
+          items:
+            $ref: "#/components/schemas/BidsAsks"
+        bids:
+          type: array
+          items:
+            $ref: "#/components/schemas/BidsAsks"
+        ts:
+          type: string
+          description: "Timestamp of the data in milliseconds format, e.g., 1597026383085"
+        checksum:
+          type: integer
+          description: "Checksum for data integrity"
+      required:
+        - asks
+        - bids
+        - ts
+        - checksum
+    BidsAsks:
+      type: array
+      items:
+        type: string
+        description: "Seller depth"
+    FillData:
+      type: object
+      properties:
+        orderId:
+          type: string
+          description: "Order ID, e.g., 111"
+        tradeId:
+          type: string
+          description: "Trade ID, e.g., 111"
+        symbol:
+          type: string
+          description: "Trading pair symbol, e.g., BTCUSDT"
+        orderType:
+          type: string
+          description: "Order type, e.g., limit"
+        side:
+          type: string
+          description: "Order side, e.g., buy or sell"
+        priceAvg:
+          type: string
+          description: "Average price of the trade, e.g., 42740.41"
+        size:
+          type: string
+          description: "Size of the trade, e.g., 0.0006"
+        amount:
+          type: string
+          description: "Amount involved in the trade, e.g., 25.644246"
+        tradeScope:
+          type: string
+          description: "Trade scope, e.g., marker"
+        feeDetail:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeeDetail"
+          description: "Details of fees applied to the trade"
+        cTime:
+          type: string
+          description: "Creation timestamp in milliseconds, e.g., 1703580202094"
+        uTime:
+          type: string
+          description: "Update timestamp in milliseconds, e.g., 1703580202094"
+      required:
+        - orderId
+        - tradeId
+        - symbol
+        - orderType
+        - side
+        - priceAvg
+        - size
+        - amount
+        - tradeScope
+        - feeDetail
+        - cTime
+        - uTime
+    FeeDetail:
+      type: object
+      properties:
+        feeCoin:
+          type: string
+          description: "Currency in which the fee is charged, e.g., USDT"
+        deduction:
+          type: string
+          description: "Deduction status, e.g., no"
+        totalDeductionFee:
+          type: string
+          description: "Total deduction fee, e.g., 0"
+        totalFee:
+          type: string
+          description: "Total fee charged, e.g., 0.01538655"
+      required:
+        - feeCoin
+        - deduction
+        - totalDeductionFee
+        - totalFee
+    OrderData:
+      type: object
+      properties:
+        instId:
+          type: string
+          description: "Instrument ID, e.g., BTCUSDT"
+        orderId:
+          type: string
+          description: "Order ID, e.g., 1"
+        clientOid:
+          type: string
+          description: "Client Order ID, e.g., 1"
+        size:
+          type: string
+          description: "Initial order size, e.g., 8.0000"
+        newSize:
+          type: string
+          description: "Updated order size, e.g., 500.0000"
+        notional:
+          type: string
+          description: "Notional value, e.g., 8.000000"
+        orderType:
+          type: string
+          description: "Order type, e.g., market"
+        force:
+          type: string
+          description: "Order execution policy, e.g., gtc"
+        side:
+          type: string
+          description: "Order side, e.g., buy or sell"
+        fillPrice:
+          type: string
+          description: "Price at which the order was filled, e.g., 26256.0"
+        tradeId:
+          type: string
+          description: "Trade ID, e.g., 1"
+        baseVolume:
+          type: string
+          description: "Base volume filled, e.g., 0.0003"
+        fillTime:
+          type: string
+          description: "Fill timestamp in milliseconds, e.g., 1695797773286"
+        fillFee:
+          type: string
+          description: "Fill fee amount, e.g., -0.00000018"
+        fillFeeCoin:
+          type: string
+          description: "Currency in which the fill fee is charged, e.g., BTC"
+        tradeScope:
+          type: string
+          description: "Scope of the trade, e.g., T"
+        accBaseVolume:
+          type: string
+          description: "Accumulated base volume, e.g., 0.0003"
+        priceAvg:
+          type: string
+          description: "Average price, e.g., 26256.0"
+        status:
+          type: string
+          description: "Order status, e.g., partially_filled"
+        cTime:
+          type: string
+          description: "Creation timestamp in milliseconds, e.g., 1695797773257"
+        uTime:
+          type: string
+          description: "Update timestamp in milliseconds, e.g., 1695797773326"
+        stpMode:
+          type: string
+          description: "Self-trade prevention mode, e.g., cancel_taker"
+        feeDetail:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeeDetail"
+          description: "Details of fees applied to the order"
+        enterPointSource:
+          type: string
+          description: "Source of the order entry, e.g., WEB"
+      required:
+        - instId
+        - orderId
+        - clientOid
+        - size
+        - newSize
+        - notional
+        - orderType
+        - force
+        - side
+        - fillPrice
+        - tradeId
+        - baseVolume
+        - fillTime
+        - fillFee
+        - fillFeeCoin
+        - tradeScope
+        - accBaseVolume
+        - priceAvg
+        - status
+        - cTime
+        - uTime
+        - stpMode
+        - feeDetail
+        - enterPointSource
+    TriggerData:
+      type: object
+      properties:
+        instId:
+          type: string
+          description: "Instrument ID, e.g., BTCUSDT"
+        orderId:
+          type: string
+          description: "Order ID, e.g., 1"
+        clientOid:
+          type: string
+          description: "Client Order ID, e.g., 1"
+        triggerPrice:
+          type: string
+          description: "Trigger price for the order, e.g., 27000.000000000"
+        triggerType:
+          type: string
+          description: "Type of trigger, e.g., fill_price"
+        planType:
+          type: string
+          description: "Plan type, e.g., amount"
+        price:
+          type: string
+          description: "Order price, e.g., 27000.000000000"
+        size:
+          type: string
+          description: "Order size, e.g., 0.020000000"
+        actualSize:
+          type: string
+          description: "Actual filled size, e.g., 0.000000000"
+        orderType:
+          type: string
+          description: "Type of order, e.g., market"
+        side:
+          type: string
+          description: "Order side, e.g., buy or sell"
+        status:
+          type: string
+          description: "Current status of the order, e.g., live"
+        executePrice:
+          type: string
+          description: "Execution price, e.g., 0.1"
+        enterPointSource:
+          type: string
+          description: "Source of the order entry, e.g., web"
+        cTime:
+          type: string
+          description: "Creation timestamp in milliseconds, e.g., 1695719197612"
+        uTime:
+          type: string
+          description: "Update timestamp in milliseconds, e.g., 1695719197612"
+        stpMode:
+          type: string
+          description: "Self-trade prevention mode, e.g., cancel_taker"
+      required:
+        - instId
+        - orderId
+        - clientOid
+        - triggerPrice
+        - triggerType
+        - planType
+        - price
+        - size
+        - actualSize
+        - orderType
+        - side
+        - status
+        - executePrice
+        - enterPointSource
+        - cTime
+        - uTime
+        - stpMode
+    Account:
+      type: object
+      properties:
+        coin:
+          type: string
+          description: "Currency type, e.g., USDT"
+        available:
+          type: string
+          description: "Available balance, e.g., 100000"
+        frozen:
+          type: string
+          description: "Frozen balance, e.g., 0"
+        locked:
+          type: string
+          description: "Locked balance, e.g., 0"
+        limitAvailable:
+          type: string
+          description: "Available limit, e.g., 0"
+        uTime:
+          type: string
+          description: "Timestamp of the last update in milliseconds, e.g., 1697092295506"
+      required:
+        - coin
+        - available
+        - frozen
+        - locked
+        - limitAvailable
+        - uTime
+    LoginRequest:
+      type: object
+      properties:
+        apiKey:
+          type: string
+          description: "API key for authentication, e.g., xx_xxx"
+        passphrase:
+          type: string
+          description: "Passphrase for additional security, e.g., xxx"
+        timestamp:
+          type: string
+          description: "Timestamp for the request, e.g., 1538054050"
+        sign:
+          type: string
+          description: "Generated signature for the request, e.g., 8RCOqCJAhhEh4PWcZB/96QojLDqMAg4qNynIixFzS3E="
+      required:
+        - apiKey
+        - passphrase
+        - timestamp
+        - sign
+    FutureData:
+      type: object
+      properties:
+        instId:
+          type: string
+          description: "Instrument ID, e.g., BTCUSDT"
+        lastPr:
+          type: string
+          description: "Last price, e.g., 27000.5"
+        bidPr:
+          type: string
+          description: "Highest bid price, e.g., 27000"
+        askPr:
+          type: string
+          description: "Lowest ask price, e.g., 27000.5"
+        bidSz:
+          type: string
+          description: "Bid size, e.g., 2.71"
+        askSz:
+          type: string
+          description: "Ask size, e.g., 8.76"
+        open24h:
+          type: string
+          description: "Opening price in the last 24 hours, e.g., 27000.5"
+        high24h:
+          type: string
+          description: "Highest price in the last 24 hours, e.g., 30668.5"
+        low24h:
+          type: string
+          description: "Lowest price in the last 24 hours, e.g., 26999.0"
+        change24h:
+          type: string
+          description: "Change in price over the last 24 hours, e.g., -0.00002"
+        fundingRate:
+          type: string
+          description: "Funding rate, e.g., 0.000010"
+        nextFundingTime:
+          type: string
+          description: "Next funding time in milliseconds, e.g., 1695722400000"
+        markPrice:
+          type: string
+          description: "Mark price, e.g., 27000.0"
+        indexPrice:
+          type: string
+          description: "Index price, e.g., 25702.4"
+        holdingAmount:
+          type: string
+          description: "Amount held, e.g., 929.502"
+        baseVolume:
+          type: string
+          description: "Base volume, e.g., 368.900"
+        quoteVolume:
+          type: string
+          description: "Quote volume, e.g., 10152429.961"
+        openUtc:
+          type: string
+          description: "Opening price in UTC, e.g., 27000.5"
+        symbolType:
+          type: integer
+          description: "Type of symbol, e.g., 1"
+        symbol:
+          type: string
+          description: "Symbol representation, e.g., BTCUSDT"
+        deliveryPrice:
+          type: string
+          description: "Delivery price, e.g., 0"
+        ts:
+          type: string
+          description: "Timestamp of the last update in milliseconds, e.g., 1695715383021"
+      required:
+        - instId
+        - lastPr
+        - bidPr
+        - askPr
+        - bidSz
+        - askSz
+        - open24h
+        - high24h
+        - low24h
+        - change24h
+        - fundingRate
+        - nextFundingTime
+        - markPrice
+        - indexPrice
+        - holdingAmount
+        - baseVolume
+        - quoteVolume
+        - openUtc
+        - symbolType
+        - symbol
+        - deliveryPrice
+        - ts
+    FuturesAccountData:
+      type: object
+      properties:
+        marginCoin:
+          type: string
+          description: "The coin used for margin trading, e.g., USDT"
+        frozen:
+          type: string
+          description: "Amount frozen, e.g., 0.00000000"
+        available:
+          type: string
+          description: "Available margin amount, e.g., 11490.16841069"
+        maxOpenPosAvailable:
+          type: string
+          description: "Maximum open position available, e.g., 10940.45841069"
+        maxTransferOut:
+          type: string
+          description: "Maximum transferable amount out, e.g., 10940.45841069"
+        equity:
+          type: string
+          description: "Total equity, e.g., 11489.96841069"
+        usdtEquity:
+          type: string
+          description: "Equity value in USDT, e.g., 11489.968410691679"
+      required:
+        - marginCoin
+        - frozen
+        - available
+        - maxOpenPosAvailable
+        - maxTransferOut
+        - equity
+        - usdtEquity
+    FuturesPositionData:
+      type: object
+      properties:
+        posId:
+          type: string
+          description: "The unique identifier for the position, e.g., '1'"
+        instId:
+          type: string
+          description: "The instrument ID, e.g., 'ETHUSDT'"
+        marginCoin:
+          type: string
+          description: "The coin used for margin, e.g., 'USDT'"
+        marginSize:
+          type: string
+          description: "The size of the margin used, e.g., '9.5'"
+        marginMode:
+          type: string
+          description: "The mode of margin, e.g., 'crossed'"
+        holdSide:
+          type: string
+          description: "The side of the position, e.g., 'short'"
+        posMode:
+          type: string
+          description: "The position mode, e.g., 'hedge_mode'"
+        total:
+          type: string
+          description: "Total position size, e.g., '0.1'"
+        available:
+          type: string
+          description: "Available position size, e.g., '0.1'"
+        frozen:
+          type: string
+          description: "Amount frozen, e.g., '0'"
+        openPriceAvg:
+          type: string
+          description: "Average open price, e.g., '1900'"
+        leverage:
+          type: integer
+          description: "The leverage used for the position, e.g., 20"
+        achievedProfits:
+          type: string
+          description: "Profits achieved, e.g., '0'"
+        unrealizedPL:
+          type: string
+          description: "Unrealized profit/loss, e.g., '0'"
+        unrealizedPLR:
+          type: string
+          description: "Unrealized profit/loss ratio, e.g., '0'"
+        liquidationPrice:
+          type: string
+          description: "The liquidation price, e.g., '5788.108475905242'"
+        keepMarginRate:
+          type: string
+          description: "The maintenance margin rate, e.g., '0.005'"
+        marginRate:
+          type: string
+          description: "The margin rate, e.g., '0.004416374196'"
+        cTime:
+          type: string
+          description: "Creation time in milliseconds since Unix epoch, e.g., '1695649246169'"
+        breakEvenPrice:
+          type: string
+          description: "The break-even price, e.g., '24778.97'"
+        totalFee:
+          type: string
+          description: "Total fees incurred, e.g., '1.45'"
+        deductedFee:
+          type: string
+          description: "Fees deducted, e.g., '0.388'"
+        uTime:
+          type: string
+          description: "Update time in milliseconds since Unix epoch, e.g., '1695711602568'"
+        autoMargin:
+          type: string
+          description: "Auto margin status, e.g., 'off'"
+      required:
+        - posId
+        - instId
+        - marginCoin
+        - marginSize
+        - marginMode
+        - holdSide
+        - posMode
+        - total
+        - available
+        - frozen
+        - openPriceAvg
+        - leverage
+        - achievedProfits
+        - unrealizedPL
+        - unrealizedPLR
+        - liquidationPrice
+        - keepMarginRate
+        - marginRate
+        - cTime
+        - breakEvenPrice
+        - totalFee
+        - deductedFee
+        - uTime
+        - autoMargin
+    FuturesFillData:
+      type: object
+      properties:
+        orderId:
+          type: string
+          description: "The unique identifier for the order, e.g., '111'"
+        tradeId:
+          type: string
+          description: "The unique identifier for the trade, e.g., '222'"
+        symbol:
+          type: string
+          description: "The trading pair symbol, e.g., 'BTCUSDT'"
+        side:
+          type: string
+          description: "The side of the trade, e.g., 'buy'"
+        orderType:
+          type: string
+          description: "The type of order, e.g., 'market'"
+        posMode:
+          type: string
+          description: "The position mode, e.g., 'one_way_mode'"
+        price:
+          type: string
+          description: "The price at which the order was executed, e.g., '51000.5'"
+        baseVolume:
+          type: string
+          description: "The volume of the base currency involved in the trade, e.g., '0.01'"
+        quoteVolume:
+          type: string
+          description: "The volume of the quote currency involved in the trade, e.g., '510.005'"
+        profit:
+          type: string
+          description: "The profit from the trade, e.g., '0'"
+        tradeSide:
+          type: string
+          description: "The side of the trade, e.g., 'open'"
+        tradeScope:
+          type: string
+          description: "The scope of the trade, e.g., 'taker'"
+        feeDetail:
+          type: array
+          items:
+            $ref: "#/components/schemas/FeeDetail"
+        cTime:
+          type: string
+          description: "Creation time in milliseconds since Unix epoch, e.g., '1703577336606'"
+        uTime:
+          type: string
+          description: "Update time in milliseconds since Unix epoch, e.g., '1703577336606'"
+      required:
+        - orderId
+        - tradeId
+        - symbol
+        - side
+        - orderType
+        - posMode
+        - price
+        - baseVolume
+        - quoteVolume
+        - profit
+        - tradeSide
+        - tradeScope
+        - feeDetail
+        - cTime
+        - uTime

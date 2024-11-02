@@ -146,7 +146,8 @@
             Object.keys(exchanges).forEach(exchangeName => {
                 const option = document.createElement('option');
                 option.value = exchangeName;
-                option.text = exchangeName.charAt(0).toUpperCase() + exchangeName.slice(1);
+                // option.text = exchangeName.charAt(0).toUpperCase() + exchangeName.slice(1);
+                option.text = exchangeName;
                 exchangeDropdown.add(option);
             });
 

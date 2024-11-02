@@ -84,11 +84,12 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | Exchange API                                              | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
 | --------------------------------------------------------- | --------- | -------------- | ------------- |
 | [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)        | /         | done           | /             |
-| [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | testing       |
-| [bitwyre](https://docs.bitwyre.com)                       | no        | done           | testing       |
-| [binance](https://binance-docs.github.io)                 | yes       | done           | testing       |
-| [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | testing       |
-| [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | testing       |
+| [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | done          |
+| [bitwyre](https://docs.bitwyre.com)                       | no        | done           | done          |
+| [bitget](https://www.bitget.com/api-doc)                  | yes       | WIP            | done          |
+| [binance](https://binance-docs.github.io)                 | yes       | done           | done          |
+| [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | done          |
+| [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | done          |
 | [krakenfutures](https://docs.kraken.com/api)              | yes       | done           | done          |
 | [gateio](https://www.gate.io/docs/developers/apiv4)       | yes       | WIP            | WIP           |
 | [dydx](https://docs.dydx.exchange)                        | no        | postponed      | /             |
@@ -99,7 +100,6 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | [okx](https://www.okx.com/docs-v5/en)                     | yes       | planned        | planned       |
 | [kucoin](https://www.kucoin.com/docs)                     | yes       | planned        | planned       |
 | [htx](https://www.htx.com/en-us/opend/newApiPages/)       | yes       | planned        | planned       |
-| [bitget](https://www.bitget.com/api-doc)                  | yes       | planned        | planned       |
 | [bitflyer](https://lightning.bitflyer.com/docs)           | yes       | planned        | planned       |
 | [coincheck](https://coincheck.com/documents/exchange/api) | yes       | planned        | planned       |
 | [korbit](https://apidocs.korbit.co.kr)                    | yes       | planned        | planned       |
