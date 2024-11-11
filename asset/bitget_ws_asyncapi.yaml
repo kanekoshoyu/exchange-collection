@@ -1,124 +1,234 @@
-asyncapi: 2.6.0
+asyncapi: 3.0.0
 info:
   title: Bitget Websocket API
   version: 1.0.0
+  tags:
+    - name: Spot API
+    - name: Futures API
 servers:
   Public:
-    url: wss://ws.bitget.com/v2/ws/public
+    host: ws.bitget.com
+    pathname: /v2/ws/public
     protocol: wss
     description: Public Channel
   Private:
-    url: wss://ws.bitget.com/v2/ws/private
+    host: ws.bitget.com
+    pathname: /v2/ws/private
     protocol: wss
     description: Private Channel
-tags:
-  - name: Spot API
-  - name: Futures API
 channels:
   ticker:
-    description: |
-      Get the product's latest price, bid price, bid price and 24h trading volume information. Frequency of data push: 100ms ~ 300ms
-    publish:
-      summary: Server publishes market Data to subscriber
-      operationId: PublishToMarketData
-      message:
+    address: ticker
+    messages:
+      PublishToMarketData.message:
         payload:
           $ref: "#/components/schemas/PublishedMessage"
-    subscribe:
-      operationId: SubscribeToMarketData
-      message:
+      SubscribeToMarketData.message:
         $ref: "#/components/messages/Subscription"
+    description: >
+      Get the product's latest price, bid price, bid price and 24h trading
+      volume information. Frequency of data push: 100ms ~ 300ms
   candlestick:
-    description: |
-      Get the candlestick data of the product.After first subscription, it will push the recent snapshot data and then push the update data
-    publish:
-      summary: Server publishes Candlestick Data to subscriber
-      operationId: PublishToCandleData
-      message:
+    address: candlestick
+    messages:
+      PublishToCandleData.message:
         payload:
           $ref: "#/components/schemas/PublishedMessage"
-    subscribe:
-      operationId: SubscribeToCandleData
-      message:
+      SubscribeToCandleData.message:
         $ref: "#/components/messages/Subscription"
+    description: >
+      Get the candlestick data of the product.After first subscription, it will
+      push the recent snapshot data and then push the update data
   trade:
-    description: |
-      Push once if any trade is matched(taker orders).After first subscription, it will push the recent snapshot data and then push the update data
-    publish:
-      summary: Server publishes Trade Data to subscriber
-      operationId: PublishToTradeData
-      message:
+    address: trade
+    messages:
+      PublishToTradeData.message:
         payload:
           $ref: "#/components/schemas/PublishedMessage"
-    subscribe:
-      operationId: SubscribeToTradeData
-      message:
+      SubscribeToTradeData.message:
         $ref: "#/components/messages/Subscription"
+    description: >
+      Push once if any trade is matched(taker orders).After first subscription,
+      it will push the recent snapshot data and then push the update data
   depth:
-    description: |
-      Use books for full data, book1 for 1 depth level, book5 for 5 depth levels, book15 for 15 depth levels.Default data push frequency is 200ms.Default data push frequency for books1 is 60ms
-    publish:
-      summary: Server publishes book depth Data to subscriber
-      operationId: PublishToBookData
-      message:
+    address: depth
+    messages:
+      PublishToBookData.message:
         payload:
           $ref: "#/components/schemas/PublishedMessage"
-    subscribe:
-      operationId: SubscribeToBookData
-      message:
+      SubscribeToBookData.message:
         $ref: "#/components/messages/Subscription"
+    description: >
+      Use books for full data, book1 for 1 depth level, book5 for 5 depth
+      levels, book15 for 15 depth levels.Default data push frequency is
+      200ms.Default data push frequency for books1 is 60ms
   fill:
+    address: fill
+    messages:
+      PublishToFillData.message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+      SubscribeToFillData.message:
+        $ref: "#/components/messages/Subscription"
     description: |
       Trade details channels
-    publish:
-      summary: Server publishes fill Data to subscriber
-      operationId: PublishToFillData
-      message:
-        payload:
-          $ref: "#/components/schemas/PublishedMessage"
-    subscribe:
-      operationId: SubscribeToFillData
-      message:
-        $ref: "#/components/messages/Subscription"
   orders:
-    description: |
-      Get order information. Initial subscriptions will not trigger any push notifications.Data will be pushed when the following events occurred:<br><ul><li>Place orders</li><li>Orders are filled</li>Cancel orders</li><li>Modify orders</li></ul>
-    publish:
-      summary: Server publishes fill Data to subscriber
-      operationId: PublishToOrderData
-      message:
+    address: orders
+    messages:
+      PublishToOrderData.message:
         payload:
           $ref: "#/components/schemas/PublishedMessage"
-    subscribe:
-      operationId: SubscribeToOrderData
-      message:
+      SubscribeToOrderData.message:
         $ref: "#/components/messages/Subscription"
+    description: >
+      Get order information. Initial subscriptions will not trigger any push
+      notifications.Data will be pushed when the following events
+      occurred:<br><ul><li>Place orders</li><li>Orders are filled</li>Cancel
+      orders</li><li>Modify orders</li></ul>
   trigger:
+    address: trigger
+    messages:
+      PublishToTriggerData.message:
+        payload:
+          $ref: "#/components/schemas/PublishedMessage"
+      SubscribeToTriggerData.message:
+        $ref: "#/components/messages/Subscription"
     description: |
       Subscribe trigger order channel
-    publish:
-      summary: Server publishes trigger Data to subscriber
-      operationId: PublishToTriggerData
-      message:
-        payload:
-          $ref: "#/components/schemas/PublishedMessage"
-    subscribe:
-      operationId: SubscribeToTriggerData
-      message:
-        $ref: "#/components/messages/Subscription"
   account:
-    description: |
-      Get account information, push data according to the subscription dimensions for the first subscription.Data will be pushed when the following events occurred:<br><ul><li>Orders are filled</li><li>Transfer</li><li>Deposit</li><li>Withdrawal</li></ul>
-    publish:
-      summary: Server publishes trigger Data to subscriber
-      operationId: PublishToAccountData
-      message:
+    address: account
+    messages:
+      PublishToAccountData.message:
         payload:
           $ref: "#/components/schemas/PublishedMessage"
-    subscribe:
-      operationId: SubscribeToAccountData
-      message:
+      SubscribeToAccountData.message:
         $ref: "#/components/messages/Subscription"
+    description: >
+      Get account information, push data according to the subscription
+      dimensions for the first subscription.Data will be pushed when the
+      following events occurred:<br><ul><li>Orders are
+      filled</li><li>Transfer</li><li>Deposit</li><li>Withdrawal</li></ul>
+operations:
+  PublishToMarketData:
+    action: receive
+    channel:
+      $ref: "#/channels/ticker"
+    summary: Server publishes market Data to subscriber
+    tags:
+      - name: Spot Public
+    messages:
+      - $ref: "#/channels/ticker/messages/PublishToMarketData.message"
+  SubscribeToMarketData:
+    action: send
+    channel:
+      $ref: "#/channels/ticker"
+    messages:
+      - $ref: "#/channels/ticker/messages/SubscribeToMarketData.message"
+  PublishToCandleData:
+    action: receive
+    channel:
+      $ref: "#/channels/candlestick"
+    summary: Server publishes Candlestick Data to subscriber
+    tags:
+      - name: Spot Public
+    messages:
+      - $ref: "#/channels/candlestick/messages/PublishToCandleData.message"
+  SubscribeToCandleData:
+    action: send
+    channel:
+      $ref: "#/channels/candlestick"
+    messages:
+      - $ref: "#/channels/candlestick/messages/SubscribeToCandleData.message"
+  PublishToTradeData:
+    action: receive
+    channel:
+      $ref: "#/channels/trade"
+    summary: Server publishes Trade Data to subscriber
+    tags:
+      - name: Spot Public
+    messages:
+      - $ref: "#/channels/trade/messages/PublishToTradeData.message"
+  SubscribeToTradeData:
+    action: send
+    channel:
+      $ref: "#/channels/trade"
+    messages:
+      - $ref: "#/channels/trade/messages/SubscribeToTradeData.message"
+  PublishToBookData:
+    action: receive
+    channel:
+      $ref: "#/channels/depth"
+    summary: Server publishes book depth Data to subscriber
+    tags:
+      - name: Spot Public
+    messages:
+      - $ref: "#/channels/depth/messages/PublishToBookData.message"
+  SubscribeToBookData:
+    action: send
+    channel:
+      $ref: "#/channels/depth"
+    messages:
+      - $ref: "#/channels/depth/messages/SubscribeToBookData.message"
+  PublishToFillData:
+    action: receive
+    channel:
+      $ref: "#/channels/fill"
+    summary: Server publishes fill Data to subscriber
+    tags:
+      - name: Spot Private
+    messages:
+      - $ref: "#/channels/fill/messages/PublishToFillData.message"
+  SubscribeToFillData:
+    action: send
+    channel:
+      $ref: "#/channels/fill"
+    messages:
+      - $ref: "#/channels/fill/messages/SubscribeToFillData.message"
+  PublishToOrderData:
+    action: receive
+    channel:
+      $ref: "#/channels/orders"
+    summary: Server publishes fill Data to subscriber
+    tags:
+      - name: Spot Private
+    messages:
+      - $ref: "#/channels/orders/messages/PublishToOrderData.message"
+  SubscribeToOrderData:
+    action: send
+    channel:
+      $ref: "#/channels/orders"
+    messages:
+      - $ref: "#/channels/orders/messages/SubscribeToOrderData.message"
+  PublishToTriggerData:
+    action: receive
+    channel:
+      $ref: "#/channels/trigger"
+    summary: Server publishes trigger Data to subscriber
+    tags:
+      - name: Spot Private
+    messages:
+      - $ref: "#/channels/trigger/messages/PublishToTriggerData.message"
+  SubscribeToTriggerData:
+    action: send
+    channel:
+      $ref: "#/channels/trigger"
+    messages:
+      - $ref: "#/channels/trigger/messages/SubscribeToTriggerData.message"
+  PublishToAccountData:
+    action: receive
+    channel:
+      $ref: "#/channels/account"
+    summary: Server publishes trigger Data to subscriber
+    tags:
+      - name: Spot Private
+    messages:
+      - $ref: "#/channels/account/messages/PublishToAccountData.message"
+  SubscribeToAccountData:
+    action: send
+    channel:
+      $ref: "#/channels/account"
+    messages:
+      - $ref: "#/channels/account/messages/SubscribeToAccountData.message"
 components:
   messages:
     Subscription:
@@ -144,14 +254,21 @@ components:
         - $ref: "#/components/schemas/LoginRequest"
     opEnum:
       type: string
-      enum: ["subscribe", "snapshot", "login"]
+      enum:
+        - subscribe
+        - snapshot
+        - login
     GeneralRequest:
       type: object
       properties:
         InstType:
           type: string
-          example: "SPOT"
-          ennum: ["SPOT", "USDT-FUTURES", "COIN-FUTURES", "USDC-FUTURES"]
+          example: SPOT
+          ennum:
+            - SPOT
+            - USDT-FUTURES
+            - COIN-FUTURES
+            - USDC-FUTURES
         InstId:
           type: string
           example: ETHUSDT
@@ -159,7 +276,9 @@ components:
           $ref: "#/components/schemas/channelEnum"
     channelEnum:
       type: string
-      description: "Channel name, e.g., candle1m for 1 minute, candle5m for 5 minutes, candle15m for 15 minutes, etc."
+      description: >-
+        Channel name, e.g., candle1m for 1 minute, candle5m for 5 minutes,
+        candle15m for 15 minutes, etc.
       enum:
         - ticker
         - candle1m
@@ -195,8 +314,9 @@ components:
       properties:
         InstType:
           type: string
-          example: "SPOT"
-          ennum: ["SPOT"]
+          example: SPOT
+          ennum:
+            - SPOT
         InstId:
           type: string
           example: ETHUSDT
@@ -207,7 +327,7 @@ components:
           example: "500"
         msg:
           type: string
-          example: "something went wrong"
+          example: something went wrong
     PushResponse:
       type: object
       properties:
@@ -216,7 +336,6 @@ components:
           description: "Type of action, e.g., snapshot or update"
         arg:
           $ref: "#/components/schemas/GeneralRequest"
-
         data:
           type: array
           items:
@@ -234,7 +353,7 @@ components:
             - $ref: "#/components/schemas/FuturesFillData"
         ts:
           type: string
-          description: "Timestamp of the request"
+          description: Timestamp of the request
     DataItem:
       type: object
       properties:
@@ -243,46 +362,46 @@ components:
           description: "Product ID, e.g., ETHUSDT"
         lastPr:
           type: string
-          description: "Last price"
+          description: Last price
         open24h:
           type: string
-          description: "Open price for the last 24 hours"
+          description: Open price for the last 24 hours
         high24h:
           type: string
-          description: "High price for the last 24 hours"
+          description: High price for the last 24 hours
         low24h:
           type: string
-          description: "Low price for the last 24 hours"
+          description: Low price for the last 24 hours
         change24h:
           type: string
-          description: "Change in price over the last 24 hours"
+          description: Change in price over the last 24 hours
         bidPr:
           type: string
-          description: "Bid price"
+          description: Bid price
         askPr:
           type: string
-          description: "Ask price"
+          description: Ask price
         bidSz:
           type: string
-          description: "Bid size"
+          description: Bid size
         askSz:
           type: string
-          description: "Ask size"
+          description: Ask size
         baseVolume:
           type: string
-          description: "Base volume"
+          description: Base volume
         quoteVolume:
           type: string
-          description: "Quote volume"
+          description: Quote volume
         openUtc:
           type: string
-          description: "Open price in UTC"
+          description: Open price in UTC
         changeUtc24h:
           type: string
-          description: "Price change in UTC over 24 hours"
+          description: Price change in UTC over 24 hours
         ts:
           type: string
-          description: "Timestamp of data item"
+          description: Timestamp of data item
       required:
         - instId
         - lastPr
@@ -293,32 +412,34 @@ components:
         type: string
       minItems: 8
       maxItems: 8
-      description: "Array of candlestick data in a predefined order"
+      description: Array of candlestick data in a predefined order
       properties:
         "0":
           type: string
-          description: "Start time, milliseconds format of Unix timestamp, e.g., 1597026383085"
+          description: >-
+            Start time, milliseconds format of Unix timestamp, e.g.,
+            1597026383085
         "1":
           type: string
-          description: "Opening price"
+          description: Opening price
         "2":
           type: string
-          description: "Highest price"
+          description: Highest price
         "3":
           type: string
-          description: "Lowest price"
+          description: Lowest price
         "4":
           type: string
-          description: "Closing price"
+          description: Closing price
         "5":
           type: string
-          description: "Trading volume of the coin"
+          description: Trading volume of the coin
         "6":
           type: string
-          description: "Trading volume of quote currency"
+          description: Trading volume of quote currency
         "7":
           type: string
-          description: "Trading volume (USDT) or candlestick status"
+          description: Trading volume (USDT) or candlestick status
     TradeData:
       type: object
       properties:
@@ -350,7 +471,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DepthItem"
-      description: "List of subscription data for market depth"
+      description: List of subscription data for market depth
     DepthItem:
       type: object
       properties:
@@ -367,7 +488,7 @@ components:
           description: "Timestamp of the data in milliseconds format, e.g., 1597026383085"
         checksum:
           type: integer
-          description: "Checksum for data integrity"
+          description: Checksum for data integrity
       required:
         - asks
         - bids
@@ -377,7 +498,7 @@ components:
       type: array
       items:
         type: string
-        description: "Seller depth"
+        description: Seller depth
     FillData:
       type: object
       properties:
@@ -412,7 +533,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FeeDetail"
-          description: "Details of fees applied to the trade"
+          description: Details of fees applied to the trade
         cTime:
           type: string
           description: "Creation timestamp in milliseconds, e.g., 1703580202094"
@@ -525,7 +646,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/FeeDetail"
-          description: "Details of fees applied to the order"
+          description: Details of fees applied to the order
         enterPointSource:
           type: string
           description: "Source of the order entry, e.g., WEB"
@@ -668,7 +789,9 @@ components:
           description: "Timestamp for the request, e.g., 1538054050"
         sign:
           type: string
-          description: "Generated signature for the request, e.g., 8RCOqCJAhhEh4PWcZB/96QojLDqMAg4qNynIixFzS3E="
+          description: >-
+            Generated signature for the request, e.g.,
+            8RCOqCJAhhEh4PWcZB/96QojLDqMAg4qNynIixFzS3E=
       required:
         - apiKey
         - passphrase
@@ -857,7 +980,9 @@ components:
           description: "The margin rate, e.g., '0.004416374196'"
         cTime:
           type: string
-          description: "Creation time in milliseconds since Unix epoch, e.g., '1695649246169'"
+          description: >-
+            Creation time in milliseconds since Unix epoch, e.g.,
+            '1695649246169'
         breakEvenPrice:
           type: string
           description: "The break-even price, e.g., '24778.97'"
@@ -927,7 +1052,9 @@ components:
           description: "The volume of the base currency involved in the trade, e.g., '0.01'"
         quoteVolume:
           type: string
-          description: "The volume of the quote currency involved in the trade, e.g., '510.005'"
+          description: >-
+            The volume of the quote currency involved in the trade, e.g.,
+            '510.005'
         profit:
           type: string
           description: "The profit from the trade, e.g., '0'"
@@ -943,7 +1070,9 @@ components:
             $ref: "#/components/schemas/FeeDetail"
         cTime:
           type: string
-          description: "Creation time in milliseconds since Unix epoch, e.g., '1703577336606'"
+          description: >-
+            Creation time in milliseconds since Unix epoch, e.g.,
+            '1703577336606'
         uTime:
           type: string
           description: "Update time in milliseconds since Unix epoch, e.g., '1703577336606'"
