@@ -67,28 +67,30 @@ npm install -g @asyncapi/generator
 
 ## exchange integration status
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
-| Exchange API                                              | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
-| --------------------------------------------------------- | --------- | -------------- | ------------- |
-| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)        | /         | done           | /             |
-| [hyperliquid](https://hyperliquid.gitbook.io)             | no        | done           | done          |
-| [bitwyre](https://docs.bitwyre.com)                       | no        | done           | done          |
-| [bitget](https://www.bitget.com/api-doc)                  | yes       | WIP            | done          |
-| [binance](https://binance-docs.github.io)                 | yes       | done           | done          |
-| [coinbase](https://docs.cdp.coinbase.com)                 | yes       | done           | done          |
-| [hashkey](https://hashkeypro-apidoc.readme.io)            | yes       | done           | done          |
-| [krakenfutures](https://docs.kraken.com/api)              | yes       | done           | done          |
-| [gateio](https://www.gate.io/docs/developers/apiv4)       | yes       | WIP            | WIP           |
-| [dydx](https://docs.dydx.exchange)                        | no        | postponed      | /             |
-| [polkadex](https://docs.polkadex.trade)                   | no        | /              | /             |
-| [zkex](https://docs.zkex.com)                             | no        | planned        | planned       |
-| [gmx](https://gmx-docs.io)                                | no        | planned        | planned       |
-| [bybit](https://bybit-exchange.github.io/docs/)           | yes       | planned        | planned       |
-| [okx](https://www.okx.com/docs-v5/en)                     | yes       | planned        | planned       |
-| [kucoin](https://www.kucoin.com/docs)                     | yes       | planned        | planned       |
-| [htx](https://www.htx.com/en-us/opend/newApiPages/)       | yes       | planned        | planned       |
-| [bitflyer](https://lightning.bitflyer.com/docs)           | yes       | planned        | planned       |
-| [coincheck](https://coincheck.com/documents/exchange/api) | yes       | planned        | planned       |
-| [korbit](https://apidocs.korbit.co.kr)                    | yes       | planned        | planned       |
+| Exchange API                                                   | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
+| -------------------------------------------------------------- | --------- | -------------- | ------------- |
+| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)             | /         | done           | /             |
+| [hyperliquid](https://hyperliquid.gitbook.io)                  | no        | done           | done          |
+| [bitwyre](https://docs.bitwyre.com)                            | yes       | done           | done          |
+| [bitget](https://www.bitget.com/api-doc)                       | yes       | done           | done          |
+| [binance](https://binance-docs.github.io)                      | yes       | done           | done          |
+| [coinbase](https://docs.cdp.coinbase.com)                      | yes       | done           | done          |
+| [hashkey](https://hashkeypro-apidoc.readme.io) (HK)            | yes       | done           | done          |
+| [krakenfutures](https://docs.kraken.com/api)                   | yes       | done           | done          |
+| [gateio](https://www.gate.io/docs/developers/apiv4)            | yes       | WIP            | WIP           |
+| [okx](https://www.okx.com/docs-v5/en)                          | yes       | WIP            | WIP           |
+| [dydx](https://docs.dydx.exchange)                             | no        | postponed      | /             |
+| [polkadex](https://docs.polkadex.trade)                        | no        | postponed      | /             |
+| [zkex](https://docs.zkex.com)                                  | no        | postponed      | /             |
+| [gmx](https://gmx-docs.io)                                     | no        | postponed      | /             |
+| [bybit](https://bybit-exchange.github.io/docs/)                | yes       | planned        | planned       |
+| [kucoin](https://www.kucoin.com/docs)                          | yes       | planned        | planned       |
+| [htx](https://www.htx.com/en-us/opend/newApiPages/)            | yes       | planned        | planned       |
+| [bitflyer](https://lightning.bitflyer.com/docs) (JP)           | yes       | planned        | planned       |
+| [coincheck](https://coincheck.com/documents/exchange/api) (JP) | yes       | planned        | planned       |
+| [korbit](https://apidocs.korbit.co.kr) (KR)                    | yes       | planned        | planned       |
+| [bitkub](https://docs.polkadex.trade) (TH)                     | yes       | planned        | planned       |
+
 
 
 I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix) due to limited number of supported exchanges. But it is definitely an interesting one to try in the future.  
