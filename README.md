@@ -56,28 +56,14 @@ install AsyncAPI CLI
 ```
 npm install -g @asyncapi/generator
 ```
-### OpenAPI model
-```
-openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
-```
-### OpenAPI rust client (REST, reqwest)
-```
-openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model --additional-properties=library=reqwest
-```
-### OpenAPI python client (REST, asyncio)
-```
-openapi-generator-cli generate -i asset/binance_rest_openapi.yaml -g python -o ./target_binance_rest --additional-properties=asyncio=true
-```
-### AsyncAPI model
-```
-asyncapi generate models <language> example_asyncapi.yaml -o output/example_<language>>_model
-```
-### AsyncAPI rust client (WS, tokio-tungstenite)
-> WIP in [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template)
+### each codegen command
+| language | input                             | command                                                                                                                                     |
+| -------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| rust     | openapi (REST, reqwest)           | `openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model --additional-properties=library=reqwest` |
+| rust     | asyncapi (WS, tokio-tungstenite)  | `asyncapi generate fromTemplate asyncapi.yaml asyncapi-rust-ws-template`                                                                    |
+| python   | openapi (REST, asyncio)           | `openapi-generator-cli generate -i asset/binance_rest_openapi.yaml -g python -o ./target_binance_rest --additional-properties=asyncio=true` |
+| python   | asyncapi (WS, asyncio-websockets) | `wip`                                                                                                                                       |
 
-Missing now, I am hiring node.js dev to work on this one
-### AsyncAPI python client (WS, asyncio-websockets)
-> planned after rust code generator
 
 ## exchange integration status
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
