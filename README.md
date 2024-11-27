@@ -78,7 +78,7 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | [hashkey](https://hashkeypro-apidoc.readme.io) (HK)            | yes       | done           | done          |
 | [krakenfutures](https://docs.kraken.com/api)                   | yes       | done           | done          |
 | [gateio](https://www.gate.io/docs/developers/apiv4)            | yes       | WIP            | WIP           |
-| [okx](https://www.okx.com/docs-v5/en)                          | yes       | WIP            | WIP           |
+| [okx](https://www.okx.com/docs-v5/en)                          | yes       | done           | testing       |
 | [dydx](https://docs.dydx.exchange)                             | no        | postponed      | /             |
 | [polkadex](https://docs.polkadex.trade)                        | no        | postponed      | /             |
 | [zkex](https://docs.zkex.com)                                  | no        | postponed      | /             |
