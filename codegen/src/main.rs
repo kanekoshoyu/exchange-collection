@@ -1,11 +1,13 @@
 use cargo_toml::{InheritedDependencyDetail, Manifest};
-use exchange_collection_codegen::*;
+use exchange_collection_codegen::meta::cli::*;
+use exchange_collection_codegen::meta::input::*;
 use eyre::Result;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
+
 #[derive(Clone, Debug)]
 pub struct ProtocolCrate {
     pub protocol: Protocol,
@@ -134,6 +136,8 @@ fn run() -> Result<()> {
             (None, Some(input_dir)) => {
                 // batch load from input_dir
                 println!("batch load");
+                // whitelist of exchange to generate when we batch load
+                let whitelist = ["binance"];
                 let files = std::fs::read_dir(input_dir.clone()).unwrap();
                 let mut filenames = Vec::new();
                 for file in files {
