@@ -1,121 +1,11 @@
 use cargo_toml::{InheritedDependencyDetail, Manifest};
-use exchange_collection_codegen::meta::cli::*;
-use exchange_collection_codegen::meta::input::*;
+use exchange_collection_codegen::meta::*;
 use eyre::Result;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
-
-#[derive(Clone, Debug)]
-pub struct ProtocolCrate {
-    pub protocol: Protocol,
-    pub version: Version,
-}
-impl TryFrom<Manifest> for ProtocolCrate {
-    type Error = eyre::Error;
-
-    fn try_from(manifest: Manifest) -> std::result::Result<Self, Self::Error> {
-        let Some(protocol_str) = manifest.package().name().split("-").last() else {
-            return Err(eyre::eyre!("failed parsing protocol name"));
-        };
-        let version_str = manifest.package().version();
-        Ok(ProtocolCrate {
-            protocol: protocol_str.parse()?,
-            version: version_str.parse()?,
-        })
-    }
-}
-impl ProtocolCrate {
-    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
-        // read Cargo.toml and fill in the data
-        let path = path.as_ref();
-        let cargo_toml_path = path.join(Path::new("Cargo.toml"));
-        let Ok(manifest) = Manifest::from_path(cargo_toml_path) else {
-            panic!("failed reading manifest from path");
-        };
-        ProtocolCrate::try_from(manifest)
-    }
-}
-#[derive(Clone, Debug, Default)]
-pub struct ExchangeCrate {
-    pub exchange_name: String,
-    pub version: Version,
-    pub protocol_crates: Vec<ProtocolCrate>,
-}
-impl ExchangeCrate {
-    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
-        // read Cargo.toml and fill in the data
-        let path = path.as_ref();
-        let src_path = path.join(PathBuf::from("src"));
-
-        let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(src_path)?
-            .map(|item| item.unwrap().path())
-            .filter(|path| path.is_dir())
-            .collect();
-
-        let mut protocol_crates = Vec::new();
-        for protocol_dir in protocol_dirs {
-            protocol_crates.push(ProtocolCrate::from_path(protocol_dir)?);
-        }
-
-        let version = protocol_crates
-            .iter()
-            .cloned()
-            .fold(Version::default(), |acc, protocol_crate| {
-                acc + protocol_crate.version
-            });
-
-        let exchange_name: String = path
-            .file_name()
-            .unwrap_or_default()
-            .to_os_string()
-            .into_string()
-            .unwrap_or_default();
-
-        Ok(ExchangeCrate {
-            exchange_name,
-            version,
-            protocol_crates,
-        })
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct CollectionCrate {
-    pub version: Version,
-    pub exchange_crates: Vec<ExchangeCrate>,
-}
-impl CollectionCrate {
-    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
-        // read Cargo.toml and fill in the data
-        let path = path.as_ref();
-        let src_path = path.join(PathBuf::from("src"));
-
-        let exchange_dirs: Vec<PathBuf> = std::fs::read_dir(src_path)?
-            .map(|item| item.unwrap().path())
-            .filter(|path| path.is_dir())
-            .collect();
-
-        let mut exchange_crates = Vec::new();
-        for exchange_dir in exchange_dirs {
-            exchange_crates.push(ExchangeCrate::from_path(exchange_dir)?);
-        }
-
-        let version = exchange_crates
-            .iter()
-            .cloned()
-            .fold(Version::default(), |acc, protocol_crate| {
-                acc + protocol_crate.version
-            });
-
-        Ok(CollectionCrate {
-            version,
-            exchange_crates,
-        })
-    }
-}
 
 fn run() -> Result<()> {
     // load
@@ -134,43 +24,45 @@ fn run() -> Result<()> {
     {
         match (cli.input_filename, cli.input_directory.clone()) {
             (None, Some(input_dir)) => {
-                // batch load from input_dir
                 println!("batch load");
-                // whitelist of exchange to generate when we batch load
-                let whitelist = ["binance"];
-                let files = std::fs::read_dir(input_dir.clone()).unwrap();
-                let mut filenames = Vec::new();
-                for file in files {
-                    let file = file?;
-                    let mut filename = input_dir.clone();
-                    filename.push(file.file_name());
-                    filenames.push(filename);
-                }
+                // batch load from input_dir
+                let file_params = InputFileParameter::from_directory(&input_dir)?;
+
+                // whitelist of exchange confirmed ready to generate when we batch load
+                let confirmed_whitelist = ["binance"];
+                let input_file_params: Vec<InputFileParameter> = file_params
+                    .into_iter()
+                    .filter(|i| confirmed_whitelist.contains(&i.exchange.as_str()))
+                    .collect();
+
+                //
                 let output_collection_directory = cli.output_directory.to_owned().unwrap();
-                for input_filename in filenames {
+                for input_file_param in input_file_params {
                     for output_language in cli.output_language.clone() {
                         println!(
                             "generating {} from {:?}",
-                            output_language,
-                            input_filename.file_name().unwrap()
+                            output_language, input_file_param.filename
                         );
                         codegen_protocol_crate(
-                            input_filename.clone(),
+                            input_file_param.filename.clone(),
                             output_collection_directory.clone(),
                             output_language,
+                            &input_file_param.exchange,
                         )?;
                     }
                 }
             }
             (Some(input_filename), None) => {
+                let input = InputFileParameter::from_filename(input_filename)?;
                 // single load
                 println!("single load");
                 let output_directory = cli.output_directory.to_owned().unwrap();
                 for output_language in cli.output_language.clone() {
                     codegen_protocol_crate(
-                        input_filename.clone(),
+                        input.filename.clone(),
                         output_directory.clone(),
                         output_language,
+                        &input.exchange,
                     )?;
                 }
             }
@@ -277,7 +169,7 @@ fn run() -> Result<()> {
                                 "{}-{}-{}",
                                 collection_package_name,
                                 target_exchange_crate.exchange_name,
-                                target_protocol_crate.protocol.to_string()
+                                target_protocol_crate.protocol
                             );
                             manifest.dependencies.insert(module_name, dependency_detail);
                         }
@@ -298,7 +190,7 @@ fn run() -> Result<()> {
                                 "{}-{}-{}",
                                 collection_package_name,
                                 exchange_crate.exchange_name,
-                                target_protocol_crate.protocol.to_string()
+                                target_protocol_crate.protocol
                             );
                             append_if_missing(
                                 exchange_directory.join(PathBuf::from_str("src/lib.rs")?),
@@ -368,13 +260,14 @@ fn output_protocol_directory(
 
 /// openapi-generator-cli generate -i example_openapi.yaml -g <language> -o output/example_rust_model
 /// asyncapi generate models <language> example_asyncapi.yml -o output/example_<language>>_model
-fn codegen_protocol_crate_command(
+fn command_for_codegen_protocol_crate(
     input_filename: impl AsRef<Path>,
-    protocol_directory: impl AsRef<Path>,
+    output_protocol_crate_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
+    exchange_name: &str,
 ) -> Result<Command> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
-    let protocol_directory = protocol_directory.as_ref();
+    let out_dir = output_protocol_crate_directory.as_ref();
     // output
     let input_filename = input_filename.as_ref();
     Ok(match param.format {
@@ -383,7 +276,7 @@ fn codegen_protocol_crate_command(
             cmd.arg("generate");
             cmd.arg(format!("-g {}", output_language));
             cmd.arg(format!("-i {}", input_filename.display()));
-            cmd.arg(format!("-o {}", protocol_directory.display()));
+            cmd.arg(format!("-o {}", out_dir.display()));
             cmd.arg("--additional-properties=library=reqwest");
             cmd
         }
@@ -394,7 +287,9 @@ fn codegen_protocol_crate_command(
             cmd.arg(output_language.to_string());
             cmd.arg(format!("{}", input_filename.display()));
             cmd.arg("-o");
-            cmd.arg(format!("{}/src", protocol_directory.display()));
+            cmd.arg(format!("{}/src", out_dir.display()));
+            cmd.arg("-p");
+            cmd.arg(format!("exchange={}", exchange_name));
             cmd
         }
     })
@@ -405,6 +300,7 @@ fn codegen_protocol_crate(
     input_filename: impl AsRef<Path>,
     output_collection_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
+    exchange_name: &str,
 ) -> Result<()> {
     let param = InputFileParameter::from_filename(&input_filename).unwrap();
     let protocol_directory = output_protocol_directory(
@@ -437,8 +333,12 @@ fn codegen_protocol_crate(
 
     // codegen
     {
-        let mut command =
-            codegen_protocol_crate_command(input_filename, &protocol_directory, output_language)?;
+        let mut command = command_for_codegen_protocol_crate(
+            input_filename,
+            &protocol_directory,
+            output_language,
+            exchange_name,
+        )?;
         let output = command.output()?;
         let status = output.status;
         match status.success() {
@@ -508,12 +408,15 @@ mod tests {
         let input_filename = PathBuf::from_str("../asset/binance_ws_asyncapi.yaml").unwrap();
         let output_directory = PathBuf::from_str("target/rust/src/binance/src/ws").unwrap();
         let output_language = ProgrammingLanguage::Rust;
-        let command =
-            match codegen_protocol_crate_command(input_filename, output_directory, output_language)
-            {
-                Ok(command) => command,
-                Err(e) => panic!("{e:?}"),
-            };
+        let command = match command_for_codegen_protocol_crate(
+            input_filename,
+            output_directory,
+            output_language,
+            "binance",
+        ) {
+            Ok(command) => command,
+            Err(e) => panic!("{e:?}"),
+        };
         // TODO come up with a way to compare the command
         let args: Vec<&OsStr> = command.get_args().collect();
         let program = command.get_program();

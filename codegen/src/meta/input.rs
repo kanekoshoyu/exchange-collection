@@ -3,6 +3,7 @@ use eyre::Result;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::ops::{Add, AddAssign};
 use std::path::Path;
+use std::path::PathBuf;
 use std::str::FromStr;
 use strum_macros::{Display, EnumIter, EnumString};
 
@@ -38,7 +39,6 @@ impl GetVersion for OpenApi {
 pub struct OpenApiInfo {
     pub version: Option<Version>,
 }
-
 
 #[derive(
     Clone,
@@ -151,7 +151,7 @@ impl<'de> Deserialize<'de> for Version {
         // Define a custom visitor to handle deserialization
         struct VersionVisitor;
 
-        impl<'de> serde::de::Visitor<'de> for VersionVisitor {
+        impl serde::de::Visitor<'_> for VersionVisitor {
             type Value = Version;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -199,10 +199,14 @@ pub struct InputFileParameter {
     pub protocol: Protocol,
     pub format: ApiFileFormat,
     pub version: Version,
+    pub filename: PathBuf,
 }
 impl InputFileParameter {
+    /// return InputFileParameter from a filename
     pub fn from_filename(filename: impl AsRef<Path>) -> Result<Self> {
         let filename = filename.as_ref();
+        let filename_pathbuf = filename.to_path_buf();
+
         if !filename.is_file() {
             return Err(eyre::eyre!("file does not exist"));
         }
@@ -249,6 +253,18 @@ impl InputFileParameter {
             protocol,
             format,
             version,
+            filename: filename_pathbuf,
         })
+    }
+
+    /// returns a list of InputFileParameter from directory
+    pub fn from_directory(directory: impl AsRef<Path>) -> Result<Vec<Self>> {
+        let mut result = Vec::new();
+        let files = std::fs::read_dir(directory).unwrap();
+        for file in files {
+            let file = file?;
+            result.push(InputFileParameter::from_filename(file.file_name())?);
+        }
+        Ok(result)
     }
 }
