@@ -1,4 +1,4 @@
-asyncapi: 2.1.0
+asyncapi: 3.0.0
 info:
   title: Binance Websocket API
   version: 1.0.0
@@ -35,99 +35,141 @@ info:
     36<br>null<br>In the response, if the result received is null this means the
     request sent was a success for non-query requests (e.g.
     Subscribing/Unsubscribing).
-tags:
-  - name: subscription
-    description: Operations related to subscribing to streams
-  - name: unsubscription
-    description: Operations related to unsubscribing from streams
-  - name: listSubscriptions
-    description: Operations related to listing current subscriptions
-  - name: setProperty
-    description: >-
-      Operations related to setting properties, such as enabling combined stream
-      payloads
-  - name: errorHandling
-    description: Operations related to handling errors and invalid requests
-  - name: aggregateTrade
-    description: Real-time aggregated trade data for a single taker order
-  - name: trade
-    description: Real-time trade data with unique buyer and seller information
-  - name: klineWithTimezoneOffset
-    description: Real-time kline/candlestick chart updates with a UTC+8 timezone offset
-  - name: individualSymbolMiniTicker
-    description: 24hr rolling window mini-ticker statistics for an individual symbol
-  - name: allMarketMiniTickers
-    description: 24hr rolling window mini-ticker statistics for all symbols that changed
-  - name: individualSymbolTicker
-    description: 24hr rolling window ticker statistics for a single symbol
-  - name: allMarketTickers
-    description: 24hr rolling window ticker statistics for all symbols
-  - name: individualSymbolRollingWindowStatistics
-    description: >-
-      Rolling window ticker statistics for a single symbol, computed over
-      multiple windows
-  - name: allMarketRollingWindowStatistics
-    description: >-
-      Rolling window ticker statistics for all market symbols, computed over
-      multiple windows
-  - name: individualSymbolBookTicker
-    description: >-
-      Updates to the best bid or ask price or quantity in real-time for a
-      specified symbol
-  - name: averagePrice
-    description: Changes in the average price over a fixed time interval
-  - name: partialBookDepth
-    description: "Top bids and asks for a symbol, updated every second or 100ms"
-  - name: diffDepth
-    description: Order book price and quantity depth updates used to manage an order book
+  tags:
+    - name: subscription
+      description: Operations related to subscribing to streams
+    - name: unsubscription
+      description: Operations related to unsubscribing from streams
+    - name: listSubscriptions
+      description: Operations related to listing current subscriptions
+    - name: setProperty
+      description: >-
+        Operations related to setting properties, such as enabling combined
+        stream payloads
+    - name: errorHandling
+      description: Operations related to handling errors and invalid requests
+    - name: aggregateTrade
+      description: Real-time aggregated trade data for a single taker order
+    - name: trade
+      description: Real-time trade data with unique buyer and seller information
+    - name: klineWithTimezoneOffset
+      description: Real-time kline/candlestick chart updates with a UTC+8 timezone offset
+    - name: individualSymbolMiniTicker
+      description: 24hr rolling window mini-ticker statistics for an individual symbol
+    - name: allMarketMiniTickers
+      description: 24hr rolling window mini-ticker statistics for all symbols that changed
+    - name: individualSymbolTicker
+      description: 24hr rolling window ticker statistics for a single symbol
+    - name: allMarketTickers
+      description: 24hr rolling window ticker statistics for all symbols
+    - name: individualSymbolRollingWindowStatistics
+      description: >-
+        Rolling window ticker statistics for a single symbol, computed over
+        multiple windows
+    - name: allMarketRollingWindowStatistics
+      description: >-
+        Rolling window ticker statistics for all market symbols, computed over
+        multiple windows
+    - name: individualSymbolBookTicker
+      description: >-
+        Updates to the best bid or ask price or quantity in real-time for a
+        specified symbol
+    - name: averagePrice
+      description: Changes in the average price over a fixed time interval
+    - name: partialBookDepth
+      description: "Top bids and asks for a symbol, updated every second or 100ms"
+    - name: diffDepth
+      description: Order book price and quantity depth updates used to manage an order book
 servers:
   production:
-    url: "stream.binance.com:9443/ws"
+    host: "stream.binance.com:9443"
+    pathname: /ws
     protocol: wss
     description: WebSocket server
   development:
-    url: "stream.binance.com:443/ws"
+    host: "stream.binance.com:443"
+    pathname: /ws
     protocol: wss
     description: Alternate WebSocket server
 channels:
   /stream:
-    description: >
-      Channel for managing data streams, including subscribing, unsubscribing,
-      listing subscriptions, setting properties, and handling errors.
-    publish:
-      operationId: streamManagementResponse
-      summary: Stream management responses
-      message:
-        oneOf:
-          - $ref: "#/components/messages/StreamControlResponseMessage"
-          - $ref: "#/components/messages/ErrorMessage"
-          - $ref: "#/components/messages/AggregateTradeStreamMessage"
-          - $ref: "#/components/messages/TradeStreamMessage"
-          - $ref: "#/components/messages/KlineStreamWithTimezoneOffsetMessage"
-          - $ref: "#/components/messages/KlineStreamWithUTCMessage"
-          - $ref: "#/components/messages/IndividualSymbolMiniTickerMessage"
-          - $ref: "#/components/messages/AllMarketMiniTickersMessage"
-          - $ref: "#/components/messages/IndividualSymbolTickerMessage"
-          - $ref: "#/components/messages/AllMarketTickersMessage"
-          - $ref: "#/components/messages/IndividualSymbolRollingWindowStatisticsMessage"
-          - $ref: "#/components/messages/AllMarketRollingWindowStatisticsMessage"
-          - $ref: "#/components/messages/IndividualSymbolBookTickerMessage"
-          - $ref: "#/components/messages/AveragePriceMessage"
-          - $ref: "#/components/messages/PartialBookDepthMessage"
-          - $ref: "#/components/messages/DiffDepthMessage"
-    subscribe:
-      operationId: streamManagementRequest
-      summary: Stream management request
-      message:
+    address: /stream
+    messages:
+      streamManagementResponse.message.0:
+        $ref: "#/components/messages/StreamControlResponseMessage"
+      streamManagementResponse.message.1:
+        $ref: "#/components/messages/ErrorMessage"
+      streamManagementResponse.message.2:
+        $ref: "#/components/messages/AggregateTradeStreamMessage"
+      streamManagementResponse.message.3:
+        $ref: "#/components/messages/TradeStreamMessage"
+      streamManagementResponse.message.4:
+        $ref: "#/components/messages/KlineStreamWithTimezoneOffsetMessage"
+      streamManagementResponse.message.5:
+        $ref: "#/components/messages/KlineStreamWithUTCMessage"
+      streamManagementResponse.message.6:
+        $ref: "#/components/messages/IndividualSymbolMiniTickerMessage"
+      streamManagementResponse.message.7:
+        $ref: "#/components/messages/AllMarketMiniTickersMessage"
+      streamManagementResponse.message.8:
+        $ref: "#/components/messages/IndividualSymbolTickerMessage"
+      streamManagementResponse.message.9:
+        $ref: "#/components/messages/AllMarketTickersMessage"
+      streamManagementResponse.message.10:
+        $ref: "#/components/messages/IndividualSymbolRollingWindowStatisticsMessage"
+      streamManagementResponse.message.11:
+        $ref: "#/components/messages/AllMarketRollingWindowStatisticsMessage"
+      streamManagementResponse.message.12:
+        $ref: "#/components/messages/IndividualSymbolBookTickerMessage"
+      streamManagementResponse.message.13:
+        $ref: "#/components/messages/AveragePriceMessage"
+      streamManagementResponse.message.14:
+        $ref: "#/components/messages/PartialBookDepthMessage"
+      streamManagementResponse.message.15:
+        $ref: "#/components/messages/DiffDepthMessage"
+      streamManagementRequest.message:
         contentType: application/json
         name: StreamControlMessage
         payload:
           $ref: "#/components/schemas/StreamControlMessagePayload"
+    description: >
+      Channel for managing data streams, including subscribing, unsubscribing,
+      listing subscriptions, setting properties, and handling errors.
+operations:
+  streamManagementResponse:
+    action: receive
+    channel:
+      $ref: "#/channels/~1stream"
+    summary: Stream management responses
+    messages:
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.0"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.1"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.2"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.3"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.4"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.5"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.6"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.7"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.8"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.9"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.10"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.11"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.12"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.13"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.14"
+      - $ref: "#/channels/~1stream/messages/streamManagementResponse.message.15"
+  streamManagementRequest:
+    action: send
+    channel:
+      $ref: "#/channels/~1stream"
+    summary: Stream management request
+    messages:
+      - $ref: "#/channels/~1stream/messages/streamManagementRequest.message"
 components:
   schemas:
     StreamControl:
       type: object
-      name: "StreamControl"
+      name: StreamControl
       required:
         - method
         - id
@@ -159,22 +201,23 @@ components:
       required:
         - result
         - id
-      name: "StreamControlResponse"
+      name: StreamControlResponse
       properties:
         result:
           $ref: "#/components/schemas/StreamResponseArray"
         id:
           type: integer
           description: The ID corresponding to the original request.
-
     StreamResponseArray:
       type: array
-      title: "StreamResponseArray"
+      title: StreamResponseArray
       items:
         $ref: "#/components/schemas/StreamResponse1"
     StreamResponse1:
       type: string
-      example: ["sub1", "sub2"]
+      example:
+        - sub1
+        - sub2
       description: |
         The list of current subscriptions for `LIST_SUBSCRIPTIONS`.
     Error:
@@ -368,7 +411,7 @@ components:
           type: string
           example: "1000"
           description: Base asset volume
-        n:
+        "n":
           type: integer
           example: 100
           description: Number of trades
@@ -394,7 +437,7 @@ components:
           description: Ignore
     IndividualSymbolMiniTicker:
       type: object
-      name: "IndividualSymbolMiniTicker"
+      name: IndividualSymbolMiniTicker
       properties:
         e:
           type: string
@@ -477,10 +520,9 @@ components:
           type: string
           example: "18"
           description: Total traded quote asset volume
-
     IndividualSymbolTicker:
       type: object
-      name: "Individual symbol ticket"
+      name: Individual symbol ticket
       properties:
         e:
           type: string
@@ -510,9 +552,7 @@ components:
         x:
           type: string
           example: "0.0009"
-          description: >-
-            First trade(F)-1 price (first trade before the 24hr rolling
-            window)
+          description: First trade(F)-1 price (first trade before the 24hr rolling window)
         c:
           type: string
           example: "0.0025"
@@ -612,9 +652,7 @@ components:
         x:
           type: string
           example: "0.0009"
-          description: >-
-            First trade(F)-1 price (first trade before the 24hr rolling
-            window)
+          description: First trade(F)-1 price (first trade before the 24hr rolling window)
         c:
           type: string
           example: "0.0025"
@@ -679,7 +717,6 @@ components:
           type: integer
           example: 18151
           description: Total number of trades
-
     IndividualSymbolRollingWindowStatistics:
       type: object
       properties:
@@ -830,7 +867,6 @@ components:
           type: integer
           example: 18151
           description: Total number of trades
-
     IndividualSymbolBookTicker:
       type: object
       properties:
@@ -906,7 +942,6 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/PartialBookBids"
-
           description: List of asks to be updated
     PartialBookBids:
       type: array
@@ -914,7 +949,6 @@ components:
         type: string
         example: "0.0024"
         description: Price level or quantity
-
     DiffDepth:
       type: object
       properties:
@@ -961,12 +995,16 @@ components:
         - UNSUBSCRIBE
         - LIST_SUBSCRIPTIONS
         - SET_PROPERTY
-      description: The method to use for subscribing, unsubscribing, listing subscriptions, or setting a property.
+      description: >-
+        The method to use for subscribing, unsubscribing, listing subscriptions,
+        or setting a property.
     StreamParam:
       oneOf:
         - $ref: "#/components/schemas/stringResponse"
         - $ref: "#/components/schemas/boolResponse"
-      description: The streams to which the client wants to subscribe or unsubscribe, or the property to set and its value.
+      description: >-
+        The streams to which the client wants to subscribe or unsubscribe, or
+        the property to set and its value.
     StreamControlMessagePayload:
       type: object
       required:
@@ -982,11 +1020,10 @@ components:
           description: Unique identifier for the request.
     stringResponse:
       type: string
-      example: "any string"
+      example: any string
     boolResponse:
       type: boolean
       example: true
-
   messages:
     StreamControlResponseMessage:
       payload:

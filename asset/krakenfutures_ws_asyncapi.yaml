@@ -1,276 +1,474 @@
-asyncapi: 2.6.0
+asyncapi: 3.0.0
 info:
   title: Kraken Futures Websocket API
   version: 2.0.0
+  tags:
+    - name: User Data
+    - name: Market Data
+    - name: Admin
 servers:
   production:
-    url: wss://futures.kraken.com/ws/v1
+    host: futures.kraken.com
+    pathname: /ws/v1
     protocol: wss
-tags:
-  - name: User Data
-  - name: Market Data
-  - name: Admin
-
 channels:
   open_orders:
+    address: open_orders
+    messages:
+      openOrdersUpdates.message.0:
+        $ref: "#/components/messages/OpenOrdersSnapshotMessage"
+      openOrdersUpdates.message.1:
+        $ref: "#/components/messages/OpenOrdersUpdateMessage"
+      openOrdersUpdates.message.2:
+        $ref: "#/components/messages/OpenOrderDeltaMessage"
+      openOrdersUpdates.message.3:
+        $ref: "#/components/messages/OpenOrderCancelMessage"
+      openOrdersUpdates.message.4:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToOpenOrders.message:
+        contentType: application/json
+        summary: Request to subscribe to open orders feed
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
     description: |
       This subscription feed publishes information about user open orders.
-    subscribe:
-      summary: Subscribe to open orders
-      operationId: subscribeToOpenOrders
-      message:
-        contentType: application/json
-        summary: Request to subscribe to open orders feed
-        payload:
-          $ref: "#/components/schemas/OpenOrdersRequest"
-    publish:
-      summary: Server publishes open orders updates
-      operationId: openOrdersUpdates
-      message:
-        oneOf:
-          - $ref: "#/components/messages/OpenOrdersSnapshotMessage"
-          - $ref: "#/components/messages/OpenOrdersUpdateMessage"
-          - $ref: "#/components/messages/OpenOrderDeltaMessage"
-          - $ref: "#/components/messages/OpenOrderCancelMessage"
-          - $ref: "#/components/messages/ErrorMessage"
   open_orders_verbose:
-    description: |
-      This subscription feed publishes information about user open orders. This feed adds extra information about all the post-only orders that failed to cross the book.
-    subscribe:
-      summary: Subscribe to open orders verbose
-      operationId: subscribeToOpenOrdersVerbose
-      message:
+    address: open_orders_verbose
+    messages:
+      openOrdersVerbose.message.0:
+        $ref: "#/components/messages/OpenOrdersSnapshotMessage"
+      openOrdersVerbose.message.1:
+        $ref: "#/components/messages/OpenOrdersUpdateMessage"
+      openOrdersVerbose.message.2:
+        $ref: "#/components/messages/OpenOrderDeltaMessage"
+      openOrdersVerbose.message.3:
+        $ref: "#/components/messages/OpenOrderCancelMessage"
+      openOrdersVerbose.message.4:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToOpenOrdersVerbose.message:
         contentType: application/json
         summary: Request to subscribe to open orders feed
         payload:
           $ref: "#/components/schemas/OpenOrdersRequest"
-    publish:
-      summary: Server publishes open orders updates
-      operationId: openOrdersVerbose
-      message:
-        oneOf:
-          - $ref: "#/components/messages/OpenOrdersSnapshotMessage"
-          - $ref: "#/components/messages/OpenOrdersUpdateMessage"
-          - $ref: "#/components/messages/OpenOrderDeltaMessage"
-          - $ref: "#/components/messages/OpenOrderCancelMessage"
-          - $ref: "#/components/messages/ErrorMessage"
+    description: >
+      This subscription feed publishes information about user open orders. This
+      feed adds extra information about all the post-only orders that failed to
+      cross the book.
   fills:
+    address: fills
+    messages:
+      PublishToFills.message.0:
+        $ref: "#/components/messages/FillsMessage"
+      PublishToFills.message.1:
+        $ref: "#/components/messages/FillsSnapshotMessage"
+      PublishToFills.message.2:
+        $ref: "#/components/messages/FillsDeltaMessage"
+      PublishToFills.message.3:
+        $ref: "#/components/messages/OpenOrderCancelMessage"
+      PublishToFills.message.4:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToFills.message:
+        contentType: application/json
+        summary: Request to subscribe to open orders feed
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
     description: |
       This subscription feed publishes fills information.
-    subscribe:
-      summary: Subscribe to fills
-      operationId: subscribeToFills
-      message:
-        contentType: application/json
-        summary: Request to subscribe to open orders feed
-        payload:
-          $ref: "#/components/schemas/OpenOrdersRequest"
-    publish:
-      summary: Server publishes fills
-      operationId: PublishToFills
-      message:
-        oneOf:
-          - $ref: "#/components/messages/FillsMessage"
-          - $ref: "#/components/messages/FillsSnapshotMessage"
-          - $ref: "#/components/messages/FillsDeltaMessage"
-          - $ref: "#/components/messages/OpenOrderCancelMessage"
-          - $ref: "#/components/messages/ErrorMessage"
   balances:
-    description: |
-      This feed returns balance information for holding wallets, single collateral wallets and multi-collateral wallets.
-    subscribe:
-      summary: Subscribe to balance
-      operationId: subscribeToBalance
-      message:
+    address: balances
+    messages:
+      PublishToBalance.message.0:
+        $ref: "#/components/messages/BalanceMessage"
+      PublishToBalance.message.1:
+        $ref: "#/components/messages/BalanceSnapshotMessage"
+      PublishToBalance.message.2:
+        $ref: "#/components/messages/BalanceDeltaMessage"
+      PublishToBalance.message.3:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToBalance.message:
         contentType: application/json
         summary: Request to subscribe to Balance
         payload:
           $ref: "#/components/schemas/OpenOrdersRequest"
-    publish:
-      summary: Server publishes fills
-      operationId: PublishToBalance
-      message:
-        oneOf:
-          - $ref: "#/components/messages/BalanceMessage"
-          - $ref: "#/components/messages/BalanceSnapshotMessage"
-          - $ref: "#/components/messages/BalanceDeltaMessage"
-          - $ref: "#/components/messages/ErrorMessage"
+    description: >
+      This feed returns balance information for holding wallets, single
+      collateral wallets and multi-collateral wallets.
   open_positions:
-    description: |
-      This subscription feed publishes the open positions of the user account.
-    subscribe:
-      summary: Subscribe to open positions
-      operationId: subscribeToPositions
-      message:
+    address: open_positions
+    messages:
+      PublishToPosition.message.0:
+        $ref: "#/components/messages/openPositionsMessage"
+      PublishToPosition.message.1:
+        $ref: "#/components/messages/PositionSnapshotMessage"
+      PublishToPosition.message.2:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToPositions.message:
         contentType: application/json
         summary: Request to subscribe to open positions
         payload:
           $ref: "#/components/schemas/OpenOrdersRequest"
-    publish:
-      summary: Server publishes open positions
-      operationId: PublishToPosition
-      message:
-        oneOf:
-          - $ref: "#/components/messages/openPositionsMessage"
-          - $ref: "#/components/messages/PositionSnapshotMessage"
-          - $ref: "#/components/messages/ErrorMessage"
+    description: |
+      This subscription feed publishes the open positions of the user account.
   account_log:
+    address: account_log
+    messages:
+      PublishToLogs.message.0:
+        $ref: "#/components/messages/LogsMessage"
+      PublishToLogs.message.1:
+        $ref: "#/components/messages/LogsSnapshotMessage"
+      PublishToLogs.message.2:
+        $ref: "#/components/messages/LogsDeltaMessage"
+      PublishToLogs.message.3:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToLogs.message:
+        contentType: application/json
+        summary: Request to subscribe to account logs
+        payload:
+          $ref: "#/components/schemas/OpenOrdersRequest"
     description: |
       This subscription feed publishes account log.
-    subscribe:
-      summary: Subscribe to account logs
-      operationId: subscribeToLogs
-      message:
-        contentType: application/json
-        summary: Request to subscribe to account logs
-        payload:
-          $ref: "#/components/schemas/OpenOrdersRequest"
-    publish:
-      summary: Server publishes open positions
-      operationId: PublishToLogs
-      message:
-        oneOf:
-          - $ref: "#/components/messages/LogsMessage"
-          - $ref: "#/components/messages/LogsSnapshotMessage"
-          - $ref: "#/components/messages/LogsDeltaMessage"
-          - $ref: "#/components/messages/ErrorMessage"
   notifications_auth:
-    description: |
-      This subscription feed publishes notifications to the client.Authentication is required.
-    subscribe:
-      summary: Subscribe to notifications
-      operationId: subscribeToNotifications
-      message:
+    address: notifications_auth
+    messages:
+      PublishToNotifications.message.0:
+        $ref: "#/components/messages/LogsMessage"
+      PublishToNotifications.message.1:
+        $ref: "#/components/messages/NotificationsSnapshotMessage"
+      PublishToNotifications.message.2:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToNotifications.message:
         contentType: application/json
         summary: Request to subscribe to account logs
         payload:
           $ref: "#/components/schemas/OpenOrdersRequest"
-    publish:
-      summary: Server publishes notifications
-      operationId: PublishToNotifications
-      message:
-        oneOf:
-          - $ref: "#/components/messages/LogsMessage"
-          - $ref: "#/components/messages/NotificationsSnapshotMessage"
-          - $ref: "#/components/messages/ErrorMessage"
+    description: >
+      This subscription feed publishes notifications to the
+      client.Authentication is required.
   ticker:
-    description: |
-      The ticker feed returns ticker information about listed products. Only tradeable markets are available via individual WebSocket market data feeds. Delta messages are throttled such that they are published every 1s.
-    subscribe:
-      summary: Subscribe to notifications
-      operationId: subscribeToTicker
-      message:
+    address: ticker
+    messages:
+      PublishToTicker.message.0:
+        $ref: "#/components/messages/TickerMessage"
+      PublishToTicker.message.1:
+        $ref: "#/components/messages/TickerSnapshotMessage"
+      PublishToTicker.message.2:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToTicker.message:
         contentType: application/json
         summary: Request to subscribe to Ticker
         payload:
           $ref: "#/components/schemas/TickerRequest"
-    publish:
-      summary: Server publishes ticker
-      operationId: PublishToTicker
-      message:
-        oneOf:
-          - $ref: "#/components/messages/TickerMessage"
-          - $ref: "#/components/messages/TickerSnapshotMessage"
-          - $ref: "#/components/messages/ErrorMessage"
+    description: >
+      The ticker feed returns ticker information about listed products. Only
+      tradeable markets are available via individual WebSocket market data
+      feeds. Delta messages are throttled such that they are published every 1s.
   ticker_lite:
-    description: |
-      The ticker lite feed returns ticker information about listed products. Delta messages are throttled such that they are published every 1s.
-
-    subscribe:
-      summary: Subscribe to ticker lite
-      operationId: subscribeToTickerLite
-      message:
+    address: ticker_lite
+    messages:
+      PublishToTickerLite.message.0:
+        $ref: "#/components/messages/TickerMessage"
+      PublishToTickerLite.message.1:
+        $ref: "#/components/messages/TickerLiteSnapshotMessage"
+      PublishToTickerLite.message.2:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToTickerLite.message:
         contentType: application/json
         summary: Request to subscribe to Ticker
         payload:
           $ref: "#/components/schemas/TickerRequest"
-    publish:
-      summary: Server publishes ticker
-      operationId: PublishToTickerLite
-      message:
-        oneOf:
-          - $ref: "#/components/messages/TickerMessage"
-          - $ref: "#/components/messages/TickerLiteSnapshotMessage"
-          - $ref: "#/components/messages/ErrorMessage"
+    description: >
+      The ticker lite feed returns ticker information about listed products.
+      Delta messages are throttled such that they are published every 1s.
   book:
-    description: |
-      The book feed returns information about the order book.
-
-    subscribe:
-      summary: Subscribe to order book
-      operationId: subscribeToOrderBook
-      message:
+    address: book
+    messages:
+      PublishToOrderBook.message.0:
+        $ref: "#/components/messages/TickerMessage"
+      PublishToOrderBook.message.1:
+        $ref: "#/components/messages/BookSnapshotMessage"
+      PublishToOrderBook.message.2:
+        $ref: "#/components/messages/BookDeltaMessage"
+      PublishToOrderBook.message.3:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToOrderBook.message:
         contentType: application/json
         summary: Request to subscribe to order book
         payload:
           $ref: "#/components/schemas/TickerRequest"
-    publish:
-      summary: Server publishes order book
-      operationId: PublishToOrderBook
-      message:
-        oneOf:
-          - $ref: "#/components/messages/TickerMessage"
-          - $ref: "#/components/messages/BookSnapshotMessage"
-          - $ref: "#/components/messages/BookDeltaMessage"
-          - $ref: "#/components/messages/ErrorMessage"
-  trade:
     description: |
-      The trade feed returns information about executed trades
-    subscribe:
-      summary: Subscribe to trade
-      operationId: subscribeToTrade
-      message:
+      The book feed returns information about the order book.
+  trade:
+    address: trade
+    messages:
+      PublishToTrade.message.0:
+        $ref: "#/components/messages/TickerMessage"
+      PublishToTrade.message.1:
+        $ref: "#/components/messages/TradeSnapshotMessage"
+      PublishToTrade.message.2:
+        $ref: "#/components/messages/TradeDeltaMessage"
+      PublishToTrade.message.3:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToTrade.message:
         contentType: application/json
         summary: Request to subscribe to trade
         payload:
           $ref: "#/components/schemas/TickerRequest"
-    publish:
-      summary: Server publishes trade
-      operationId: PublishToTrade
-      message:
-        oneOf:
-          - $ref: "#/components/messages/TickerMessage"
-          - $ref: "#/components/messages/TradeSnapshotMessage"
-          - $ref: "#/components/messages/TradeDeltaMessage"
-          - $ref: "#/components/messages/ErrorMessage"
-  challenge:
     description: |
-      This request returns a challenge to be used in handshake for user authentication.
-    subscribe:
-      summary: Subscribe to challenge
-      operationId: subscribeToChallenge
-      message:
+      The trade feed returns information about executed trades
+  challenge:
+    address: challenge
+    messages:
+      PublishToChallenge.message.0:
+        $ref: "#/components/messages/ChallengeMessage"
+      PublishToChallenge.message.1:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToChallenge.message:
         contentType: application/json
         summary: Request to subscribe to challenge
         payload:
           $ref: "#/components/schemas/ChallengeRequest"
-    publish:
-      summary: Server publishes Challenge
-      operationId: PublishToChallenge
-      message:
-        oneOf:
-          - $ref: "#/components/messages/ChallengeMessage"
-          - $ref: "#/components/messages/ErrorMessage"
+    description: >
+      This request returns a challenge to be used in handshake for user
+      authentication.
   heartbeat:
-    description: |
-      The heartbeat feed publishes a heartbeat message at timed intervals.
-    subscribe:
-      summary: Subscribe to heartbeat
-      operationId: subscribeToHeartbeat
-      message:
+    address: heartbeat
+    messages:
+      PublishToHeartbeat.message.0:
+        $ref: "#/components/messages/HeartbeatMessage"
+      PublishToHeartbeat.message.1:
+        $ref: "#/components/messages/HeartbeatSnapshotMessage"
+      PublishToHeartbeat.message.2:
+        $ref: "#/components/messages/ErrorMessage"
+      subscribeToHeartbeat.message:
         contentType: application/json
         summary: Request to subscribe to heartbeat
         payload:
           $ref: "#/components/schemas/HeartbeatRequest"
-    publish:
-      summary: Server publishes heartbeat
-      operationId: PublishToHeartbeat
-      message:
-        oneOf:
-          - $ref: "#/components/messages/HeartbeatMessage"
-          - $ref: "#/components/messages/HeartbeatSnapshotMessage"
-          - $ref: "#/components/messages/ErrorMessage"
-
+    description: |
+      The heartbeat feed publishes a heartbeat message at timed intervals.
+operations:
+  openOrdersUpdates:
+    action: receive
+    channel:
+      $ref: "#/channels/open_orders"
+    summary: Server publishes open orders updates
+    messages:
+      - $ref: "#/channels/open_orders/messages/openOrdersUpdates.message.0"
+      - $ref: "#/channels/open_orders/messages/openOrdersUpdates.message.1"
+      - $ref: "#/channels/open_orders/messages/openOrdersUpdates.message.2"
+      - $ref: "#/channels/open_orders/messages/openOrdersUpdates.message.3"
+      - $ref: "#/channels/open_orders/messages/openOrdersUpdates.message.4"
+  subscribeToOpenOrders:
+    action: send
+    channel:
+      $ref: "#/channels/open_orders"
+    summary: Subscribe to open orders
+    messages:
+      - $ref: "#/channels/open_orders/messages/subscribeToOpenOrders.message"
+  openOrdersVerbose:
+    action: receive
+    channel:
+      $ref: "#/channels/open_orders_verbose"
+    summary: Server publishes open orders updates
+    messages:
+      - $ref: "#/channels/open_orders_verbose/messages/openOrdersVerbose.message.0"
+      - $ref: "#/channels/open_orders_verbose/messages/openOrdersVerbose.message.1"
+      - $ref: "#/channels/open_orders_verbose/messages/openOrdersVerbose.message.2"
+      - $ref: "#/channels/open_orders_verbose/messages/openOrdersVerbose.message.3"
+      - $ref: "#/channels/open_orders_verbose/messages/openOrdersVerbose.message.4"
+  subscribeToOpenOrdersVerbose:
+    action: send
+    channel:
+      $ref: "#/channels/open_orders_verbose"
+    summary: Subscribe to open orders verbose
+    messages:
+      - $ref: >-
+          #/channels/open_orders_verbose/messages/subscribeToOpenOrdersVerbose.message
+  PublishToFills:
+    action: receive
+    channel:
+      $ref: "#/channels/fills"
+    summary: Server publishes fills
+    messages:
+      - $ref: "#/channels/fills/messages/PublishToFills.message.0"
+      - $ref: "#/channels/fills/messages/PublishToFills.message.1"
+      - $ref: "#/channels/fills/messages/PublishToFills.message.2"
+      - $ref: "#/channels/fills/messages/PublishToFills.message.3"
+      - $ref: "#/channels/fills/messages/PublishToFills.message.4"
+  subscribeToFills:
+    action: send
+    channel:
+      $ref: "#/channels/fills"
+    summary: Subscribe to fills
+    messages:
+      - $ref: "#/channels/fills/messages/subscribeToFills.message"
+  PublishToBalance:
+    action: receive
+    channel:
+      $ref: "#/channels/balances"
+    summary: Server publishes fills
+    messages:
+      - $ref: "#/channels/balances/messages/PublishToBalance.message.0"
+      - $ref: "#/channels/balances/messages/PublishToBalance.message.1"
+      - $ref: "#/channels/balances/messages/PublishToBalance.message.2"
+      - $ref: "#/channels/balances/messages/PublishToBalance.message.3"
+  subscribeToBalance:
+    action: send
+    channel:
+      $ref: "#/channels/balances"
+    summary: Subscribe to balance
+    messages:
+      - $ref: "#/channels/balances/messages/subscribeToBalance.message"
+  PublishToPosition:
+    action: receive
+    channel:
+      $ref: "#/channels/open_positions"
+    summary: Server publishes open positions
+    messages:
+      - $ref: "#/channels/open_positions/messages/PublishToPosition.message.0"
+      - $ref: "#/channels/open_positions/messages/PublishToPosition.message.1"
+      - $ref: "#/channels/open_positions/messages/PublishToPosition.message.2"
+  subscribeToPositions:
+    action: send
+    channel:
+      $ref: "#/channels/open_positions"
+    summary: Subscribe to open positions
+    messages:
+      - $ref: "#/channels/open_positions/messages/subscribeToPositions.message"
+  PublishToLogs:
+    action: receive
+    channel:
+      $ref: "#/channels/account_log"
+    summary: Server publishes open positions
+    messages:
+      - $ref: "#/channels/account_log/messages/PublishToLogs.message.0"
+      - $ref: "#/channels/account_log/messages/PublishToLogs.message.1"
+      - $ref: "#/channels/account_log/messages/PublishToLogs.message.2"
+      - $ref: "#/channels/account_log/messages/PublishToLogs.message.3"
+  subscribeToLogs:
+    action: send
+    channel:
+      $ref: "#/channels/account_log"
+    summary: Subscribe to account logs
+    messages:
+      - $ref: "#/channels/account_log/messages/subscribeToLogs.message"
+  PublishToNotifications:
+    action: receive
+    channel:
+      $ref: "#/channels/notifications_auth"
+    summary: Server publishes notifications
+    messages:
+      - $ref: >-
+          #/channels/notifications_auth/messages/PublishToNotifications.message.0
+      - $ref: >-
+          #/channels/notifications_auth/messages/PublishToNotifications.message.1
+      - $ref: >-
+          #/channels/notifications_auth/messages/PublishToNotifications.message.2
+  subscribeToNotifications:
+    action: send
+    channel:
+      $ref: "#/channels/notifications_auth"
+    summary: Subscribe to notifications
+    messages:
+      - $ref: >-
+          #/channels/notifications_auth/messages/subscribeToNotifications.message
+  PublishToTicker:
+    action: receive
+    channel:
+      $ref: "#/channels/ticker"
+    summary: Server publishes ticker
+    messages:
+      - $ref: "#/channels/ticker/messages/PublishToTicker.message.0"
+      - $ref: "#/channels/ticker/messages/PublishToTicker.message.1"
+      - $ref: "#/channels/ticker/messages/PublishToTicker.message.2"
+  subscribeToTicker:
+    action: send
+    channel:
+      $ref: "#/channels/ticker"
+    summary: Subscribe to notifications
+    messages:
+      - $ref: "#/channels/ticker/messages/subscribeToTicker.message"
+  PublishToTickerLite:
+    action: receive
+    channel:
+      $ref: "#/channels/ticker_lite"
+    summary: Server publishes ticker
+    messages:
+      - $ref: "#/channels/ticker_lite/messages/PublishToTickerLite.message.0"
+      - $ref: "#/channels/ticker_lite/messages/PublishToTickerLite.message.1"
+      - $ref: "#/channels/ticker_lite/messages/PublishToTickerLite.message.2"
+  subscribeToTickerLite:
+    action: send
+    channel:
+      $ref: "#/channels/ticker_lite"
+    summary: Subscribe to ticker lite
+    messages:
+      - $ref: "#/channels/ticker_lite/messages/subscribeToTickerLite.message"
+  PublishToOrderBook:
+    action: receive
+    channel:
+      $ref: "#/channels/book"
+    summary: Server publishes order book
+    messages:
+      - $ref: "#/channels/book/messages/PublishToOrderBook.message.0"
+      - $ref: "#/channels/book/messages/PublishToOrderBook.message.1"
+      - $ref: "#/channels/book/messages/PublishToOrderBook.message.2"
+      - $ref: "#/channels/book/messages/PublishToOrderBook.message.3"
+  subscribeToOrderBook:
+    action: send
+    channel:
+      $ref: "#/channels/book"
+    summary: Subscribe to order book
+    messages:
+      - $ref: "#/channels/book/messages/subscribeToOrderBook.message"
+  PublishToTrade:
+    action: receive
+    channel:
+      $ref: "#/channels/trade"
+    summary: Server publishes trade
+    messages:
+      - $ref: "#/channels/trade/messages/PublishToTrade.message.0"
+      - $ref: "#/channels/trade/messages/PublishToTrade.message.1"
+      - $ref: "#/channels/trade/messages/PublishToTrade.message.2"
+      - $ref: "#/channels/trade/messages/PublishToTrade.message.3"
+  subscribeToTrade:
+    action: send
+    channel:
+      $ref: "#/channels/trade"
+    summary: Subscribe to trade
+    messages:
+      - $ref: "#/channels/trade/messages/subscribeToTrade.message"
+  PublishToChallenge:
+    action: receive
+    channel:
+      $ref: "#/channels/challenge"
+    summary: Server publishes Challenge
+    messages:
+      - $ref: "#/channels/challenge/messages/PublishToChallenge.message.0"
+      - $ref: "#/channels/challenge/messages/PublishToChallenge.message.1"
+  subscribeToChallenge:
+    action: send
+    channel:
+      $ref: "#/channels/challenge"
+    summary: Subscribe to challenge
+    messages:
+      - $ref: "#/channels/challenge/messages/subscribeToChallenge.message"
+  PublishToHeartbeat:
+    action: receive
+    channel:
+      $ref: "#/channels/heartbeat"
+    summary: Server publishes heartbeat
+    messages:
+      - $ref: "#/channels/heartbeat/messages/PublishToHeartbeat.message.0"
+      - $ref: "#/channels/heartbeat/messages/PublishToHeartbeat.message.1"
+      - $ref: "#/channels/heartbeat/messages/PublishToHeartbeat.message.2"
+  subscribeToHeartbeat:
+    action: send
+    channel:
+      $ref: "#/channels/heartbeat"
+    summary: Subscribe to heartbeat
+    messages:
+      - $ref: "#/channels/heartbeat/messages/subscribeToHeartbeat.message"
 components:
   messages:
     OpenOrdersSnapshotMessage:
@@ -411,7 +609,6 @@ components:
       summary: Real-time updates on heartbeat
       payload:
         $ref: "#/components/schemas/HeartbeaSnapshotRequest"
-
   schemas:
     OpenOrdersRequest:
       type: object
@@ -626,7 +823,7 @@ components:
           description: The result of the subscription event
         feed:
           type: string
-          description: The requested subscription feed (e.g., fills)
+          description: "The requested subscription feed (e.g., fills)"
         product_ids:
           type: array
           items:
@@ -650,7 +847,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., fills)
+          description: "The subscribed feed (e.g., fills)"
         account:
           type: string
           description: The user account
@@ -705,7 +902,9 @@ components:
         cli_ord_id:
           type: string
           format: uuid
-          description: The unique client order identifier (returned only if the order has a client order ID)
+          description: >-
+            The unique client order identifier (returned only if the order has a
+            client order ID)
         fill_id:
           type: string
           format: uuid
@@ -727,7 +926,7 @@ components:
           description: The absolute funding rate
     fillEnum:
       type: string
-      description: The classification of the fill (e.g., maker, taker, liquidation, etc.)
+      description: "The classification of the fill (e.g., maker, taker, liquidation, etc.)"
       enum:
         - maker
         - taker
@@ -787,7 +986,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., balances)
+          description: "The subscribed feed (e.g., balances)"
         account:
           type: string
           description: The user account
@@ -813,7 +1012,9 @@ components:
         portfolio_value:
           type: number
           format: float
-          description: The current balance with haircuts and any unrealized margin from open positions in settlement units
+          description: >-
+            The current balance with haircuts and any unrealized margin from
+            open positions in settlement units
         balance:
           type: number
           format: float
@@ -896,7 +1097,9 @@ components:
         portfolio_value:
           type: number
           format: float
-          description: The current balance with haircuts and any unrealized margin from open positions in settlement units
+          description: >-
+            The current balance with haircuts and any unrealized margin from
+            open positions in settlement units
         balance:
           type: number
           format: float
@@ -949,7 +1152,9 @@ components:
         portfolio_value:
           type: number
           format: float
-          description: The current collateral value with unrealized margin from any open positions
+          description: >-
+            The current collateral value with unrealized margin from any open
+            positions
         collateral_value:
           type: number
           format: float
@@ -1019,11 +1224,15 @@ components:
         haircut:
           type: number
           format: float
-          description: The rate of reduction in the value of a collateral asset that may be used as margin
+          description: >-
+            The rate of reduction in the value of a collateral asset that may be
+            used as margin
         conversion_spread:
           type: number
           format: float
-          description: The conversion spread used to calculate the conversion fee for multi-collateral wallets
+          description: >-
+            The conversion spread used to calculate the conversion fee for
+            multi-collateral wallets
     IsolatedWallet:
       type: object
       required:
@@ -1117,7 +1326,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., balances)
+          description: "The subscribed feed (e.g., balances)"
         account:
           type: string
           description: The user account
@@ -1129,7 +1338,7 @@ components:
           description: A map from currency names to balance quantity
         futures:
           type: object
-          description: A map representing futures wallet information, if applicable
+          description: "A map representing futures wallet information, if applicable"
         timestamp:
           type: integer
           format: int64
@@ -1149,7 +1358,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., balances)
+          description: "The subscribed feed (e.g., balances)"
         account:
           type: string
           description: The user account
@@ -1310,7 +1519,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., balances)
+          description: "The subscribed feed (e.g., balances)"
         account:
           type: string
           description: The user account
@@ -1381,7 +1590,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., open_positions)
+          description: "The subscribed feed (e.g., open_positions)"
         account:
           type: string
           description: The user account
@@ -1415,7 +1624,7 @@ components:
       properties:
         instrument:
           type: string
-          description: The instrument identifier (e.g., "PI_XRPUSD")
+          description: 'The instrument identifier (e.g., "PI_XRPUSD")'
         balance:
           type: number
           format: float
@@ -1475,7 +1684,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., account_log_snapshot)
+          description: "The subscribed feed (e.g., account_log_snapshot)"
         logs:
           type: array
           description: A list of account log entries
@@ -1515,10 +1724,10 @@ components:
           description: Timestamp of the log entry in ISO 8601 format
         asset:
           type: string
-          description: The asset involved (e.g., "bch")
+          description: 'The asset involved (e.g., "bch")'
         info:
           type: string
-          description: Additional information about the log (e.g., "funding rate change")
+          description: 'Additional information about the log (e.g., "funding rate change")'
         booking_uid:
           type: string
           description: Unique identifier for the booking associated with this log
@@ -1544,7 +1753,7 @@ components:
         trade_price:
           type: number
           format: float
-          description: The trade price involved in the log, if applicable
+          description: "The trade price involved in the log, if applicable"
         mark_price:
           type: number
           format: float
@@ -1559,10 +1768,10 @@ components:
           description: Any associated fees with the log entry
         execution:
           type: string
-          description: Execution details, if applicable
+          description: "Execution details, if applicable"
         collateral:
           type: string
-          description: The collateral asset involved (e.g., "bch")
+          description: 'The collateral asset involved (e.g., "bch")'
         funding_rate:
           type: number
           format: float
@@ -1578,7 +1787,7 @@ components:
         liquidation_fee:
           type: number
           format: float
-          description: The liquidation fee, if applicable
+          description: "The liquidation fee, if applicable"
     LogsDeltaResponse:
       type: object
       required:
@@ -1587,7 +1796,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., account_log)
+          description: "The subscribed feed (e.g., account_log)"
         new_entry:
           $ref: "#/components/schemas/AccountLogEntry"
     NotificationsSnapshotResponse:
@@ -1598,7 +1807,7 @@ components:
       properties:
         feed:
           type: string
-          description: The subscribed feed (e.g., notifications_auth)
+          description: "The subscribed feed (e.g., notifications_auth)"
         notifications:
           type: array
           items:
@@ -1618,17 +1827,19 @@ components:
           description: Unique identifier for the notification
         type:
           type: string
-          description: The type of notification (e.g., "market")
+          description: 'The type of notification (e.g., "market")'
         priority:
           type: string
-          description: Priority level of the notification (e.g., "low", "high")
+          description: 'Priority level of the notification (e.g., "low", "high")'
         note:
           type: string
           description: A brief description or note about the notification
         effective_time:
           type: integer
           format: int64
-          description: The time when the notification becomes effective, in epoch milliseconds
+          description: >-
+            The time when the notification becomes effective, in epoch
+            milliseconds
     TickerRequest:
       type: object
       required:
@@ -1640,11 +1851,13 @@ components:
           $ref: "#/components/schemas/eventEnum"
         feed:
           type: string
-          description: The feed being requested, in this case, "ticker"
+          description: 'The feed being requested, in this case, "ticker"'
           example: ticker
         product_ids:
           type: array
-          description: A list of product symbols for which the user will receive ticker information (e.g., ["XBTUSD", "ETHUSD"])
+          description: >-
+            A list of product symbols for which the user will receive ticker
+            information (e.g., ["XBTUSD", "ETHUSD"])
           items:
             type: string
     TickerResponse:
@@ -1658,11 +1871,13 @@ components:
           $ref: "#/components/schemas/eventEnum"
         feed:
           type: string
-          description: The feed that was requested, in this case, "ticker"
+          description: 'The feed that was requested, in this case, "ticker"'
           example: ticker
         product_ids:
           type: array
-          description: A list of product symbols that the user will receive information upon, represented as strings
+          description: >-
+            A list of product symbols that the user will receive information
+            upon, represented as strings
           items:
             type: string
     TickerSnapshotResponse:
@@ -1684,44 +1899,54 @@ components:
         product_id:
           type: string
           description: The subscribed product (also referred to as instrument or symbol)
-          example: "PI_XBTUSD"
+          example: PI_XBTUSD
         funding_rate:
           type: number
-          description: The current funding rate. If zero, field is not populated (for perpetuals only)
+          description: >-
+            The current funding rate. If zero, field is not populated (for
+            perpetuals only)
           example: 0.0006
           nullable: true
         funding_rate_prediction:
           type: number
-          description: The estimated next funding rate. If zero, field is not populated (for perpetuals only)
+          description: >-
+            The estimated next funding rate. If zero, field is not populated
+            (for perpetuals only)
           example: 0.0007
           nullable: true
         relative_funding_rate:
           type: number
-          description: The absolute funding rate relative to the spot price at the time of funding rate calculation (for perpetuals only)
+          description: >-
+            The absolute funding rate relative to the spot price at the time of
+            funding rate calculation (for perpetuals only)
           example: 0.0005
           nullable: true
         relative_funding_rate_prediction:
           type: number
-          description: The estimated next absolute funding rate relative to the current spot price (for perpetuals only)
+          description: >-
+            The estimated next absolute funding rate relative to the current
+            spot price (for perpetuals only)
           example: 0.0008
           nullable: true
         next_funding_rate_time:
           type: integer
-          description: The time until the next funding rate in milliseconds (for perpetuals only)
+          description: >-
+            The time until the next funding rate in milliseconds (for perpetuals
+            only)
           example: 3600000
           nullable: true
         feed:
           type: string
           description: The subscribed feed
-          example: "ticker"
+          example: ticker
         bid:
           type: number
           description: The price of the current best bid
-          example: 29950.0
+          example: 29950
         ask:
           type: number
           description: The price of the current best ask
-          example: 30000.0
+          example: 30000
         bid_size:
           type: number
           description: The size of the current best bid
@@ -1729,11 +1954,11 @@ components:
         ask_size:
           type: number
           description: The size of the current best ask
-          example: 3.0
+          example: 3
         volume:
           type: number
           description: The sum of the sizes of all fills observed in the last 24 hours
-          example: 1250.0
+          example: 1250
         dtm:
           type: integer
           description: The days until maturity
@@ -1742,27 +1967,29 @@ components:
         leverage:
           type: string
           description: The leverage of the product
-          example: "10x"
+          example: 10x
         index:
           type: number
           description: The real-time index of the product
-          example: 29995.0
+          example: 29995
         change:
           type: number
           description: The 24-hour change in price
-          example: 150.0
+          example: 150
         suspended:
           type: boolean
           description: True if the market is suspended
           example: false
         tag:
           type: string
-          description: Market tag such as perpetual, month, or quarter. Other tags may be added without notice
-          example: "perpetual"
+          description: >-
+            Market tag such as perpetual, month, or quarter. Other tags may be
+            added without notice
+          example: perpetual
         pair:
           type: string
           description: The currency pair of the instrument
-          example: "XBT/USD"
+          example: XBT/USD
         openInterest:
           type: number
           description: The current open interest of the instrument
@@ -1782,8 +2009,10 @@ components:
           example: false
         volumeQuote:
           type: number
-          description: The same as volume, except for multi-collateral futures where it is converted to the non-base currency
-          example: 50000.0
+          description: >-
+            The same as volume, except for multi-collateral futures where it is
+            converted to the non-base currency
+          example: 50000
     TickerLiteSnapshotResponse:
       type: object
       required:
@@ -1796,25 +2025,25 @@ components:
         feed:
           type: string
           description: The subscribed feed
-          example: "ticker"
+          example: ticker
         product_id:
           type: string
           description: The subscribed product (also referred to as instrument or symbol)
-          example: "PI_XBTUSD"
+          example: PI_XBTUSD
         bid:
           type: number
           description: The price of the current best bid
-          example: 29950.0
+          example: 29950
           minimum: 0
         ask:
           type: number
           description: The price of the current best ask
-          example: 30000.0
+          example: 30000
           minimum: 0
         change:
           type: number
           description: The 24-hour change in price
-          example: 150.0
+          example: 150
         premium:
           type: number
           description: The premium associated with the product
@@ -1822,16 +2051,18 @@ components:
         volume:
           type: number
           description: The sum of the sizes of all fills observed in the last 24 hours
-          example: 1250.0
+          example: 1250
           minimum: 0
         tag:
           type: string
-          description: Market tag such as week, month, or quarter. Other tags may be added without notice
-          example: "week"
+          description: >-
+            Market tag such as week, month, or quarter. Other tags may be added
+            without notice
+          example: week
         pair:
           type: string
           description: The currency pair of the instrument
-          example: "XBT/USD"
+          example: XBT/USD
         dtm:
           type: integer
           description: The days until maturity
@@ -1843,8 +2074,10 @@ components:
           minimum: 0
         volumeQuote:
           type: number
-          description: The same as volume, but for multi-collateral futures, it is converted to the non-base currency
-          example: 50000.0
+          description: >-
+            The same as volume, but for multi-collateral futures, it is
+            converted to the non-base currency
+          example: 50000
           minimum: 0
     BookSnapshotResponse:
       type: object
@@ -1859,11 +2092,11 @@ components:
         feed:
           type: string
           description: The subscribed feed
-          example: "ticker"
+          example: ticker
         product_id:
           type: string
           description: The subscribed product (also referred to as instrument or symbol)
-          example: "PI_XBTUSD"
+          example: PI_XBTUSD
         seq:
           type: integer
           description: The subscription message sequence number
@@ -1903,7 +2136,7 @@ components:
         price:
           type: number
           description: The price of the entry
-          example: 29950.0
+          example: 29950
           minimum: 0
     BookDeltaResponse:
       type: object
@@ -1919,11 +2152,11 @@ components:
         feed:
           type: string
           description: The subscribed feed
-          example: "order_entry"
+          example: order_entry
         product_id:
           type: string
           description: The subscribed product (also referred to as instrument or symbol)
-          example: "PI_XBTUSD"
+          example: PI_XBTUSD
         seq:
           type: integer
           description: The subscription message sequence number
@@ -1936,12 +2169,12 @@ components:
           minimum: 0
         side:
           type: string
-          description: The side of the entry (e.g., "buy" or "sell")
-          example: "buy"
+          description: 'The side of the entry (e.g., "buy" or "sell")'
+          example: buy
         price:
           type: number
           description: The price of the entry
-          example: 29950.0
+          example: 29950
           minimum: 0
         qty:
           type: number
@@ -1958,11 +2191,11 @@ components:
         feed:
           type: string
           description: The subscribed feed
-          example: "trades"
+          example: trades
         product_id:
           type: string
           description: The subscribed product (also referred to as instrument or symbol)
-          example: "PI_XBTUSD"
+          example: PI_XBTUSD
     trades:
       type: array
       items:
@@ -1981,13 +2214,13 @@ components:
         uid:
           type: string
           description: Unique identifier for the matched trade
-          example: "abc123"
+          example: abc123
         side:
           $ref: "#/components/schemas/sideEnum"
-          example: "buy"
+          example: buy
         type:
           $ref: "#/components/schemas/typeEnum"
-          example: "fill"
+          example: fill
         seq:
           type: integer
           description: The subscription message sequence number
@@ -2006,7 +2239,7 @@ components:
         price:
           type: number
           description: The price that the product got traded
-          example: 29950.0
+          example: 29950
           minimum: 0
     sideEnum:
       type: string
@@ -2030,21 +2263,21 @@ components:
         feed:
           type: string
           description: The subscribed feed
-          example: "trades"
+          example: trades
         product_id:
           type: string
           description: The subscribed product (also referred to as instrument or symbol)
-          example: "PI_XBTUSD"
+          example: PI_XBTUSD
         uid:
           type: string
           description: Unique identifier for the matched trade
-          example: "abc123"
+          example: abc123
         side:
           $ref: "#/components/schemas/sideEnum"
-          example: "buy"
+          example: buy
         type:
           $ref: "#/components/schemas/typeEnum"
-          example: "fill"
+          example: fill
         seq:
           type: integer
           description: The subscription message sequence number
@@ -2063,7 +2296,7 @@ components:
         price:
           type: number
           description: The price that the product got traded
-          example: 29950.0
+          example: 29950
           minimum: 0
     ChallengeRequest:
       type: object
@@ -2103,7 +2336,7 @@ components:
         feed:
           type: string
           description: The subscribed feeds
-          example: "ticker"
+          example: ticker
         time:
           type: integer
           description: The UTC time of the server in milliseconds

@@ -1,47 +1,87 @@
-asyncapi: 2.1.0
+asyncapi: 3.0.0
 info:
   title: Hashkey Websocket API
   version: 2.0.0
-  description: "WebSocket endpoints are available for real-time data streaming on Hashkey exchange."
+  description: >-
+    WebSocket endpoints are available for real-time data streaming on Hashkey
+    exchange.
 servers:
   Sandbox Public Streams:
-    url: "wss://stream-pro.sim.hashkeydev.com/quote/ws/v1"
+    host: stream-pro.sim.hashkeydev.com
+    pathname: /quote/ws/v1
     protocol: wss
   Sandbox Private Streams:
-    url: "wss://stream-pro.sim.hashkeydev.com/api/v1/ws/{listenKey}"
+    host: stream-pro.sim.hashkeydev.com
+    pathname: "/api/v1/ws/{listenKey}"
     protocol: wss
   Production Private Streams:
-    url: "wss://stream-pro.hashkey.com/quote/ws/v1"
+    host: stream-pro.hashkey.com
+    pathname: /quote/ws/v1
     protocol: wss
   Production Public Streams:
-    url: "wss://stream-pro.hashkey.com/api/v1/ws/{listenKey}"
+    host: stream-pro.hashkey.com
+    pathname: "/api/v1/ws/{listenKey}"
     protocol: wss
 channels:
   /:
+    address: /
+    messages:
+      publish.message.0:
+        $ref: "#/components/messages/PingMessage"
+      publish.message.1:
+        $ref: "#/components/messages/KlineSubscriptionRequest"
+      publish.message.2:
+        $ref: "#/components/messages/RealtimesSubscriptionRequest"
+      publish.message.3:
+        $ref: "#/components/messages/TradeSubscriptionRequest"
+      publish.message.4:
+        $ref: "#/components/messages/DepthSubscriptionRequest"
+      subscribe.message.0:
+        $ref: "#/components/messages/PongMessage"
+      subscribe.message.1:
+        $ref: "#/components/messages/KlineUpdateResponse"
+      subscribe.message.2:
+        $ref: "#/components/messages/RealtimesUpdateResponse"
+      subscribe.message.3:
+        $ref: "#/components/messages/TradeUpdateResponse"
+      subscribe.message.4:
+        $ref: "#/components/messages/DepthUpdateResponse"
+      subscribe.message.5:
+        $ref: "#/components/messages/AccountUpdateMessage"
+      subscribe.message.6:
+        $ref: "#/components/messages/OrderUpdateMessage"
+      subscribe.message.7:
+        $ref: "#/components/messages/TicketPushMessage"
     description: Main communication channel for the WebSocket connection.
-    publish:
-      summary: Messages received at server
-      description: The client sends a ping message with a timestamp to keep the WebSocket connection alive.
-      message:
-        oneOf:
-          - $ref: "#/components/messages/PingMessage"
-          - $ref: "#/components/messages/KlineSubscriptionRequest"
-          - $ref: "#/components/messages/RealtimesSubscriptionRequest"
-          - $ref: "#/components/messages/TradeSubscriptionRequest"
-          - $ref: "#/components/messages/DepthSubscriptionRequest"
-    subscribe:
-      description: Message send by server
-      message:
-        oneOf:
-          - $ref: "#/components/messages/PongMessage"
-          - $ref: "#/components/messages/KlineUpdateResponse"
-          - $ref: "#/components/messages/RealtimesUpdateResponse"
-          - $ref: "#/components/messages/TradeUpdateResponse"
-          - $ref: "#/components/messages/DepthUpdateResponse"
-          - $ref: "#/components/messages/AccountUpdateMessage"
-          - $ref: "#/components/messages/OrderUpdateMessage"
-          - $ref: "#/components/messages/TicketPushMessage"
-
+operations:
+  /.publish:
+    action: receive
+    channel:
+      $ref: "#/channels/~1"
+    summary: Messages received at server
+    description: >-
+      The client sends a ping message with a timestamp to keep the WebSocket
+      connection alive.
+    messages:
+      - $ref: "#/channels/~1/messages/publish.message.0"
+      - $ref: "#/channels/~1/messages/publish.message.1"
+      - $ref: "#/channels/~1/messages/publish.message.2"
+      - $ref: "#/channels/~1/messages/publish.message.3"
+      - $ref: "#/channels/~1/messages/publish.message.4"
+  /.subscribe:
+    action: send
+    channel:
+      $ref: "#/channels/~1"
+    description: Message send by server
+    messages:
+      - $ref: "#/channels/~1/messages/subscribe.message.0"
+      - $ref: "#/channels/~1/messages/subscribe.message.1"
+      - $ref: "#/channels/~1/messages/subscribe.message.2"
+      - $ref: "#/channels/~1/messages/subscribe.message.3"
+      - $ref: "#/channels/~1/messages/subscribe.message.4"
+      - $ref: "#/channels/~1/messages/subscribe.message.5"
+      - $ref: "#/channels/~1/messages/subscribe.message.6"
+      - $ref: "#/channels/~1/messages/subscribe.message.7"
 components:
   messages:
     PingMessage:
@@ -66,7 +106,9 @@ components:
     KlineSubscriptionRequest:
       name: KlineSubscriptionRequest
       title: Kline Subscription Request
-      summary: The request sent by the client to subscribe to Kline data for a currency pair.
+      summary: >-
+        The request sent by the client to subscribe to Kline data for a currency
+        pair.
       contentType: application/json
       payload:
         type: object
@@ -99,7 +141,9 @@ components:
     RealtimesSubscriptionRequest:
       name: RealtimesSubscriptionRequest
       title: Realtimes Subscription Request
-      summary: The request sent by the client to subscribe to Realtimes data for a currency pair.
+      summary: >-
+        The request sent by the client to subscribe to Realtimes data for a
+        currency pair.
       contentType: application/json
       payload:
         type: object
@@ -132,7 +176,9 @@ components:
     TradeSubscriptionRequest:
       name: TradeSubscriptionRequest
       title: Trade Subscription Request
-      summary: The request sent by the client to subscribe to Trade data for a currency pair.
+      summary: >-
+        The request sent by the client to subscribe to Trade data for a currency
+        pair.
       contentType: application/json
       payload:
         type: object
@@ -165,7 +211,9 @@ components:
     DepthSubscriptionRequest:
       name: DepthSubscriptionRequest
       title: Depth Subscription Request
-      summary: The request sent by the client to subscribe to Depth data for a currency pair.
+      summary: >-
+        The request sent by the client to subscribe to Depth data for a currency
+        pair.
       contentType: application/json
       payload:
         type: object
@@ -413,7 +461,9 @@ components:
             type: array
             items:
               type: string
-            example: ["10004", "0.001"]
+            example:
+              - "10004"
+              - "0.001"
         a:
           type: array
           description: List of ask prices and quantities.
@@ -421,7 +471,9 @@ components:
             type: array
             items:
               type: string
-            example: ["10004", "0.001"]
+            example:
+              - "10004"
+              - "0.001"
     AccountSchema:
       type: object
       properties:
@@ -513,7 +565,7 @@ components:
         d:
           type: string
           description: Execution ID
-          example: 1234567890123456789
+          example: 1234567890123456800
         i:
           type: integer
           description: Order ID
@@ -538,11 +590,11 @@ components:
           type: string
           description: Average executed price
           example: "26105.5"
-        n:
+        "n":
           type: string
           description: Commission amount
           example: "0"
-        N:
+        "N":
           type: string
           description: Commission asset
           example: null
@@ -579,7 +631,9 @@ components:
           example: ticketInfo
         E:
           type: string
-          description: Event time (latest order info update time when the message is created)
+          description: >-
+            Event time (latest order info update time when the message is
+            created)
           example: "1668693440976"
         s:
           type: string
@@ -633,16 +687,19 @@ components:
       type: string
       description: Current order status
       enum:
-        [NEW, PARTIALLY_FILLED, FILLED, PARTIALLY_CANCELED, CANCELED, REJECTED]
+        - NEW
+        - PARTIALLY_FILLED
+        - FILLED
+        - PARTIALLY_CANCELED
+        - CANCELED
+        - REJECTED
     AccountEnum:
       type: string
       description: Event type
       enum:
-        [
-          outboundAccountInfo,
-          outboundCustodyAccountInfo,
-          outboundFiatAccountInfo,
-        ]
+        - outboundAccountInfo
+        - outboundCustodyAccountInfo
+        - outboundFiatAccountInfo
     PongPayload:
       type: object
       properties:

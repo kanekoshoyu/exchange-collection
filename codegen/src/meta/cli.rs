@@ -3,7 +3,6 @@ use eyre::{eyre, Result};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::str::FromStr;
-use strum::IntoEnumIterator;
 use strum_macros::{Display, EnumIter, EnumString};
 
 #[derive(
@@ -48,7 +47,8 @@ impl Default for CliInput {
             input_directory: Some(PathBuf::from_str("asset").unwrap()),
             input_filename: None,
             output_directory: Some(PathBuf::from_str("target").unwrap()),
-            output_language: ProgrammingLanguage::iter().collect(),
+            // TODO: enable python when the codegen is complete
+            output_language: [ProgrammingLanguage::Rust].to_vec(),
         }
     }
 }

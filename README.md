@@ -43,9 +43,9 @@ by gathering OpenAPI / AsyncAPI docuements, we can build a CI pipeline that gene
 | specs                           | guidelines                                                                                            |
 | ------------------------------- | ----------------------------------------------------------------------------------------------------- |
 | OpenAPI format                  | `{exchange}_rest_openapi.yaml`, v3.X.Y, convert swagger to OpenAPI [here](https://editor.swagger.io/) |
-| AsyncAPI format                 | `{exchange}_ws_asyncapi.yaml`, YAML, v2.X.Y, codegen does not work well with v3 apparently            |
+| AsyncAPI format                 | `{exchange}_ws_asyncapi.yaml`, YAML, v3.0.X, codegen topology natively supports V3 now                |
 | codegen                         | written in Rust                                                                                       |
-| official codegen output support | `rust` `python`                                                                                       |
+| official codegen output support | `rust` `python (codegen coming soon)`                                                                                       |
 | unofficial support              | `typescript` `csharp` `golang` `java` `dart` `kotlin` `php` `cplusplus` `scala`                       |
 
 ## codegen commands

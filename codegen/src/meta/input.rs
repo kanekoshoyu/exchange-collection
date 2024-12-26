@@ -208,7 +208,7 @@ impl InputFileParameter {
         let filename_pathbuf = filename.to_path_buf();
 
         if !filename.is_file() {
-            return Err(eyre::eyre!("file does not exist"));
+            return Err(eyre::eyre!("file does not exist, {filename:?}"));
         }
 
         // get content first
@@ -257,13 +257,15 @@ impl InputFileParameter {
         })
     }
 
-    /// returns a list of InputFileParameter from directory
+    /// returns a list of InputFileParameter from directory containing config files
     pub fn from_directory(directory: impl AsRef<Path>) -> Result<Vec<Self>> {
         let mut result = Vec::new();
         let files = std::fs::read_dir(directory).unwrap();
         for file in files {
             let file = file?;
-            result.push(InputFileParameter::from_filename(file.file_name())?);
+            let filename = format!("{}/{}", directory, filefile.file_name());
+            let file = InputFileParameter::from_filename();
+            result.push();
         }
         Ok(result)
     }
