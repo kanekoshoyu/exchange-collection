@@ -45,7 +45,7 @@ by gathering OpenAPI / AsyncAPI docuements, we can build a CI pipeline that gene
 | OpenAPI format                  | `{exchange}_rest_openapi.yaml`, v3.X.Y, convert swagger to OpenAPI [here](https://editor.swagger.io/) |
 | AsyncAPI format                 | `{exchange}_ws_asyncapi.yaml`, YAML, v3.0.X, codegen topology natively supports V3 now                |
 | codegen                         | written in Rust                                                                                       |
-| official codegen output support | `rust` `python (codegen coming soon)`                                                                                       |
+| official codegen output support | `rust` `python (codegen coming soon)`                                                                 |
 | unofficial support              | `typescript` `csharp` `golang` `java` `dart` `kotlin` `php` `cplusplus` `scala`                       |
 
 ## codegen commands
@@ -78,16 +78,16 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | [binance](https://binance-docs.github.io)                      | yes       | done           | done          |
 | [coinbase](https://docs.cdp.coinbase.com)                      | yes       | done           | done          |
 | [hashkey](https://hashkeypro-apidoc.readme.io) (HK)            | yes       | done           | done          |
+| [okx](https://www.okx.com/docs-v5/en)                          | yes       | done           | done          |
 | [krakenfutures](https://docs.kraken.com/api)                   | yes       | done           | done          |
 | [gateio](https://www.gate.io/docs/developers/apiv4)            | yes       | WIP            | WIP           |
-| [okx](https://www.okx.com/docs-v5/en)                          | yes       | done           | testing       |
 | [dydx](https://docs.dydx.exchange)                             | no        | postponed      | /             |
 | [polkadex](https://docs.polkadex.trade)                        | no        | postponed      | /             |
 | [zkex](https://docs.zkex.com)                                  | no        | postponed      | /             |
 | [gmx](https://gmx-docs.io)                                     | no        | postponed      | /             |
 | [bybit](https://bybit-exchange.github.io/docs/)                | yes       | planned        | planned       |
 | [kucoin](https://www.kucoin.com/docs)                          | yes       | planned        | planned       |
-| [htx](https://www.htx.com/en-us/opend/newApiPages/)            | yes       | planned        | planned       |
+| [htx](https://www.htx.com/en-us/opend/newApiPages)             | yes       | planned        | planned       |
 | [bitbank](https://lightning.bitflyer.com/docs) (JP)            | yes       | planned        | planned       |
 | [bitflyer](https://lightning.bitflyer.com/docs) (JP)           | yes       | planned        | planned       |
 | [coincheck](https://coincheck.com/documents/exchange/api) (JP) | yes       | planned        | planned       |
