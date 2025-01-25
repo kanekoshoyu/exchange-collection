@@ -203,7 +203,7 @@ pub struct InputFileParameter {
 }
 impl InputFileParameter {
     /// return InputFileParameter from a filename
-    pub fn from_filename(filename: impl AsRef<Path>) -> Result<Self> {
+    pub fn from_file_path(filename: impl AsRef<Path>) -> Result<Self> {
         let filename = filename.as_ref();
         let filename_pathbuf = filename.to_path_buf();
 
@@ -212,6 +212,7 @@ impl InputFileParameter {
         }
 
         // get content first
+        println!("getting content of {:?}", &filename);
         let file_content = std::fs::read_to_string(filename).expect("Failed to read YAML file");
 
         // "binance_ws_asyncapi.yaml"
@@ -260,12 +261,19 @@ impl InputFileParameter {
     /// returns a list of InputFileParameter from directory containing config files
     pub fn from_directory(directory: impl AsRef<Path>) -> Result<Vec<Self>> {
         let mut result = Vec::new();
+        let directory = directory.as_ref();
         let files = std::fs::read_dir(directory).unwrap();
         for file in files {
-            let file = file?;
-            let filename = format!("{}/{}", directory, filefile.file_name());
-            let file = InputFileParameter::from_filename();
-            result.push();
+            let file_name = file?.file_name();
+            let file_name = file_name
+                .into_string()
+                .map_err(|_| eyre!("file name format"))?;
+            // filter out metadata files like DS_STORE
+            if file_name.contains(".yaml") {
+                let file_path = directory.join(file_name);
+                let file = InputFileParameter::from_file_path(file_path)?;
+                result.push(file);
+            }
         }
         Ok(result)
     }

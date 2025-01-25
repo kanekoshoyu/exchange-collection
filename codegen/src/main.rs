@@ -53,7 +53,7 @@ fn run() -> Result<()> {
                 }
             }
             (Some(input_filename), None) => {
-                let input = InputFileParameter::from_filename(input_filename)?;
+                let input = InputFileParameter::from_file_path(input_filename)?;
                 // single load
                 println!("single load");
                 let output_directory = cli.output_directory.to_owned().unwrap();
@@ -240,7 +240,7 @@ fn output_protocol_directory(
     output_collection_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
 ) -> PathBuf {
-    let param = InputFileParameter::from_filename(&input_filename).unwrap();
+    let param = InputFileParameter::from_file_path(&input_filename).unwrap();
     let exchange = param.exchange;
     let protocol = param.protocol;
 
@@ -266,7 +266,7 @@ fn command_for_codegen_protocol_crate(
     output_language: ProgrammingLanguage,
     exchange_name: &str,
 ) -> Result<Command> {
-    let param = InputFileParameter::from_filename(&input_filename).unwrap();
+    let param = InputFileParameter::from_file_path(&input_filename).unwrap();
     let out_dir = output_protocol_crate_directory.as_ref();
     // output
     let input_filename = input_filename.as_ref();
@@ -302,7 +302,7 @@ fn codegen_protocol_crate(
     output_language: ProgrammingLanguage,
     exchange_name: &str,
 ) -> Result<()> {
-    let param = InputFileParameter::from_filename(&input_filename).unwrap();
+    let param = InputFileParameter::from_file_path(&input_filename).unwrap();
     let protocol_directory = output_protocol_directory(
         &input_filename,
         &output_collection_directory,
@@ -451,7 +451,7 @@ mod tests {
 
     #[test]
     fn test_parse_input_file() {
-        match InputFileParameter::from_filename("../asset/binance_ws_asyncapi.yaml") {
+        match InputFileParameter::from_file_path("../asset/binance_ws_asyncapi.yaml") {
             Ok(parameter) => {
                 assert_eq!(parameter.exchange, "binance");
                 assert_eq!(parameter.protocol, Protocol::Ws);
