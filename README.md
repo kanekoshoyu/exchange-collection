@@ -90,24 +90,22 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | [polkadex](https://docs.polkadex.trade)                        | no  | postponed      | /             |
 | [zkex](https://docs.zkex.com)                                  | no  | postponed      | /             |
 | [gmx](https://gmx-docs.io)                                     | no  | postponed      | /             |
-| [coinex](https://docs.coinex.com/api/v2)                       | yes | WIP            | WIP           |
-| [bybit](https://bybit-exchange.github.io/docs)                 | yes | WIP            | WIP           |
+| [coinex](https://docs.coinex.com/api/v2)                       | no  | WIP            | WIP           |
+| [bybit](https://bybit-exchange.github.io/docs)                 | yes | planned        | planned       |
 | [kucoin](https://www.kucoin.com/docs)                          | yes | planned        | planned       |
 | [htx](https://www.htx.com/en-us/opend/newApiPages)             | yes | planned        | planned       |
-| [bitbank](https://lightning.bitflyer.com/docs) (JP)            | yes | planned        | planned       |
-| [bitflyer](https://lightning.bitflyer.com/docs) (JP)           | yes | planned        | planned       |
-| [korbit](https://apidocs.korbit.co.kr) (KR)                    | yes | planned        | planned       |
-| [bitkub](https://docs.polkadex.trade) (TH)                     | yes | planned        | planned       |
-
-
-
+| [bitbank](https://lightning.bitflyer.com/docs) (JP)            | yes | postponed      | postponed     |
+| [bitflyer](https://lightning.bitflyer.com/docs) (JP)           | yes | postponed      | postponed     |
+| [korbit](https://apidocs.korbit.co.kr) (KR)                    | yes | postponed      | postponed     |
+| [bitkub](https://docs.polkadex.trade) (TH)                     | yes | postponed      | postponed     |
 
 I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix) due to limited number of supported exchanges. But it is definitely an interesting one to try in the future.  
+For AMM DEX like [Uniswap](https://docs.uniswap.org/contracts/v2/reference/API/overview), I will add support if there is a proper demand. My personal suggestion is to make use of JSON-RPC clients like ether-rs to connect RPC providers like [infura](https://www.infura.io) and [alchemy](https://www.alchemy.com). 
 
 ## TODO
 - [ ] gather assets
   - [x] gather 3 sets of API docs initial assets
-  - [ ] gather 10 exchanges to validate the idea
+  - [x] gather 10 exchanges to validate the idea
   - [ ] gather 100 exchanges to have a competitive trading library
 - [ ] set up CI for codegen model
   - [ ] rust codegen
