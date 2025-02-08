@@ -1,0 +1,1635 @@
+openapi: 3.0.0
+info:
+  title: Coincheck Crypto Exchange
+  version: 1.0.0
+  description: |
+    Welcome to Coincheck API document!
+
+servers:
+  - url: https://coincheck.com
+    description: Main REST API
+tags:
+  - name: Public API
+    description: Public API allows you to browse order status, order transactions and order book.
+  - name: Private API
+    description: Private API allows you to create and cancel new orders, and to check your balance.
+
+paths:
+  /api/ticker:
+    get:
+      summary: Retrieve ticker information
+      description: Get the latest ticker data for a specified currency pair.
+      tags:
+        - Public API
+      parameters:
+        - name: pair
+          in: query
+          description: Specify a currency pair to fetch ticker data (e.g., btc_jpy, eth_jpy, etc_jpy, etc.).
+          required: true
+          schema:
+            type: string
+            enum:
+              - btc_jpy
+              - eth_jpy
+              - etc_jpy
+              - lsk_jpy
+              - xrp_jpy
+              - xem_jpy
+              - bch_jpy
+              - mona_jpy
+              - iost_jpy
+              - enj_jpy
+              - chz_jpy
+              - imx_jpy
+              - shib_jpy
+              - avax_jpy
+              - plt_jpy
+              - fnct_jpy
+              - dai_jpy
+              - wbtc_jpy
+              - bril_jpy
+              - bc_jpy
+              - doge_jpy
+      responses:
+        "200":
+          description: Successful response with ticker information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tickers"
+        "400":
+          description: Bad request. Pair parameter is missing or invalid.
+        "500":
+          description: Internal server error.
+  /api/trades:
+    get:
+      summary: Retrieve current order transactions
+      description: Get the latest trades data for a specified currency pair.
+      tags:
+        - Public API
+      parameters:
+        - name: pair
+          in: query
+          description: Specify a currency pair to fetch trades data (e.g., btc_jpy, eth_jpy, etc_jpy, etc.).
+          required: true
+          schema:
+            type: string
+            enum:
+              - btc_jpy
+              - eth_jpy
+              - etc_jpy
+              - lsk_jpy
+              - xrp_jpy
+              - xem_jpy
+              - bch_jpy
+              - mona_jpy
+              - iost_jpy
+              - enj_jpy
+              - chz_jpy
+              - imx_jpy
+              - shib_jpy
+              - avax_jpy
+              - plt_jpy
+              - fnct_jpy
+              - dai_jpy
+              - wbtc_jpy
+              - bril_jpy
+              - bc_jpy
+              - doge_jpy
+      responses:
+        "200":
+          description: Successful response with trades information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TradesResponse"
+        "400":
+          description: Bad request. Pair parameter is missing or invalid.
+        "500":
+          description: Internal server error.
+  /api/order_books:
+    get:
+      summary: Fetch order book information
+      description: Retrieve the current order book details including asks and bids.
+      tags:
+        - Public API
+      responses:
+        "200":
+          description: Successful response with order book information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderBookResponse"
+        "500":
+          description: Internal server error.
+  /api/exchange/orders/rate:
+    get:
+      summary: Calculate order rate
+      description: Retrieve the calculated rate, price, or amount for a specified order.
+      tags:
+        - Public API
+      parameters:
+        - name: order_type
+          in: query
+          description: Order type ("sell" or "buy").
+          required: true
+          schema:
+            type: string
+            enum:
+              - sell
+              - buy
+        - name: pair
+          in: query
+          description: Specify a currency pair to trade (e.g., btc_jpy, eth_jpy, etc_jpy).
+          required: true
+          schema:
+            type: string
+            enum:
+              - btc_jpy
+              - eth_jpy
+              - etc_jpy
+              - lsk_jpy
+              - xrp_jpy
+              - xem_jpy
+              - bch_jpy
+              - mona_jpy
+              - iost_jpy
+              - enj_jpy
+              - chz_jpy
+              - imx_jpy
+              - shib_jpy
+              - avax_jpy
+              - plt_jpy
+              - fnct_jpy
+              - dai_jpy
+              - wbtc_jpy
+              - bril_jpy
+              - bc_jpy
+              - doge_jpy
+        - name: amount
+          in: query
+          description: Order amount (e.g., 0.1). Either `price` or `amount` must be specified.
+          required: false
+          schema:
+            type: number
+            example: 0.1
+        - name: price
+          in: query
+          description: Order price (e.g., 28000). Either `price` or `amount` must be specified.
+          required: false
+          schema:
+            type: number
+            example: 28000
+      responses:
+        "200":
+          description: Successful response with calculated rate.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderRateResponse"
+        "400":
+          description: Bad request. Invalid or missing parameters.
+        "500":
+          description: Internal server error.
+  /api/rate/{pair}:
+    get:
+      summary: Standard rate of coin
+      description: Retrieve the standard rate for a specified currency pair.
+      tags:
+        - Public API
+      parameters:
+        - name: pair
+          in: path
+          description: Specify the currency pair (e.g., "btc_jpy").
+          required: true
+          schema:
+            type: string
+            example: btc_jpy
+      responses:
+        "200":
+          description: Successful response with the standard rate.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StandardRateResponse"
+        "400":
+          description: Bad request. Invalid or missing parameters.
+        "500":
+          description: Internal server error.
+  /api/exchange_status:
+    get:
+      summary: Retrieve exchange status
+      description: Fetch the status of the exchange for all tradable pairs or a specific pair.
+      tags:
+        - Public API
+      parameters:
+        - in: query
+          name: pair
+          required: false
+          schema:
+            type: string
+            description: A specific trading pair (e.g., btc_jpy, eth_jpy). If not provided, information for all pairs will be returned.
+      responses:
+        "200":
+          description: Successful response with exchange status details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exchange_status:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ExchangeStatus"
+        "400":
+          description: Bad request, invalid parameters
+        "500":
+          description: Internal server error
+  /api/exchange/orders:
+    post:
+      summary: Place a new order on the exchange
+      description: Publish a new order (buy/sell) to the exchange. You can place limit, spot, or market orders.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      operationId: placeOrder
+      requestBody:
+        description: The details of the order to be placed.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderRequest"
+      responses:
+        "200":
+          description: Successfully placed order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "400":
+          description: Bad request, invalid parameters or missing required fields
+        "429":
+          description: Too many requests. Rate limit exceeded. Only 5 requests per second allowed.
+        "500":
+          description: Internal server error
+  /api/exchange/orders/{id}:
+    get:
+      summary: Get Order Details
+      description: Fetch details of a specific order using its ID.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Order ID (same as ID in New Order)
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with order details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDetails"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+    delete:
+      summary: Cancel Order
+      description: Cancel an order by specifying the order ID (either new or unsettled).
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: New order or unsettled order list's ID.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with canceled order details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDeletion"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/exchange/orders/opens:
+    get:
+      summary: Get Unsettled Orders
+      description: Fetch a list of all unsettled orders.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      responses:
+        "200":
+          description: Successful response with unsettled orders list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenOrders"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/exchange/orders/cancel_status:
+    get:
+      summary: Order Cancellation Status
+      description: Refer to the cancellation processing status of an order by specifying its ID.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: New order or unsettled order list's ID.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with order cancellation status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderStatus"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/exchange/orders/transactions:
+    get:
+      summary: Transaction History
+      description: Fetch your transaction history.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      responses:
+        "200":
+          description: Successful response with transaction history.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transactions"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/exchange/orders/transactions_pagination:
+    get:
+      summary: Transaction History (Pagination)
+      description: Fetch your transaction history with pagination support.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of transactions to retrieve.
+          schema:
+            type: integer
+        - name: order
+          in: query
+          required: false
+          description: Order of transactions (asc or desc).
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: starting_after
+          in: query
+          required: false
+          description: Start retrieving transactions after this ID.
+          schema:
+            type: string
+        - name: ending_before
+          in: query
+          required: false
+          description: End retrieving transactions before this ID.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with paginated transaction history.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionPagination"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/accounts/balance:
+    get:
+      summary: Account Balance
+      description: Fetch your account balance, including reserved amounts and lending details.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      responses:
+        "200":
+          description: Successful response with account balance details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Balance"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/send_money:
+    post:
+      summary: Send Crypto Currency
+      description: Send cryptocurrency to a specified address with a purpose and detailed information.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoneyTransferRequest"
+      responses:
+        "200":
+          description: Successful response with transaction details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoneyTransferResponse"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+    get:
+      summary: BTC Sending History
+      description: Fetch the history of BTC sending transactions.
+      parameters:
+        - name: currency
+          in: query
+          required: true
+          description: Currency (Only BTC is supported).
+          schema:
+            type: string
+            enum:
+              - BTC
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      responses:
+        "200":
+          description: Successful response with sending history.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates success of the API call.
+                  sends:
+                    type: array
+                    description: List of sending transactions.
+                    items:
+                      $ref: "#/components/schemas/MoneyTransferResponse"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/deposit_money:
+    get:
+      summary: BTC Deposit History
+      description: Fetch the history of BTC deposit transactions.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      parameters:
+        - name: currency
+          in: query
+          required: true
+          description: Currency (Only BTC is supported).
+          schema:
+            type: string
+            enum:
+              - BTC
+      responses:
+        "200":
+          description: Successful response with deposit history.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates success of the API call.
+                  deposits:
+                    type: array
+                    description: List of deposit transactions.
+                    items:
+                      $ref: "#/components/schemas/MoneyDepositResponse"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/accounts:
+    get:
+      summary: Display Account Information
+      description: Fetch detailed information about the account, including identity status, registered email, bitcoin address, and fees.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      responses:
+        "200":
+          description: Successful response with account information.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/bank_accounts:
+    get:
+      summary: Bank Account List
+      description: Fetch the list of bank accounts you have registered for withdrawal.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+
+      responses:
+        "200":
+          description: Successful response with bank account list.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: Indicates success of the API call.
+                  data:
+                    type: array
+                    description: List of registered bank accounts.
+                    items:
+                      $ref: "#/components/schemas/BankDetail"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+    post:
+      summary: Register a bank account
+      description: Registers a bank account for withdrawal.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BankRequest"
+      responses:
+        "200":
+          description: Successful registration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BankResponse"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/bank_accounts/{id}:
+    delete:
+      summary: Remove a bank account
+      description: Deletes a bank account using its ID.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Bank account ID
+          schema:
+            type: integer
+            example: 641
+      responses:
+        "200":
+          description: Successful deletion
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/withdraws:
+    get:
+      summary: Display Japanese YEN withdrawal request history
+      description: Retrieves the history of Japanese YEN withdrawal requests.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Number of records to retrieve
+          schema:
+            type: integer
+            example: 25
+        - name: order
+          in: query
+          required: false
+          description: Order of records (asc or desc)
+          schema:
+            type: string
+            example: desc
+        - name: starting_after
+          in: query
+          required: false
+          description: Start after this record
+          schema:
+            type: string
+            example: null
+        - name: ending_before
+          in: query
+          required: false
+          description: End before this record
+          schema:
+            type: string
+            example: null
+      responses:
+        "200":
+          description: Successful retrieval of withdrawal history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  pagination:
+                    $ref: "#/components/schemas/Pagination"
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/WithdrawHistory"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+    post:
+      summary: Create a withdrawal
+      description: Request a Japanese Yen withdrawal.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WithdrawRequest"
+      responses:
+        "200":
+          description: Successful withdrawal request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: "#/components/schemas/WithdrawHistory"
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+  /api/withdraws/{id}:
+    delete:
+      summary: Cancel a withdrawal request
+      description: Cancel a withdrawal request with a pending status.
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Private API
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Withdrawal ID
+          schema:
+            type: integer
+            example: 1043
+      responses:
+        "200":
+          description: Successful cancellation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        "429":
+          description: Too Many Requests. The API rate limit of 1 request per second has been exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RateLimitResponse"
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: ACCESS-KEY
+      description: |
+        For requests that require authentication, you need to include the `ACCESS-KEY`, `ACCESS-NONCE`, and `ACCESS-SIGNATURE` in the HTTP header.
+        The `ACCESS-KEY` is your public API key.
+        The `ACCESS-NONCE` is a positive integer (often the current UNIX timestamp).
+        The `ACCESS-SIGNATURE` is the HMAC SHA256 signature generated using the `ACCESS-SECRET` and the message (combining the nonce, URL, and any query parameters).
+  schemas:
+    Tickers:
+      type: object
+      properties:
+        last:
+          type: number
+          description: Latest quote.
+          example: 27390
+        bid:
+          type: number
+          description: Current highest buying order.
+          example: 26900
+        ask:
+          type: number
+          description: Current lowest selling order.
+          example: 27390
+        high:
+          type: number
+          description: The highest price within 24 hours.
+          example: 27659
+        low:
+          type: number
+          description: The lowest price within 24 hours.
+          example: 26400
+        volume:
+          type: string
+          description: 24-hour trading volume.
+          example: "50.29627103"
+        timestamp:
+          type: integer
+          description: Current time in UNIX timestamp format.
+          example: 1423377841
+    TradesResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful.
+          example: true
+        pagination:
+          $ref: "#/components/schemas/tradePagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/tradeData"
+    tradePagination:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: Number of records returned.
+          example: 1
+        order:
+          type: string
+          description: Order of the records (asc/desc).
+          example: "desc"
+        starting_after:
+          type: string
+          description: Cursor for pagination.
+          nullable: true
+          example: null
+        ending_before:
+          type: string
+          description: Cursor for pagination.
+          nullable: true
+          example: null
+    tradeData:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Trade ID.
+          example: 82
+        amount:
+          type: string
+          description: Amount traded.
+          example: "0.28391"
+        rate:
+          type: string
+          description: Trade rate.
+          example: "35400.0"
+        pair:
+          type: string
+          description: Currency pair for the trade.
+          example: "btc_jpy"
+        order_type:
+          type: string
+          description: Type of order (buy/sell).
+          example: "sell"
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp of the trade.
+          example: "2015-01-10T05:55:38.000Z"
+    OrderBookResponse:
+      type: object
+      properties:
+        asks:
+          type: array
+          description: Sell order status.
+          items:
+            type: array
+            items:
+              oneOf:
+                - type: number
+                  description: Price of the sell order.
+                  example: 27330
+                - type: string
+                  description: Quantity available at the price.
+                  example: "2.25"
+        bids:
+          type: array
+          description: Buy order status.
+          items:
+            type: array
+            items:
+              oneOf:
+                - type: number
+                  description: Price of the buy order.
+                  example: 27240
+                - type: string
+                  description: Quantity available at the price.
+                  example: "1.1543"
+    OrderRateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates if the request was successful.
+          example: true
+        rate:
+          type: number
+          description: Calculated order rate.
+          example: 60000
+        price:
+          type: number
+          description: Order price.
+          example: 60000
+        amount:
+          type: number
+          description: Order amount.
+          example: 1
+    StandardRateResponse:
+      type: object
+      properties:
+        rate:
+          type: string
+          description: The standard rate for the specified currency pair.
+          example: "60000"
+    ExchangeStatus:
+      type: object
+      properties:
+        pair:
+          type: string
+          description: The trading pair symbol (e.g., btc_jpy).
+        status:
+          type: string
+          enum: [available, itayose, stop]
+          description: The status of the pair (available, itayose, stop).
+        timestamp:
+          type: integer
+          description: The timestamp of the status retrieval.
+        availability:
+          type: object
+          properties:
+            order:
+              type: boolean
+              description: Whether limit orders can be placed.
+            market_order:
+              type: boolean
+              description: Whether market orders can be placed.
+            cancel:
+              type: boolean
+              description: Whether cancel orders can be placed.
+    OrderRequest:
+      type: object
+      properties:
+        pair:
+          type: string
+          description: The currency pair to trade. For example, "btc_jpy", "eth_jpy", etc.
+          example: "btc_jpy"
+        order_type:
+          type: string
+          description: The type of the order. Can be "buy", "sell", "market_buy", or "market_sell".
+          enum:
+            - buy
+            - sell
+            - market_buy
+            - market_sell
+          example: "buy"
+        rate:
+          type: number
+          format: float
+          description: The rate for limit orders (e.g., 28000). Not applicable for market orders.
+          example: 30000
+        amount:
+          type: number
+          format: float
+          description: The amount of the asset to buy/sell (e.g., 0.1 BTC).
+          example: 1.3
+        market_buy_amount:
+          type: number
+          format: float
+          description: The amount in JPY for market buy orders (e.g., 10000). Not applicable for "buy" or "sell".
+          example: 10000
+        stop_loss_rate:
+          type: number
+          format: float
+          description: The stop loss rate (optional). Applies to sell orders to limit losses.
+          example: 28000
+        time_in_force:
+          type: string
+          description: How long the order is valid. Can be "good_til_cancelled" or "post_only".
+          enum:
+            - good_til_cancelled
+            - post_only
+          example: "good_til_cancelled"
+    OrderResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        id:
+          type: integer
+          example: 12345
+        rate:
+          type: string
+          example: "30010.0"
+        amount:
+          type: string
+          example: "1.3"
+        order_type:
+          type: string
+          example: "sell"
+        time_in_force:
+          type: string
+          example: "good_til_cancelled"
+        stop_loss_rate:
+          type: string
+          nullable: true
+          example: null
+        pair:
+          type: string
+          example: "btc_jpy"
+        created_at:
+          type: string
+          format: date-time
+          example: "2015-01-10T05:55:38.000Z"
+    OrderDetails:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        id:
+          type: integer
+          description: Order ID.
+        pair:
+          type: string
+          description: Deal pair (e.g., btc_jpy).
+        status:
+          type: string
+          description: Order status.
+          enum:
+            - NEW
+            - WAITING_FOR_TRIGGER
+            - PARTIALLY_FILLED
+            - FILLED
+            - CANCELED
+            - EXPIRED
+            - PARTIALLY_FILLED_CANCELED
+            - PARTIALLY_FILLED_EXPIRED
+        order_type:
+          type: string
+          description: Type of order (e.g., buy, sell).
+        rate:
+          type: string
+          description: Order rate.
+        stop_loss_rate:
+          type: string
+          nullable: true
+          description: Stop loss rate.
+        maker_fee_rate:
+          type: string
+          description: Maker fee rate.
+        taker_fee_rate:
+          type: string
+          description: Taker fee rate.
+        amount:
+          type: string
+          description: Total order amount.
+        market_buy_amount:
+          type: string
+          nullable: true
+          description: Market buy amount.
+        executed_amount:
+          type: string
+          description: Amount that has been executed.
+        executed_market_buy_amount:
+          type: string
+          nullable: true
+          description: Executed market buy amount.
+        expired_type:
+          type: string
+          description: Reason for expiration.
+          enum:
+            - self_trade_prevention
+            - price_limit
+            - post_only
+            - unfilled_market
+            - itayose_market
+        prevented_match_id:
+          type: integer
+          nullable: true
+          description: Prevented match ID.
+        expired_amount:
+          type: string
+          description: Amount expired.
+        expired_market_buy_amount:
+          type: string
+          nullable: true
+          description: Expired market buy amount.
+        time_in_force:
+          type: string
+          description: Time in force for the order.
+        created_at:
+          type: string
+          format: date-time
+          description: Date and time when the order was created.
+    RateLimitResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message (e.g., too_many_requests).
+    OpenOrders:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        orders:
+          type: array
+          description: List of unsettled orders.
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: Order ID.
+              order_type:
+                type: string
+                description: Type of order (e.g., buy, sell).
+                enum:
+                  - buy
+                  - sell
+              rate:
+                type: number
+                nullable: true
+                description: Order rate (Market order if null).
+              pair:
+                type: string
+                description: Deal pair (e.g., btc_jpy).
+              pending_amount:
+                type: string
+                nullable: true
+                description: Unsettled order amount.
+              pending_market_buy_amount:
+                type: string
+                nullable: true
+                description: Unsettled market buy order amount.
+              stop_loss_rate:
+                type: string
+                nullable: true
+                description: Stop loss rate.
+              created_at:
+                type: string
+                format: date-time
+                description: Date and time when the order was created.
+    OrderDeletion:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        id:
+          type: integer
+          description: Canceled order ID.
+    OrderStatus:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        id:
+          type: integer
+          description: Order ID.
+        cancel:
+          type: boolean
+          description: Indicates whether the order was canceled (true or false). Expired orders are also treated as canceled.
+        created_at:
+          type: string
+          format: date-time
+          description: Time when the order was created.
+    Transactions:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        transactions:
+          type: array
+          description: List of transactions.
+          items:
+            $ref: "#/components/schemas/Transaction"
+    TransactionPagination:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          description: List of transactions.
+          items:
+            $ref: "#/components/schemas/Transaction"
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Transaction ID.
+        order_id:
+          type: integer
+          description: Associated order ID.
+        created_at:
+          type: string
+          format: date-time
+          description: Time when the transaction was created.
+        funds:
+          type: object
+          description: Each fund balance's increase and decrease.
+          additionalProperties:
+            type: string
+        pair:
+          type: string
+          description: Pair (e.g., btc_jpy).
+        rate:
+          type: string
+          description: Transaction rate.
+        fee_currency:
+          type: string
+          description: Currency in which the fee was charged.
+        fee:
+          type: string
+          description: Fee amount.
+        liquidity:
+          type: string
+          description: Indicates if it was a taker (T) or maker (M) transaction.
+          enum:
+            - T
+            - M
+        side:
+          type: string
+          description: Indicates if the transaction was a buy or sell.
+          enum:
+            - buy
+            - sell
+    Balance:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        jpy:
+          type: string
+          description: Balance for JPY.
+        btc:
+          type: string
+          description: Balance for BTC.
+        jpy_reserved:
+          type: string
+          description: Amount of JPY for unsettled buying orders.
+        btc_reserved:
+          type: string
+          description: Amount of BTC for unsettled selling orders.
+        jpy_lend_in_use:
+          type: string
+          description: JPY amount applied for lending (JPY lending not allowed).
+        btc_lend_in_use:
+          type: string
+          description: BTC amount applied for lending (BTC lending not allowed).
+        jpy_lent:
+          type: string
+          description: JPY lending amount (JPY lending not allowed).
+        btc_lent:
+          type: string
+          description: BTC lending amount (BTC lending not allowed).
+        jpy_debt:
+          type: string
+          description: JPY borrowing amount.
+        btc_debt:
+          type: string
+          description: BTC borrowing amount.
+        jpy_tsumitate:
+          type: string
+          description: JPY reserving amount.
+        btc_tsumitate:
+          type: string
+          description: BTC reserving amount.
+    MoneyTransferResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        id:
+          type: string
+          description: Transaction ID.
+        address:
+          type: string
+          description: Recipient's address.
+        amount:
+          type: string
+          description: Amount sent.
+        fee:
+          type: string
+          description: Transaction fee.
+        currency:
+          type: string
+          description: Currency (e.g., BTC).
+        created_at:
+          type: string
+          format: date-time
+          description: Date and time of the transaction.
+    MoneyTransferRequest:
+      type: object
+      properties:
+        remittee_list_id:
+          type: integer
+          description: Remittee List ID for the recipient.
+        amount:
+          type: string
+          description: Amount to send.
+        purpose_type:
+          type: string
+          description: Purpose type for the transaction.
+          enum:
+            - inheritance_or_donating
+            - payment_of_importing
+            - payment_of_intermediary_trade
+            - payment_of_domestic_transactions
+            - keep_own_account
+            - keep_own_private_wallet
+            - other
+        purpose_details:
+          type: object
+          description: Additional details for the specified purpose type.
+          properties:
+            specific_items_of_goods:
+              type: string
+              description: Specific items of goods involved in the transaction.
+            place_of_origin:
+              type: string
+              description: Place of origin for the goods.
+            place_of_loading:
+              type: string
+              description: Place of loading for the goods.
+            place_of_destination:
+              type: string
+              description: Place of destination for the goods (for intermediary trade).
+            extra_text:
+              type: string
+              description: Specific purpose of the transfer (for "other" purpose type).
+    MoneyDepositResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Received ID.
+        amount:
+          type: string
+          description: Amount of BTC received.
+        currency:
+          type: string
+          description: Currency (e.g., BTC).
+        address:
+          type: string
+          description: Bitcoin address where BTC was received.
+        status:
+          type: string
+          description: Status of the deposit (e.g., confirmed, received).
+        confirmed_at:
+          type: string
+          format: date-time
+          description: Date and time the deposit was confirmed.
+        created_at:
+          type: string
+          format: date-time
+          description: Date and time the receiving process started.
+    Account:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Indicates success of the API call.
+        id:
+          type: integer
+          description: Account ID. It's the same as the ID you specify when you deposit JPY.
+        email:
+          type: string
+          description: Registered email.
+        identity_status:
+          type: string
+          description: Your identity status (e.g., identity_pending, verified).
+        bitcoin_address:
+          type: string
+          description: Your bitcoin address for deposit.
+        taker_fee:
+          type: string
+          description: Fee rate (%) for performing the order as a Taker (BTC_JPY).
+        maker_fee:
+          type: string
+          description: Fee rate (%) for performing the order as a Maker (BTC_JPY).
+        exchange_fees:
+          $ref: "#/components/schemas/ExchangeFee"
+    ExchangeFee:
+      type: object
+      description: Fees for each order book.
+      additionalProperties:
+        type: object
+        properties:
+          maker_fee_rate:
+            type: string
+            description: Maker fee rate for the specified pair.
+          taker_fee_rate:
+            type: string
+            description: Taker fee rate for the specified pair.
+    BankDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the bank account.
+        bank_name:
+          type: string
+          description: Name of the bank.
+        branch_name:
+          type: string
+          description: Name of the branch.
+        bank_account_type:
+          type: string
+          description: Type of the bank account (e.g., futsu for regular accounts).
+        number:
+          type: string
+          description: Bank account number.
+        name:
+          type: string
+          description: Name of the bank account holder.
+    BankRequest:
+      type: object
+      properties:
+        bank_name:
+          type: string
+          description: Bank name
+          example: 熊本
+        branch_name:
+          type: string
+          description: Branch name
+          example: 田中
+        bank_account_type:
+          type: string
+          description: Type of bank account
+          enum:
+            - futsu
+            - toza
+          example: futsu
+        number:
+          type: string
+          description: Bank account number
+          example: "0123456"
+        name:
+          type: string
+          description: Bank account name
+          example: hoge
+      required:
+        - bank_name
+        - branch_name
+        - bank_account_type
+        - number
+        - name
+    BankResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              description: ID of the registered bank account
+              example: 641
+            bank_name:
+              type: string
+              description: Bank name
+              example: 熊本
+            branch_name:
+              type: string
+              description: Branch name
+              example: 田中
+            bank_account_type:
+              type: string
+              description: Type of bank account
+              enum:
+                - futsu
+                - toza
+              example: futsu
+            number:
+              type: string
+              description: Bank account number
+              example: "0123456"
+            name:
+              type: string
+              description: Bank account name
+              example: hoge
+    Pagination:
+      type: object
+      properties:
+        limit:
+          type: integer
+          description: Number of records per page
+          example: 25
+        order:
+          type: string
+          description: Order of records
+          example: desc
+        starting_after:
+          type: string
+          description: Starting after record ID
+          example: null
+        ending_before:
+          type: string
+          description: Ending before record ID
+          example: null
+    WithdrawHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the withdrawal request
+          example: 398
+        status:
+          type: string
+          description: Withdraw status (pending, processing, finished, canceled)
+          example: finished
+        amount:
+          type: string
+          description: Amount withdrawn
+          example: "242742.0"
+        currency:
+          type: string
+          description: Currency of the withdrawal
+          example: JPY
+        created_at:
+          type: string
+          format: date-time
+          description: Date the withdrawal was created
+          example: "2014-12-04T15:00:00.000Z"
+        bank_account_id:
+          type: integer
+          description: Bank account ID used for withdrawal
+          example: 243
+        fee:
+          type: string
+          description: Fee for the withdrawal
+          example: "400.0"
+        is_fast:
+          type: boolean
+          description: Indicates if fast withdrawal was used
+          example: true
+    WithdrawRequest:
+      type: object
+      properties:
+        bank_account_id:
+          type: integer
+          description: Bank account ID
+          example: 243
+        amount:
+          type: string
+          description: Amount to withdraw
+          example: "10000.0"
+        currency:
+          type: string
+          description: Currency (only "JPY")
+          example: JPY
+      required:
+        - bank_account_id
+        - amount
+        - currency

@@ -1,0 +1,1271 @@
+asyncapi: 3.0.0
+info:
+  title: Mexc Websocket API
+  version: 2.0.0
+  description: >-
+    WebSocket endpoints are available for real-time data streaming on Coincheck  exchange.
+
+servers:
+  Websocket Endpoints:
+    host: wbs.mexc.com/ws
+    pathname: /
+    protocol: wss
+    description: Websocket Channels to Request Data
+    variables:
+      listenKey:
+        description: The listen key for the user data stream.e.g; pqia91ma19a5s61cv6a81va65sdf19v8a65a1a5s61cv6a81va65sdf19v8a65a1
+
+channels:
+  stream_control:
+    address: stream_control
+    description: Channel for subscribing, unsubscribing, and pinging.
+    messages:
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+      unsubscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/UnsubscribeRequest"
+      unsubscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/UnsubscribeResponse"
+      ping_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/PingRequest"
+      pong_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/PongResponse"
+
+  "{symbol}-trades":
+    address: "{symbol}-trades"
+    description: Trade stream for a specific symbol like BTCUSDT etc
+    messages:
+      trade_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/TradeData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "{symbol}-kline":
+    address: "{symbol}-kline"
+    description: Kline/Candlestick stream for a specific symbol (e.g., BTCUSDT) and interval (e.g., Min15, Hour4, Day1).
+    messages:
+      kline_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/KlineData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "{symbol}-depth":
+    address: "{symbol}-depth"
+    description: Incremental depth stream for a specific symbol e.g; BTCUSDT.
+    messages:
+      depth_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/DepthData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "{symbol}-partial-depth":
+    address: "{symbol}-partial-depth"
+    description: Partial book depth stream (top bids and asks) for a specific symbol (e.g., BTCUSDT) and level (5, 10, or 20).
+    messages:
+      partial_depth_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/PartialDepthData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "{symbol}-book-ticker":
+    address: "{symbol}-book-ticker"
+    description: Individual symbol book ticker stream.
+    messages:
+      book_ticker_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/BookTickerData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "{symbol}-mini-ticker":
+    address: "{symbol}-mini-ticker"
+
+    description: Mini-ticker stream for a specific symbol and timezone(e.g., UTC+8).
+    messages:
+      mini_ticker_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/MiniTickerData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "mini-tickers":
+    address: "mini-tickers"
+    description: Mini-tickers stream for all symbols in a specific timezone.
+    messages:
+      mini_tickers_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/MiniTickersData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "account-updates":
+    address: "account-updates"
+    description: Spot account update stream.
+    messages:
+      account_update_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/AccountUpdateData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "account-deals":
+    address: "account-deals"
+    description: Spot account deals stream.
+    messages:
+      account_deal_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/AccountDealData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+  "account-orders":
+    address: "account-orders"
+    description: Spot account orders stream.
+    messages:
+      account_order_data:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/AccountOrderData"
+      subscribe_request:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeRequest"
+      subscribe_response:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/SubscribeResponse"
+
+operations:
+  subscribe:
+    action: send
+    channel:
+      $ref: "#/channels/stream_control"
+    summary: Subscribe to a stream.
+    messages:
+      - $ref: "#/channels/stream_control/messages/subscribe_request"
+  subscribe_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/stream_control"
+    summary: Acknowledgment of stream subscription.
+    messages:
+      - $ref: "#/channels/stream_control/messages/subscribe_response"
+  unsubscribe:
+    action: send
+    channel:
+      $ref: "#/channels/stream_control"
+    summary: Unsubscribe from streams.
+    messages:
+      - $ref: "#/channels/stream_control/messages/unsubscribe_request"
+  unsubscribe_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/stream_control"
+    summary: Acknowledgment of stream unsubscription.
+    messages:
+      - $ref: "#/channels/stream_control/messages/unsubscribe_response"
+  ping:
+    action: send
+    channel:
+      $ref: "#/channels/stream_control"
+    summary: Send a ping message.
+    messages:
+      - $ref: "#/channels/stream_control/messages/ping_request"
+  pong:
+    action: receive
+    channel:
+      $ref: "#/channels/stream_control"
+    summary: Receive a pong message.
+    messages:
+      - $ref: "#/channels/stream_control/messages/pong_response"
+  subscribe_trades:
+    action: send
+    channel:
+      $ref: "#/channels/{symbol}-trades"
+    summary: Subscribe to trade stream for a symbol.
+    messages:
+      - $ref: "#/channels/{symbol}-trades/messages/subscribe_request"
+  trade_received:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-trades"
+    summary: Receive trade data for a symbol.
+    messages:
+      - $ref: "#/channels/{symbol}-trades/messages/trade_data"
+  subscribe_trades_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-trades"
+    summary: Acknowledgment of trade stream subscription.
+    messages:
+      - $ref: "#/channels/{symbol}-trades/messages/subscribe_response"
+  subscribe_kline:
+    action: send
+    channel:
+      $ref: "#/channels/{symbol}-kline"
+    summary: Subscribe to kline stream for a symbol and interval.
+    messages:
+      - $ref: "#/channels/{symbol}-kline/messages/subscribe_request"
+  kline_received:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-kline"
+    summary: Receive kline data for a symbol and interval.
+    messages:
+      - $ref: "#/channels/{symbol}-kline/messages/kline_data"
+  subscribe_kline_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-kline"
+    summary: Acknowledgment of kline stream subscription.
+    messages:
+      - $ref: "#/channels/{symbol}-kline/messages/subscribe_response"
+  subscribe_depth:
+    action: send
+    channel:
+      $ref: "#/channels/{symbol}-depth"
+    summary: Subscribe to incremental depth stream for a symbol.
+    messages:
+      - $ref: "#/channels/{symbol}-depth/messages/subscribe_request"
+  depth_received:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-depth"
+    summary: Receive incremental depth data for a symbol.
+    messages:
+      - $ref: "#/channels/{symbol}-depth/messages/depth_data"
+  subscribe_depth_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-depth"
+    summary: Acknowledgment of incremental depth stream subscription.
+    messages:
+      - $ref: "#/channels/{symbol}-depth/messages/subscribe_response"
+  subscribe_partial_depth:
+    action: send
+    channel:
+      $ref: "#/channels/{symbol}-partial-depth"
+    summary: Subscribe to partial book depth stream for a symbol and level.
+    messages:
+      - $ref: "#/channels/{symbol}-partial-depth/messages/subscribe_request"
+  partial_depth_received:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-partial-depth"
+    summary: Receive partial book depth data for a symbol and level.
+    messages:
+      - $ref: "#/channels/{symbol}-partial-depth/messages/partial_depth_data"
+  subscribe_partial_depth_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-partial-depth"
+    summary: Acknowledgment of partial book depth stream subscription.
+    messages:
+      - $ref: "#/channels/{symbol}-partial-depth/messages/subscribe_response"
+  subscribe_book_ticker:
+    action: send
+    channel:
+      $ref: "#/channels/{symbol}-book-ticker"
+    summary: Subscribe to individual symbol book ticker stream.
+    messages:
+      - $ref: "#/channels/{symbol}-book-ticker/messages/subscribe_request"
+  book_ticker_received:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-book-ticker"
+    summary: Receive individual symbol book ticker data.
+    messages:
+      - $ref: "#/channels/{symbol}-book-ticker/messages/book_ticker_data"
+  subscribe_book_ticker_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-book-ticker"
+    summary: Acknowledgment of individual symbol book ticker stream subscription.
+    messages:
+      - $ref: "#/channels/{symbol}-book-ticker/messages/subscribe_response"
+  subscribe_mini_ticker:
+    action: send
+    channel:
+      $ref: "#/channels/{symbol}-mini-ticker"
+    summary: Subscribe to mini-ticker stream for a symbol and timezone.
+    messages:
+      - $ref: "#/channels/{symbol}-mini-ticker/messages/subscribe_request"
+  mini_ticker_received:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-mini-ticker"
+    summary: Receive mini-ticker data for a symbol and timezone.
+    messages:
+      - $ref: "#/channels/{symbol}-mini-ticker/messages/mini_ticker_data"
+  subscribe_mini_ticker_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/{symbol}-mini-ticker"
+    summary: Acknowledgment of mini-ticker stream subscription.
+    messages:
+      - $ref: "#/channels/{symbol}-mini-ticker/messages/subscribe_response"
+  subscribe_mini_tickers:
+    action: send
+    channel:
+      $ref: "#/channels/mini-tickers"
+    summary: Subscribe to mini-tickers stream for all symbols in a timezone.
+    messages:
+      - $ref: "#/channels/mini-tickers/messages/subscribe_request"
+  mini_tickers_received:
+    action: receive
+    channel:
+      $ref: "#/channels/mini-tickers"
+    summary: Receive mini-tickers data for all symbols in a timezone.
+    messages:
+      - $ref: "#/channels/mini-tickers/messages/mini_tickers_data"
+  subscribe_mini_tickers_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/mini-tickers"
+    summary: Acknowledgment of mini-tickers stream subscription.
+    messages:
+      - $ref: "#/channels/mini-tickers/messages/subscribe_response"
+  subscribe_account_updates:
+    action: send
+    channel:
+      $ref: "#/channels/account-updates"
+    summary: Subscribe to spot account update stream.
+    messages:
+      - $ref: "#/channels/account-updates/messages/subscribe_request"
+  account_update_received:
+    action: receive
+    channel:
+      $ref: "#/channels/account-updates"
+    summary: Receive spot account update data.
+    messages:
+      - $ref: "#/channels/account-updates/messages/account_update_data"
+  subscribe_account_updates_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/account-updates"
+    summary: Acknowledgment of spot account update stream subscription.
+    messages:
+      - $ref: "#/channels/account-updates/messages/subscribe_response"
+  subscribe_account_deals:
+    action: send
+    channel:
+      $ref: "#/channels/account-deals"
+    summary: Subscribe to spot account deals stream.
+    messages:
+      - $ref: "#/channels/account-deals/messages/subscribe_request"
+  account_deal_received:
+    action: receive
+    channel:
+      $ref: "#/channels/account-deals"
+    summary: Receive spot account deal data.
+    messages:
+      - $ref: "#/channels/account-deals/messages/account_deal_data"
+  subscribe_account_deals_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/account-deals"
+    summary: Acknowledgment of spot account deals stream subscription.
+    messages:
+      - $ref: "#/channels/account-deals/messages/subscribe_response"
+  subscribe_account_orders:
+    action: send
+    channel:
+      $ref: "#/channels/account-orders"
+    summary: Subscribe to spot account orders stream.
+    messages:
+      - $ref: "#/channels/account-orders/messages/subscribe_request"
+  account_order_received:
+    action: receive
+    channel:
+      $ref: "#/channels/account-orders"
+    summary: Receive spot account order data.
+    messages:
+      - $ref: "#/channels/account-orders/messages/account_order_data"
+  subscribe_account_orders_ack:
+    action: receive
+    channel:
+      $ref: "#/channels/account-orders"
+    summary: Acknowledgment of spot account orders stream subscription.
+    messages:
+      - $ref: "#/channels/account-orders/messages/subscribe_response"
+
+components:
+  schemas:
+    SubscribeRequest:
+      type: object
+      properties:
+        method:
+          type: string
+          example: "SUBSCRIPTION"
+        params:
+          $ref: "#/components/schemas/Params"
+      required:
+        - method
+        - params
+    SubscribeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 0
+        code:
+          type: integer
+          format: int32
+          example: 0
+        msg:
+          type: string
+          example: "spot@public.deals.v3.api@BTCUSDT"
+      required:
+        - id
+        - code
+        - msg
+    UnsubscribeRequest:
+      type: object
+      properties:
+        method:
+          type: string
+          example: "UNSUBSCRIPTION"
+        params:
+          $ref: "#/components/schemas/Params"
+      required:
+        - method
+        - params
+    Params:
+      type: array
+      items:
+        type: string
+        example: "spot@public.deals.v3.api@BTCUSDT"
+    UnsubscribeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 0
+        code:
+          type: integer
+          format: int32
+          example: 0
+        msg:
+          type: string
+          example: "spot@public.increase.depth.v3.api@BTCUSDT,spot@public.deals.v3.api@BTCUSDT"
+      required:
+        - id
+        - code
+        - msg
+    PingRequest:
+      type: object
+      properties:
+        method:
+          type: string
+          example: "PING"
+      required:
+        - method
+    PongResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 0
+        code:
+          type: integer
+          format: int32
+          example: 0
+        msg:
+          type: string
+          example: "PONG"
+      required:
+        - id
+        - code
+        - msg
+    TradeData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@public.deals.v3.api@BTCUSDT"
+        d:
+          $ref: "#/components/schemas/TradeD"
+        s:
+          type: string
+          description: Symbol
+          example: "BTCUSDT"
+        t:
+          type: integer
+          format: int64
+          description: Event time (milliseconds)
+          example: 1661927587836
+      required:
+        - c
+        - d
+        - s
+        - t
+    TradeD:
+      type: object
+      properties:
+        deals:
+          type: array
+          items:
+            $ref: "#/components/schemas/DealInfo"
+        e:
+          type: string
+          description: Event type
+          example: "spot@public.deals.v3.api"
+    DealInfo:
+      type: object
+      properties:
+        S:
+          type: integer
+          description: "Trade type (1: buy, 2: sell)"
+          example: 2
+        p:
+          type: string
+          description: Price
+          example: "20233.84"
+        t:
+          type: integer
+          format: int64
+          description: Deal time (milliseconds)
+          example: 1661927587825
+        v:
+          type: string
+          description: Quantity
+          example: "0.001028"
+      required:
+        - S
+        - p
+        - t
+        - v
+    KlineData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@public.kline.v3.api@BTCUSDT@Min15"
+        d:
+          $ref: "#/components/schemas/KlineK"
+        s:
+          type: string
+          description: Symbol
+          example: "BTCUSDT"
+        t:
+          type: integer
+          format: int64
+          description: Event time (milliseconds)
+          example: 1661931016878
+      required:
+        - c
+        - d
+        - s
+        - t
+    KlineK:
+      type: object
+      properties:
+        k:
+          type: object
+          $ref: "#/components/schemas/KlineInfo"
+        e:
+          type: string
+          description: Event type
+          example: "spot@public.kline.v3.api"
+    KlineInfo:
+      type: object
+      properties:
+        T:
+          type: integer
+          format: int64
+          description: End time
+          example: 1661931900
+        a:
+          type: string # Use string for BigDecimal
+          description: Volume
+          example: "29043.48804658"
+        c:
+          type: string # Use string for BigDecimal
+          description: Closing price
+          example: "20279.43"
+        h:
+          type: string # Use string for BigDecimal
+          description: Highest price
+          example: "20284.93"
+        i:
+          type: string
+          description: Interval
+          example: "Min15"
+        l:
+          type: string # Use string for BigDecimal
+          description: Lowest price
+          example: "20277.52"
+        o:
+          type: string # Use string for BigDecimal
+          description: Opening price
+          example: "20284.93"
+        t:
+          type: integer
+          format: int64
+          description: Start time
+          example: 1661931000
+        v:
+          type: string # Use string for BigDecimal
+          description: Quantity
+          example: "1.43211"
+      required:
+        - T
+        - a
+        - c
+        - h
+        - i
+        - l
+        - o
+        - t
+        - v
+    DepthData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@public.increase.depth.v3.api@BTCUSDT"
+        d:
+          $ref: "#/components/schemas/DepthD"
+        r:
+          type: string # Version string
+          description: Version
+          example: "3407459756"
+        s:
+          type: string
+          description: Symbol
+          example: "BTCUSDT"
+        t:
+          type: integer
+          format: int64
+          description: Event time (milliseconds)
+          example: 1661932660144
+      required:
+        - c
+        - d
+        - r
+        - s
+        - t
+    DepthD:
+      type: object
+      properties:
+        asks:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderLevel"
+      e:
+        type: string
+        description: Event type
+        example: "spot@public.increase.depth.v3.api"
+    OrderLevel:
+      type: object
+      properties:
+        p:
+          type: string # Price
+          example: "20290.89"
+        v:
+          type: string # Quantity
+          example: "0.000000"
+      required:
+        - p
+        - v
+    PartialDepthData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@public.limit.depth.v3.api@BTCUSDT@5"
+        d:
+          $ref: "#/components/schemas/PartialD"
+        r:
+          type: string
+          description: Version
+          example: "3407459756"
+        s:
+          type: string
+          description: Symbol
+          example: "BTCUSDT"
+        t:
+          type: integer
+          format: int64
+          description: Event time (milliseconds)
+          example: 1661932660144
+      required:
+        - c
+        - d
+        - r
+        - s
+        - t
+    PartialD:
+      type: object
+      properties:
+        asks:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderLevel"
+
+        e:
+          type: string
+          description: Event type
+          example: "spot@public.limit.depth.v3.api"
+    BookTickerData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@public.bookTicker.v3.api@BTCUSDT"
+        d:
+          $ref: "#/components/schemas/TickersD"
+        s:
+          type: string
+          description: Symbol
+          example: "BTCUSDT"
+        t:
+          type: integer
+          format: int64
+          description: Event time (milliseconds)
+          example: 1661932660144
+      required:
+        - c
+        - d
+        - s
+        - t
+    TickersD:
+      type: object
+      properties:
+        A:
+          type: string # Best ask quantity
+          example: "40.66000000"
+        B:
+          type: string # Best bid quantity
+          example: "31.21000000"
+        a:
+          type: string # Best ask price
+          example: "25.36520000"
+        b:
+          type: string # Best bid price
+          example: "25.35190000"
+    MiniTickerData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@public.miniTicker.v3.api@BTCUSDT@UTC+8"
+        d:
+          $ref: "#/components/schemas/miniTickerD"
+        t:
+          type: integer
+          format: int64
+          description: Event time (milliseconds)
+          example: 1699502456051
+        s:
+          type: string
+          description: Symbol
+          example: "BTCUSDT"
+      required:
+        - c
+        - d
+        - t
+        - s
+    miniTickerD:
+      type: object
+      properties:
+        s:
+          type: string
+          description: Symbol
+          example: "BTCUSDT"
+        p:
+          type: string
+          description: Deal price
+          example: "36474.74"
+        r:
+          type: string
+          description: Price Change Percent in UTC+8
+          example: "0.0354"
+        tr:
+          type: string
+          description: Price Change Percent in timezone
+          example: "0.0354"
+        h:
+          type: string
+          description: 24h high price
+          example: "36549.72"
+        l:
+          type: string
+          description: 24h low price
+          example: "35101.68"
+        v:
+          type: string
+          description: 24h volume
+          example: "375173478.65"
+        q:
+          type: string
+          description: 24h quote volume
+          example: "10557.72895"
+        lastRT:
+          type: string
+          description: ETF Last Rebase Time
+          example: "-1"
+        MT:
+          type: string
+          description: ETF Merge Times
+          example: "0"
+        NV:
+          type: string
+          description: ETF Net Value
+          example: "--"
+        t:
+          type: integer
+          format: int64
+          description: Data time (milliseconds)
+          example: 1699502456050
+
+    MiniTickersData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@public.miniTickers.v3.api@UTC+8"
+        d:
+          type: array # Changed to array of MiniTickerInfo
+          items:
+            $ref: "#/components/schemas/MiniTickerInfo"
+        t:
+          type: integer
+          format: int64
+          description: Event time (milliseconds)
+          example: 1699502456051
+      required:
+        - c
+        - d
+        - t
+    MiniTickerInfo: # Schema for individual ticker info
+      type: object
+      properties:
+        s:
+          type: string
+          description: Symbol
+          example: "BTCUSDT"
+        p:
+          type: string
+          description: Deal price
+          example: "36474.74"
+        r:
+          type: string
+          description: 24h price Change Percent in UTC+8
+          example: "0.0354"
+        tr:
+          type: string
+          description: 24h price Change Percent in timezone
+          example: "0.0354"
+        h:
+          type: string
+          description: 24h high price
+          example: "36549.72"
+        l:
+          type: string
+          description: 24h low price
+          example: "35101.68"
+        v:
+          type: string
+          description: 24h volume
+          example: "375173478.65"
+        q:
+          type: string
+          description: 24h quote volume
+          example: "10557.72895"
+        lastRT:
+          type: string
+          description: ETF Last Rebase Time
+          example: "-1"
+        MT:
+          type: string
+          description: ETF Merge Times
+          example: "0"
+        NV:
+          type: string
+          description: ETF Net Value
+          example: "--"
+      required:
+        - s
+        - p
+        - r
+        - tr
+        - h
+        - l
+        - v
+        - q
+        - lastRT
+        - MT
+        - NV
+    AccountUpdateData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@private.account.v3.api"
+        d:
+          $ref: "#/components/schemas/AccountD"
+        t:
+          type: integer
+          format: int64
+          description: Event time
+          example: 1678185928435
+      required:
+        - c
+        - d
+        - t
+    AccountD:
+      type: object
+      description: Account updates
+      properties:
+        a:
+          type: string
+          description: Asset
+          example: "USDT"
+        c:
+          type: integer
+          format: int64
+          description: Change time
+          example: 1678185928428
+        f:
+          type: string
+          description: Free balance
+          example: "302.185113007893322435"
+        fd:
+          type: string
+          description: Free changed amount
+          example: "-4.990689704"
+        l:
+          type: string
+          description: Frozen amount
+          example: "4.990689704"
+        ld:
+          type: string
+          description: Frozen changed amount
+          example: "4.990689704"
+        o:
+          type: string
+          description: Changed type
+          example: "ENTRUST_PLACE"
+
+    AccountDealData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@private.deals.v3.api"
+        d:
+          $ref: "#/components/schemas/AccountDealD"
+        s:
+          type: string
+          description: Symbol
+          example: "MXUSDT"
+        t:
+          type: integer
+          format: int64
+          description: Event time
+          example: 1661938980285
+      required:
+        - c
+        - d
+        - s
+        - t
+    AccountDealD:
+      type: object
+      description: Deals info
+      properties:
+        p:
+          type: string
+          description: Price
+          example: "1.804"
+        v:
+          type: string
+          description: Quantity
+          example: "0.31"
+        a:
+          type: string
+          description: Deals amount
+          example: "0.55924"
+        S:
+          type: integer
+          description: "Trade type (1: buy, 2: sell)"
+          example: 1
+        T:
+          type: integer
+          format: int64
+          description: Trade time
+          example: 1678901086198
+        t:
+          type: string
+          description: Trade ID
+          example: "5bbb6ad8b4474570b155610e30d960cd"
+        c:
+          type: string
+          description: Client order ID
+          example: ""
+        i:
+          type: string
+          description: Order ID
+          example: "2dd9655f9fa2438fa1709510d7c1afd9"
+        m:
+          type: integer
+          description: "Is maker (1: yes, 0: no)"
+          example: 0
+        st:
+          type: integer
+          description: "Is self-trade (1: yes, 0: no)"
+          example: 0
+        n:
+          type: string
+          description: Commission fee
+          example: "0.000248206380027431"
+        N:
+          type: string
+          description: Commission asset
+          example: "MX"
+
+    AccountOrderData:
+      type: object
+      properties:
+        c:
+          type: string
+          description: Channel name
+          example: "spot@private.orders.v3.api"
+        d:
+          $ref: "#/components/schemas/OrderD"
+        s:
+          type: string
+          description: Symbol
+          example: "MXUSDT"
+        t:
+          type: integer
+          format: int64
+          description: Event time
+          example: 1661938138193
+      required:
+        - c
+        - d
+        - s
+        - t
+    OrderD:
+      type: object
+      oneOf: # Use oneOf to handle different order types
+        - $ref: "#/components/schemas/LimitMarketOrderInfo"
+        - $ref: "#/components/schemas/StopLimitOrderInfo"
+    LimitMarketOrderInfo:
+      type: object
+      description: Order info for Limit/Market orders
+      properties:
+        A:
+          type: string
+          description: Remain amount
+          example: "8.0"
+        O:
+          type: integer
+          format: int64
+          description: Create time
+          example: 1661938138000
+        S:
+          type: integer
+          description: "Trade type (1: buy, 2: sell)"
+          example: 1
+        V:
+          type: string
+          description: Remain quantity
+          example: "10"
+        a:
+          type: string
+          description: Amount
+          example: "8"
+        c:
+          type: string
+          description: Client order ID
+          example: ""
+        i:
+          type: string
+          description: Order ID
+          example: "e03a5c7441e44ed899466a7140b71391"
+        m:
+          type: integer
+          description: Is maker
+          example: 0
+        o:
+          type: integer
+          description: Order type (LIMIT_ORDER(1), POST_ONLY(2), IMMEDIATE_OR_CANCEL(3), FILL_OR_KILL(4), MARKET_ORDER(5))
+          example: 1
+        p:
+          type: string
+          description: Price
+          example: "0.8"
+        s:
+          type: integer
+          description: "Status (1: New order, 2: Filled, 3: Partially filled, 4: Order canceled, 5: Order filled partially, and then the rest of the order is canceled)"
+          example: 1
+        v:
+          type: string
+          description: Quantity
+          example: "10"
+        ap:
+          type: string
+          description: Avg price
+          example: "0"
+        cv:
+          type: string
+          description: Cumulative quantity
+          example: "0"
+        ca:
+          type: string
+          description: Cumulative amount
+          example: "0"
+      required:
+        - A
+        - O
+        - S
+        - V
+        - a
+        - i
+        - m
+        - o
+        - p
+        - s
+        - v
+    StopLimitOrderInfo:
+      type: object
+      description: Order info for Stop Limit orders
+      properties:
+        N:
+          type: string
+          description: Commission asset
+          example: "USDT"
+        O:
+          type: integer
+          format: int64
+          description: Create time
+          example: 1661938853715
+        P:
+          type: string
+          description: Trigger price
+          example: "0.9"
+        S:
+          type: integer
+          description: "Trade type (1: buy, 2: sell)"
+          example: 1
+        T:
+          type: integer
+          description: "Condition (0: GE, 1: LE)"
+          example: 1
+        i:
+          type: string
+          description: Order ID
+          example: "f6d82e5f41d745f59fe9d3cafffd80b5"
+        o:
+          type: integer
+          description: Order type (STOP_LIMIT(100))
+          example: 100
+        p:
+          type: string
+          description: Price
+          example: "1.01"
+        s:
+          type: string
+          description: State (NEW, CANCELED, EXECUTED, FAILED)
+          example: "NEW"
+        v:
+          type: string
+          description: Quantity
+          example: "6"
+      required:
+        - N
+        - O
+        - P
+        - S
+        - T
+        - i
+        - o
+        - p
+        - s
+        - v

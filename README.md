@@ -68,31 +68,36 @@ npm install -g @asyncapi/generator
 
 
 ## exchange integration status
+- [list of notable exchanges](https://coinmarketcap.com/rankings/exchanges/derivatives)
+- [list of no kyc exchanges](https://koinly.io/blog/top-no-kyc-crypto-exchanges)
+
 below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
-| Exchange API                                                   | Custodial | REST (OpenAPI) | WS (AsyncAPI) |
-| -------------------------------------------------------------- | --------- | -------------- | ------------- |
-| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)             | /         | done           | /             |
-| [hyperliquid](https://hyperliquid.gitbook.io)                  | no        | done           | done          |
-| [bitwyre](https://docs.bitwyre.com)                            | yes       | done           | done          |
-| [bitget](https://www.bitget.com/api-doc)                       | yes       | done           | done          |
-| [binance](https://binance-docs.github.io)                      | yes       | done           | done          |
-| [coinbase](https://docs.cdp.coinbase.com)                      | yes       | done           | done          |
-| [hashkey](https://hashkeypro-apidoc.readme.io) (HK)            | yes       | done           | done          |
-| [okx](https://www.okx.com/docs-v5/en)                          | yes       | done           | done          |
-| [krakenfutures](https://docs.kraken.com/api)                   | yes       | done           | done          |
-| [gateio](https://www.gate.io/docs/developers/apiv4)            | yes       | WIP            | WIP           |
-| [dydx](https://docs.dydx.exchange)                             | no        | postponed      | /             |
-| [polkadex](https://docs.polkadex.trade)                        | no        | postponed      | /             |
-| [zkex](https://docs.zkex.com)                                  | no        | postponed      | /             |
-| [gmx](https://gmx-docs.io)                                     | no        | postponed      | /             |
-| [bybit](https://bybit-exchange.github.io/docs/)                | yes       | planned        | planned       |
-| [kucoin](https://www.kucoin.com/docs)                          | yes       | planned        | planned       |
-| [htx](https://www.htx.com/en-us/opend/newApiPages)             | yes       | planned        | planned       |
-| [bitbank](https://lightning.bitflyer.com/docs) (JP)            | yes       | planned        | planned       |
-| [bitflyer](https://lightning.bitflyer.com/docs) (JP)           | yes       | planned        | planned       |
-| [coincheck](https://coincheck.com/documents/exchange/api) (JP) | yes       | planned        | planned       |
-| [korbit](https://apidocs.korbit.co.kr) (KR)                    | yes       | planned        | planned       |
-| [bitkub](https://docs.polkadex.trade) (TH)                     | yes       | planned        | planned       |
+| Exchange API                                                   | KYC | REST (OpenAPI) | WS (AsyncAPI) |
+| -------------------------------------------------------------- | --- | -------------- | ------------- |
+| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)             | /   | done           | /             |
+| [hyperliquid](https://hyperliquid.gitbook.io)                  | no  | done           | done          |
+| [mexc](https://www.mexc.com/mexc-api)                          | no  | done           | done          |
+| [bitwyre](https://docs.bitwyre.com)                            | yes | done           | done          |
+| [bitget](https://www.bitget.com/api-doc)                       | yes | done           | done          |
+| [binance](https://binance-docs.github.io)                      | yes | done           | done          |
+| [coinbase](https://docs.cdp.coinbase.com)                      | yes | done           | done          |
+| [coincheck](https://coincheck.com/documents/exchange/api) (JP) | yes | done           | done          |
+| [hashkey](https://hashkeypro-apidoc.readme.io) (HK)            | yes | done           | done          |
+| [okx](https://www.okx.com/docs-v5/en)                          | yes | done           | done          |
+| [krakenfutures](https://docs.kraken.com/api)                   | yes | done           | done          |
+| [gateio](https://www.gate.io/docs/developers/apiv4)            | yes | WIP            | WIP           |
+| [dydx](https://docs.dydx.exchange)                             | no  | postponed      | /             |
+| [polkadex](https://docs.polkadex.trade)                        | no  | postponed      | /             |
+| [zkex](https://docs.zkex.com)                                  | no  | postponed      | /             |
+| [gmx](https://gmx-docs.io)                                     | no  | postponed      | /             |
+| [coinex](https://docs.coinex.com/api/v2)                       | yes | WIP            | WIP           |
+| [bybit](https://bybit-exchange.github.io/docs)                 | yes | WIP            | WIP           |
+| [kucoin](https://www.kucoin.com/docs)                          | yes | planned        | planned       |
+| [htx](https://www.htx.com/en-us/opend/newApiPages)             | yes | planned        | planned       |
+| [bitbank](https://lightning.bitflyer.com/docs) (JP)            | yes | planned        | planned       |
+| [bitflyer](https://lightning.bitflyer.com/docs) (JP)           | yes | planned        | planned       |
+| [korbit](https://apidocs.korbit.co.kr) (KR)                    | yes | planned        | planned       |
+| [bitkub](https://docs.polkadex.trade) (TH)                     | yes | planned        | planned       |
 
 
 

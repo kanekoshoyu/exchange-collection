@@ -1,0 +1,120 @@
+asyncapi: 3.0.0
+info:
+  title: Coincheck Websocket API
+  version: 2.0.0
+  description: >-
+    WebSocket endpoints are available for real-time data streaming on Coincheck  exchange.
+
+servers:
+  Websocket Endpoints:
+    host: ws-api.coincheck.com
+    pathname: /
+    protocol: wss
+    description: Websocket Channels to Request Data
+channels:
+  "{pair}-trades":
+    address: "{pair}-trades"
+    description: The Public Trades Channel pushes information on recent transactions every 0.1 seconds of specific pair like btc_jpy
+    tags:
+      - name: Public Trades
+    messages:
+      TradeData:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/TradeData"
+      TradeRequest:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/Request"
+  "{pair}-orderbook":
+    address: "{pair}-orderbook"
+    description: Send the difference of order book information at regular intervals.
+    tags:
+      - name: Public Trades
+    messages:
+      OrderbookData:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/OrderbookData"
+      OrderbookRequest:
+        contentType: application/json
+        payload:
+          $ref: "#/components/schemas/Request"
+
+operations:
+  RequestPairTrades:
+    action: send
+    channel:
+      $ref: "#/channels/{pair}-trades"
+    summary: Subscribe to recent pairs e.g;btc/jpy transaction data.
+    messages:
+      - $ref: "#/channels/{pair}-trades/messages/TradeRequest"
+  ReceivePairTrades:
+    action: receive
+    channel:
+      $ref: "#/channels/{pair}-trades"
+    summary: Subscribe to recent pairs e.g;btc/jpy transaction data.
+    messages:
+      - $ref: "#/channels/{pair}-trades/messages/TradeData"
+  RequestPairOrderbook:
+    action: send
+    channel:
+      $ref: "#/channels/{pair}-orderbook"
+    summary: Subscribe to recent pairs e.g;btc/jpy orderbook data.
+    messages:
+      - $ref: "#/channels/{pair}-orderbook/messages/OrderbookRequest"
+  ReceivePairOrderbook:
+    action: receive
+    channel:
+      $ref: "#/channels/{pair}-orderbook"
+    summary: Subscribe to recent pairs e.g;btc/jpy orderbook data.
+    messages:
+      - $ref: "#/channels/{pair}-orderbook/messages/OrderbookData"
+
+components:
+  schemas:
+    TradeData:
+      type: array
+      items:
+        $ref: "#/components/schemas/TradeArray"
+    TradeArray:
+      type: array
+      items:
+        type: string
+        example: "Transaction timestamp,transaction id,trading pair,transaction rate,transaction amount,order side,taker id,maker id"
+    Request:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "subscribe"
+        channel:
+          type: string
+          example: "{pair}-trades e.g;btc_jpy-trades"
+    OrderbookData:
+      type: array
+      items:
+        - type: string
+          description: Trading pair
+          example: "btc_jpy"
+        - $ref: "#/components/schemas/orderbook"
+    orderbook:
+      type: object
+      properties:
+        bids:
+          $ref: "#/components/schemas/StringArray"
+        asks:
+          $ref: "#/components/schemas/StringArray"
+        last_update_at:
+          type: string
+          description: Timestamp (unix time)
+          example: "1659321701"
+    BidAsk:
+      type: array
+      items:
+        type: string
+        example: "order rate and order amount"
+    StringArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/BidAsk"

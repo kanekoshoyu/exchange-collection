@@ -1,0 +1,4900 @@
+openapi: 3.0.0
+info:
+  title: MEXC Crypto Exchange
+  version: 1.0.0
+  description: |
+    Welcome to mexc API document!
+
+servers:
+  - url: https://api.mexc.com
+    description: Main REST API
+tags:
+  - name: Market Data
+  - name: Subaccount
+  - name: Spot Account
+  - name: Wallet
+  - name: Rebate Endpoints
+paths:
+  /api/v3/ping:
+    get:
+      summary: Test Connectivity
+      operationId: testConnectivity
+      tags:
+        - Market Data
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ping"
+  /api/v3/time:
+    get:
+      summary: Check Server Time
+      operationId: checkServerTime
+      tags:
+        - Market Data
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerResponse"
+  /api/v3/exchangeInfo:
+    get:
+      summary: Current exchange trading rules and symbol information
+      operationId: getExchangeInfo
+      tags:
+        - Market Data
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExchangeInfo"
+  /api/v3/depth:
+    get:
+      summary: Order Book
+      operationId: getOrderBook
+      tags:
+        - Market Data
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol for the order book (e.g., BTCUSDT)
+          required: true
+          schema:
+            type: string
+            example: BTCUSDT
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Orderbook"
+  /api/v3/trades:
+    get:
+      summary: Recent Trades List
+      operationId: getRecentTrades
+      tags:
+        - Market Data
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol for the recent trades (e.g., BTCUSDT)
+          required: true
+          schema:
+            type: string
+            example: BTCUSDT
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trades"
+  /api/v3/historicalTrades:
+    get:
+      summary: Old Trade Lookup
+      operationId: getOldTradeLookup
+      tags:
+        - Market Data
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol for the historical trades (e.g., BTCUSDT)
+          required: true
+          schema:
+            type: string
+            example: BTCUSDT
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    price:
+                      type: string
+                      example: "49000.00"
+                    qty:
+                      type: string
+                      example: "2"
+                    time:
+                      type: integer
+                      example: 1609459200000
+  /api/v3/aggTrades:
+    get:
+      summary: Compressed/Aggregate Trades List
+      operationId: getAggregateTrades
+      tags:
+        - Market Data
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol for the aggregate trades (e.g., BTCUSDT)
+          required: true
+          schema:
+            type: string
+            example: BTCUSDT
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Aggtrades"
+  /api/v3/klines:
+    get:
+      summary: Kline/Candlestick Data
+      operationId: getKlineData
+      tags:
+        - Market Data
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol for the kline data (e.g., BTCUSDT)
+          required: true
+          schema:
+            type: string
+            example: BTCUSDT
+        - name: interval
+          in: query
+          description: ENUM for the kline interval (e.g., 1m)
+          required: true
+          schema:
+            type: string
+            example: 1m
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Klines"
+  /api/v3/avgPrice:
+    get:
+      summary: Current Average Price
+      operationId: getAvgPrice
+      tags:
+        - Market Data
+      parameters:
+        - name: symbol
+          in: query
+          description: Symbol for the average price (e.g., BTCUSDT)
+          required: true
+          schema:
+            type: string
+            example: BTCUSDT
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  price:
+                    type: string
+                    example: "49500.00"
+  /api/v3/ticker/24hr:
+    get:
+      summary: 24hr Ticker Price Change Statistics
+      operationId: get24hrTicker
+      tags:
+        - Market Data
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ticker24"
+  /api/v3/ticker/price:
+    get:
+      summary: Symbol Price Ticker
+      operationId: getSymbolPriceTicker
+      tags:
+        - Market Data
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TickerPrice"
+  /api/v3/ticker/bookTicker:
+    get:
+      summary: Symbol Order Book Ticker
+      operationId: getSymbolOrderBookTicker
+      tags:
+        - Market Data
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookTicker"
+  /api/v3/defaultSymbols:
+    get:
+      summary: Default Symbols
+      operationId: getDefaultSymbols
+      tags:
+        - Market Data
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Symbols"
+  /api/v3/order/test:
+    post:
+      summary: Test New Order
+      description: "Permission: SPOT_DEAL_WRITE.Creates and validates a new order but does not send it into the matching engine."
+
+      tags:
+        - Spot Account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        "200":
+          description: OK
+  /api/v3/kyc/status:
+    get:
+      summary: Query KYC Status
+      description: Retrieves the KYC status of the user.
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: [] # Or whatever your authentication method is
+      parameters:
+        - in: query
+          name: timestamp
+          schema:
+            type: string
+          required: true
+          description: Timestamp in milliseconds since epoch.
+        - in: query
+          name: signature
+          schema:
+            type: string
+          required: true
+          description: Signature of the request.
+      responses:
+        "200":
+          description: Successful retrieval of KYC status.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: KYC status.
+                    enum: # Consider using enum for clarity
+                      - "1" # Unverified
+                      - "2" # Primary KYC
+                      - "3" # Advanced KYC
+                      - "4" # Institutional KYC
+  /api/v3/selfSymbols:
+    get:
+      summary: Get User's Default Symbols
+      description: Retrieves the list of default symbols for the user.
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: [] # Replace with your actual authentication method
+      parameters:
+        - in: query
+          name: timestamp
+          schema:
+            type: string
+          required: true
+          description: Timestamp in milliseconds since epoch.
+        - in: query
+          name: signature
+          schema:
+            type: string
+          required: true
+          description: Signature of the request.
+      responses:
+        "200":
+          description: Successful retrieval of default symbols.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SelfSymbols"
+
+  /api/v3/order:
+    post:
+      summary: New Order
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        "200":
+          description: OK
+    delete:
+      summary: Cancel an active order
+      description: |
+        This endpoint cancels an active order. Either `orderId` or `origClientOrderId` must be provided to identify the order.
+      operationId: cancelOrder
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+          description: The trading pair symbol (e.g., BTCUSDT).
+        - in: query
+          name: orderId
+          required: false
+          schema:
+            type: string
+          description: The unique identifier of the order to cancel.
+        - in: query
+          name: origClientOrderId
+          required: false
+          schema:
+            type: string
+          description: The original client order ID of the order to cancel.
+        - in: query
+          name: newClientOrderId
+          required: false
+          schema:
+            type: string
+          description: A new client order ID to assign to the canceled order (optional).
+        - in: query
+          name: recvWindow
+          required: false
+          schema:
+            type: integer
+          description: The time window (in milliseconds) during which the request is valid.
+        - in: query
+          name: timestamp
+          required: true
+          schema:
+            type: integer
+          description: The timestamp of the request in milliseconds.
+      responses:
+        "200":
+          description: Order cancellation successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CancelOrder"
+        "400":
+          description: Bad request (e.g., invalid parameters, missing required fields).
+        "401":
+          description: Unauthorized (e.g., invalid API key).
+        "403":
+          description: Forbidden (e.g., insufficient permissions).
+        "404":
+          description: Order not found.
+        "429":
+          description: Too many requests (rate limit exceeded).
+        "500":
+          description: Internal server error.
+
+  /api/v3/batchOrders:
+    post:
+      summary: Place multiple orders in a batch
+      description: |
+        This endpoint allows you to place multiple orders in a single batch request. 
+        The batch can contain up to 30 orders with the same symbol. 
+        The rate limit for this endpoint is 2 requests per second.
+      operationId: batchOrders
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: batchOrders
+          required: true
+          schema:
+            $ref: "#/components/schemas/BatchRequest"
+          description: A JSON array of order objects to be placed in the batch.
+      responses:
+        "200":
+          description: Batch order placement successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BatchResponse"
+        "400":
+          description: Bad request (e.g., invalid parameters, exceeding rate limits)
+        "401":
+          description: Unauthorized (e.g., invalid API key)
+        "403":
+          description: Forbidden (e.g., insufficient permissions)
+        "429":
+          description: Too many requests (rate limit exceeded)
+        "500":
+          description: Internal server error
+  /api/v3/openOrders:
+    delete:
+      summary: Cancel all open orders for a symbol
+      description: |
+        This endpoint cancels all pending orders for a specified trading symbol, including OCO (One-Cancels-the-Other) orders.
+        Up to 5 symbols can be specified, separated by commas.
+      operationId: cancelAllOpenOrders
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: symbol
+          required: true
+          schema:
+            type: string
+          description: |
+            The trading symbol(s) for which to cancel all open orders. 
+            Maximum of 5 symbols, separated by commas (e.g., "BTCUSDT,MXUSDT,ADAUSDT").
+        - in: query
+          name: recvWindow
+          required: false
+          schema:
+            type: integer
+          description: The time window (in milliseconds) during which the request is valid.
+        - in: query
+          name: timestamp
+          required: true
+          schema:
+            type: integer
+          description: The timestamp of the request in milliseconds.
+      responses:
+        "200":
+          description: All open orders canceled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderDeletion"
+        "400":
+          description: Bad request (e.g., invalid parameters, missing required fields).
+        "401":
+          description: Unauthorized (e.g., invalid API key).
+        "403":
+          description: Forbidden (e.g., insufficient permissions).
+        "429":
+          description: Too many requests (rate limit exceeded).
+        "500":
+          description: Internal server error.
+    get:
+      summary: Current Open Orders
+      tags:
+        - Spot Account
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Symbol
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /api/v3/allOrders:
+    get:
+      summary: All Orders
+      tags:
+        - Spot Account
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Symbol
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: All open orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/openOrders"
+        "400":
+          description: Bad request (e.g., invalid parameters, missing required fields).
+        "401":
+          description: Unauthorized (e.g., invalid API key).
+        "403":
+          description: Forbidden (e.g., insufficient permissions).
+        "429":
+          description: Too many requests (rate limit exceeded).
+        "500":
+          description: Internal server error.
+  /api/v3/account:
+    get:
+      summary: Get current account information
+      description: "Retrieves current account information, including balances and permissions. Rate limit: 2 requests per second."
+      operationId: getAccountInfo
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Spot Account
+      parameters:
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 5000
+          description: The number of milliseconds after timestamp the request is valid for (optional).
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The timestamp of the request in milliseconds since epoch.
+
+      responses:
+        "200":
+          description: Successfully fetched account information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountInfo"
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+  /api/v3/myTrades:
+    get:
+      summary: Account Trade List
+      description: "Permission: SPOT_ACCOUNT_READ.<br>Weight(IP): 10<br>Get trades for a specific account and symbol,Only the transaction records in the past 1 month can be queried. If you want to view more transaction records, please use the export function on the web side, which supports exporting transaction records of the past 3 years at most."
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "LTCBTC"
+          description: The trading pair symbol (e.g., "LTCBTC").
+        - name: orderId
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "1"
+          description: The unique identifier of the order.
+        - name: startTime
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The start time for filtering orders in milliseconds since epoch.
+        - name: endTime
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The end time for filtering orders in milliseconds since epoch.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 100
+            maximum: 100
+          description: The number of orders to return (default is 100, max is 100).
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 5000
+          description: The number of milliseconds after the timestamp the request is valid for (optional).
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The timestamp of the request in milliseconds since epoch.
+
+      responses:
+        "200":
+          description: Successfully fetched trade details
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trade"
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+  /api/v3/mxDeduct/enable:
+    post:
+      summary: Enable or disable MX deduct for spot commission fee
+      description: "Permission: SPOT_DEAL_WRITE<br>Weight(IP): 1"
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: mxDeductEnable
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: recvWindow
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully fetched trade details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/mxDeduct"
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+
+    get:
+      summary: Query MxDeduct
+      tags:
+        - Spot Account
+      parameters:
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully fetched trade details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/mxDeduct"
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+  /api/v3/tradeFee:
+    get:
+      summary: Get user trade fee information
+      description: Retrieve the user’s maker and taker commission fees for a specific trading symbol.
+      operationId: getTradeFee
+      tags:
+        - Spot Account
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: symbol
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "LTCBTC"
+          description: The trading pair symbol (e.g., "LTCBTC").
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 5000
+          description: The number of milliseconds after timestamp the request is valid for.
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The timestamp of the request in milliseconds since epoch.
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "signatureExample123"
+          description: The HMAC SHA256 signature of the query string parameters.
+
+      responses:
+        "200":
+          description: Successfully fetched trade fee information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  makerCommission:
+                    type: integer
+                    example: 10
+                    description: The user's maker commission fee (in basis points, e.g., 10 for 0.10%).
+                  takerCommission:
+                    type: integer
+                    example: 20
+                    description: The user's taker commission fee (in basis points, e.g., 20 for 0.20%).
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+  /api/v3/sub-account/virtualSubAccount:
+    post:
+      summary: Create a sub-account from the master account
+      description: This endpoint allows the master account to create a sub-account with a specified name and notes.
+      operationId: createSubAccount
+      tags:
+        - Subaccount
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: subAccount
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "mexc1"
+          description: The name of the sub-account to be created.
+        - name: note
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "1"
+          description: A note or description associated with the sub-account.
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 5000
+          description: The number of milliseconds after timestamp the request is valid for (optional).
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The timestamp of the request in milliseconds since epoch.
+
+      responses:
+        "200":
+          description: Successfully created the sub-account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subAccount:
+                    type: string
+                    example: "mexc1"
+                    description: The name of the created sub-account.
+                  note:
+                    type: string
+                    example: "1"
+                    description: The note associated with the sub-account.
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+  /api/v3/sub-account/list:
+    get:
+      summary: Query Sub-account List for Master Account
+      description: This endpoint retrieves the details of sub-accounts under a master account, including information such as sub-account name, freeze status, UID, and creation time.
+      operationId: getSubAccountList
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Subaccount
+      parameters:
+        - name: subAccount
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "mexc666"
+          description: The name of the sub-account to filter by.
+        - name: isFreeze
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: ["true", "false"]
+            example: "false"
+          description: Whether the sub-account is frozen (true or false).
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 1
+          description: The page number for pagination. Default is 1.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 10
+            maximum: 200
+          description: The number of results per page. Default is 10, and the maximum value is 200.
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The timestamp of the request in milliseconds since the epoch.
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 5000
+          description: The number of milliseconds after the timestamp the request is valid for.
+
+      responses:
+        "200":
+          description: Successfully fetched the sub-account list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subaccounts"
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+  /api/v3/sub-account/apiKey:
+    post:
+      summary: Create an API key for a sub-account (For Master Account)
+      description: This endpoint creates an API key for a specified sub-account, with defined permissions and optional IP restrictions.
+      operationId: createSubAccountApiKey
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Subaccount
+      parameters:
+        - name: subAccount
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "mexc1"
+          description: The name of the sub-account for which to create the API key.
+        - name: note
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "1"
+          description: A note or description for the API key.
+        - name: permissions
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT_ACCOUNT_READ
+              - SPOT_ACCOUNT_WRITE
+              - SPOT_DEAL_READ
+              - SPOT_DEAL_WRITE
+              - CONTRACT_ACCOUNT_READ
+              - CONTRACT_ACCOUNT_WRITE
+              - CONTRACT_DEAL_READ
+              - CONTRACT_DEAL_WRITE
+              - SPOT_TRANSFER_READ
+              - SPOT_TRANSFER_WRITE
+            example: "SPOT_ACCOUNT_READ"
+          description: Permissions for the created API key (choose one or more based on your needs).
+        - name: ip
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "135.181.193"
+          description: The IP address(es) allowed to use this API key. Multiple IPs can be separated by commas (up to 20).
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 5000
+          description: The number of milliseconds after the timestamp the request is valid for (optional).
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The timestamp of the request in milliseconds since the epoch.
+
+      responses:
+        "200":
+          description: Successfully created the API key for the sub-account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKey"
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+    get:
+      summary: Retrieve API keys for a sub-account (For Master Account)
+      description: This endpoint retrieves the API keys for a specific sub-account, along with the associated permissions, IP restrictions, and creation time.
+      operationId: getSubAccountApiKeys
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Subaccount
+      parameters:
+        - name: subAccount
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "mexc1"
+          description: The name of the sub-account to retrieve API keys for.
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 5000
+          description: The number of milliseconds after the timestamp the request is valid for (optional).
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The timestamp of the request in milliseconds since the epoch.
+
+      responses:
+        "200":
+          description: Successfully retrieved the API keys for the sub-account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiKeyList"
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+    delete:
+      summary: Delete an API key for a sub-account (For Master Account)
+      description: This endpoint deletes a specific API key for a given sub-account by providing the sub-account name and the API key to be deleted.
+      operationId: deleteSubAccountApiKey
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Subaccount
+      parameters:
+        - name: subAccount
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "mexc1"
+          description: The name of the sub-account for which the API key should be deleted.
+        - name: apiKey
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "arg13sdfgs"
+          description: The public key of the API to be deleted.
+        - name: recvWindow
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 5000
+          description: The number of milliseconds after the timestamp the request is valid for (optional).
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: integer
+            example: 1499827319559
+          description: The timestamp of the request in milliseconds since the epoch.
+
+      responses:
+        "200":
+          description: Successfully deleted the API key for the sub-account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subAccount:
+                    type: string
+                    example: "mexc1"
+                    description: The sub-account name from which the API key was deleted.
+        "400":
+          description: Bad request due to missing or invalid parameters
+        "401":
+          description: Authentication failed, invalid API key
+        "500":
+          description: Internal server error
+  /api/v3/capital/sub-account/universalTransfer:
+    post:
+      summary: Perform a universal transfer between sub-account and master account
+      description: This endpoint allows transferring assets between the master account and sub-accounts, either from or to SPOT or FUTURES accounts.
+      operationId: universalTransfer
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Subaccount
+      parameters:
+        - name: fromAccount
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "FUTURES"
+          description: The account to transfer from. Defaults to the master account if not provided.
+        - name: toAccount
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "SPOT"
+          description: The account to transfer to. Defaults to the master account if not provided.
+        - name: fromAccountType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT
+              - FUTURES
+            example: "SPOT"
+          description: The type of account from which the transfer is initiated (either SPOT or FUTURES).
+        - name: toAccountType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT
+              - FUTURES
+            example: "FUTURES"
+          description: The type of account to which the transfer is made (either SPOT or FUTURES).
+        - name: asset
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "USDT"
+          description: The asset to be transferred (e.g., USDT).
+        - name: amount
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "1.82938475"
+          description: The amount of the asset to transfer.
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+          description: The timestamp of the request in milliseconds since the epoch.
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+          description: The signature of the request for authentication.
+
+      responses:
+        "200":
+          description: Successfully completed the universal transfer
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tranId:
+                    type: string
+                    example: "11945860693"
+                    description: The transfer ID for tracking the transaction.
+        "400":
+          description: Bad request due to missing or invalid parameters.
+        "401":
+          description: Authentication failed, invalid API key or signature.
+        "500":
+          description: Internal server error.
+    get:
+      summary: Retrieve details of past universal transfers between sub-accounts and master account
+      description: This endpoint retrieves information on previous universal transfers between sub-accounts and master accounts, including transfer details such as asset, amount, and status.
+      operationId: getUniversalTransferHistory
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Subaccount
+      parameters:
+        - name: fromAccount
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "SPOT"
+          description: The account from which the transfer was initiated. If not provided, defaults to the master account.
+        - name: toAccount
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "FUTURES"
+          description: The account to which the transfer was made. If not provided, defaults to the master account.
+        - name: fromAccountType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT
+              - FUTURES
+            example: "SPOT"
+          description: The type of the account from which the transfer was initiated (either SPOT or FUTURES).
+        - name: toAccountType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT
+              - FUTURES
+            example: "FUTURES"
+          description: The type of the account to which the transfer was made (either SPOT or FUTURES).
+        - name: startTime
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "1632374792000"
+          description: The start time (in milliseconds since epoch) for filtering transfers.
+        - name: endTime
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "1632461192000"
+          description: The end time (in milliseconds since epoch) for filtering transfers.
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "1"
+          description: The page number to retrieve. Default value is `1`.
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: string
+            example: "500"
+          description: The number of records to retrieve per page. Default is `500`, maximum is `500`.
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+          description: The timestamp of the request in milliseconds since the epoch.
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+          description: The signature of the request for authentication.
+
+      responses:
+        "200":
+          description: Successfully retrieved universal transfer history
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferHistory"
+
+        "400":
+          description: Bad request due to missing or invalid parameters.
+        "401":
+          description: Authentication failed, invalid API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/sub-account/asset:
+    get:
+      summary: Query asset balances of a sub-account
+      description: This endpoint allows you to query the asset balances (both free and locked) for a specific sub-account and account type (currently supports SPOT).
+      operationId: querySubAccountAsset
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Subaccount
+      parameters:
+        - name: subAccount
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "account1"
+          description: The name of the sub-account. Only one sub-account can be queried at a time.
+        - name: accountType
+          in: query
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT
+              - FUTURES
+            example: "SPOT"
+          description: The account type to query. Only "SPOT" is currently supported.
+        - name: timestamp
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+          description: The timestamp of the request in milliseconds since the epoch.
+        - name: signature
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+          description: The signature of the request for authentication.
+
+      responses:
+        "200":
+          description: Successfully retrieved asset balances for the sub-account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assets"
+
+        "400":
+          description: Bad request due to missing or invalid parameters.
+        "401":
+          description: Authentication failed, invalid API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/config/getall:
+    get:
+      summary: Query currency information and smart contract addresses
+      description: This endpoint retrieves detailed information about various currencies, including withdrawal and deposit capabilities, network details, and smart contract addresses.
+      operationId: queryCurrencyInfo
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      responses:
+        "200":
+          description: Successfully retrieved currency information and network details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Capital"
+
+        "400":
+          description: Bad request due to invalid or missing parameters.
+        "401":
+          description: Authentication failed due to invalid API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/withdraw:
+    post:
+      summary: Withdraw cryptocurrency
+      description: This endpoint allows a user to withdraw a cryptocurrency to an external address.
+      operationId: withdrawCryptocurrency
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          description: The currency symbol (e.g., "EOS").
+          required: true
+          schema:
+            type: string
+            example: "EOS"
+        - name: withdrawOrderId
+          in: query
+          description: A unique identifier for the withdrawal order (optional).
+          required: false
+          schema:
+            type: string
+            example: null
+        - name: network
+          in: query
+          description: The network to use for withdrawal (e.g., "EOS").
+          required: false
+          schema:
+            type: string
+            example: "EOS"
+        - name: contractAddress
+          in: query
+          description: The contract address for the coin (optional).
+          required: false
+          schema:
+            type: string
+            example: null
+        - name: address
+          in: query
+          description: The external address to which the cryptocurrency will be withdrawn.
+          required: true
+          schema:
+            type: string
+            example: "zzqqqqqqqqqq"
+        - name: memo
+          in: query
+          description: The memo for the withdrawal (if required by the address).
+          required: false
+          schema:
+            type: string
+            example: "MX10086"
+        - name: amount
+          in: query
+          description: The amount of cryptocurrency to withdraw.
+          required: true
+          schema:
+            type: string
+            example: "10"
+        - name: remark
+          in: query
+          description: An optional remark for the withdrawal request.
+          required: false
+          schema:
+            type: string
+            example: null
+        - name: timestamp
+          in: query
+          description: The timestamp of the request, in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully initiated the withdrawal request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "7213fea8e94b4a5593d507237e5a555b"
+                    description: The unique ID of the withdrawal request.
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error
+    delete:
+      summary: Cancel a cryptocurrency withdrawal
+      description: This endpoint allows a user to cancel a previously initiated withdrawal request by providing the withdrawal ID.
+      operationId: cancelWithdraw
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: id
+          in: query
+          description: The unique ID of the withdrawal request to cancel.
+          required: true
+          schema:
+            type: string
+            example: "ca7bd51895134fb5bd749f1cf875b8af"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request, in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully canceled the withdrawal request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "ca7bd51895134fb5bd749f1cf875b8af"
+                    description: The unique ID of the canceled withdrawal request.
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/deposit/hisrec:
+    get:
+      summary: Query deposit history
+      description: This endpoint allows users to query their deposit history, including coin details, network, status, and other information.
+      operationId: queryDepositHistory
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          description: The currency symbol (e.g., "EOS").
+          required: false
+          schema:
+            type: string
+            example: "EOS"
+        - name: status
+          in: query
+          description: The status of the deposit (e.g., "5" for completed, other status codes might be available).
+          required: false
+          schema:
+            type: string
+            example: "5"
+        - name: startTime
+          in: query
+          description: The start timestamp of the query range in milliseconds (defaults to 7 days ago).
+          required: false
+          schema:
+            type: string
+            example: "1659385600000"
+        - name: endTime
+          in: query
+          description: The end timestamp of the query range in milliseconds (defaults to current time).
+          required: false
+          schema:
+            type: string
+            example: "1660441600000"
+        - name: limit
+          in: query
+          description: The number of records to return (max 1000, default is 1000).
+          required: false
+          schema:
+            type: string
+            example: "1000"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully retrieved deposit history.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deposit"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/withdraw/history:
+    get:
+      summary: Query withdrawal history
+      description: This endpoint allows users to query their withdrawal history for a specific coin. It supports filtering by coin type, withdrawal status, and time range.
+      operationId: queryWithdrawHistory
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          description: The cryptocurrency symbol (e.g., "USDT").
+          required: false
+          schema:
+            type: string
+            example: "USDT"
+        - name: status
+          in: query
+          description: The status of the withdrawal (e.g., "3" for completed).
+          required: false
+          schema:
+            type: string
+            example: "3"
+        - name: limit
+          in: query
+          description: The maximum number of records to return. Default is 1000, max is 1000.
+          required: false
+          schema:
+            type: string
+            example: "1000"
+        - name: startTime
+          in: query
+          description: The start timestamp of the query range in milliseconds (defaults to 7 days ago).
+          required: false
+          schema:
+            type: string
+            example: "1659385600000"
+        - name: endTime
+          in: query
+          description: The end timestamp of the query range in milliseconds (defaults to the current time).
+          required: false
+          schema:
+            type: string
+            example: "1660441600000"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully retrieved withdrawal history.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/History"
+
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/deposit/address:
+    post:
+      summary: Generate a deposit address
+      description: This endpoint allows users to generate a deposit address for a specific coin and network. It also provides the necessary memo or tag if applicable.
+      operationId: generateDepositAddress
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          description: The cryptocurrency symbol (e.g., "USDT", "EOS").
+          required: true
+          schema:
+            type: string
+            example: "EOS"
+        - name: network
+          in: query
+          description: The deposit network to use for the cryptocurrency (e.g., "EOS", "TRC20").
+          required: true
+          schema:
+            type: string
+            example: "EOS"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully generated the deposit address.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DepositAddress"
+
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+    get:
+      summary: Retrieve deposit addresses
+      description: This endpoint allows users to get deposit addresses for a specific coin and network. It returns the available deposit addresses and any associated memo (if applicable).
+      operationId: getDepositAddress
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          description: The cryptocurrency symbol (e.g., "USDT", "EOS").
+          required: true
+          schema:
+            type: string
+            example: "USDT"
+        - name: network
+          in: query
+          description: (Optional) The deposit network (e.g., "TRC20", "BEP20(BSC)", "ERC20"). If not provided, all networks for the specified coin are returned.
+          required: false
+          schema:
+            type: string
+            example: "TRC20"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully retrieved deposit addresses.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Address"
+
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/withdraw/address:
+    get:
+      summary: Retrieve withdrawal addresses
+      description: This endpoint allows users to get withdrawal addresses for a specific coin and network. It returns available withdrawal addresses, associated address tags (if applicable), and any memo (if required).
+      operationId: getWithdrawAddress
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          description: The cryptocurrency symbol (e.g., "USDT", "EOS").
+          required: false
+          schema:
+            type: string
+            example: "USDT"
+        - name: page
+          in: query
+          description: (Optional) The page number of the results. Default is 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: limit
+          in: query
+          description: (Optional) The number of results per page. Default is 20, and the maximum is 100.
+          required: false
+          schema:
+            type: integer
+            example: 20
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully retrieved withdrawal addresses.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/withdrawHistory"
+
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+
+  /api/v3/capital/transfer:
+    post:
+      summary: Transfer assets between account types
+      description: This endpoint allows users to transfer assets between different account types such as "SPOT" and "FUTURES". It is useful for managing funds across different trading accounts.
+      operationId: userUniversalTransfer
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: fromAccountType
+          in: query
+          required: true
+          description: 'The account type to transfer assets from. Possible values: "SPOT", "FUTURES"'
+
+          schema:
+            type: string
+            enum: ["SPOT", "FUTURES"]
+            example: "FUTURES"
+        - name: toAccountType
+          in: query
+          description: 'The account type to transfer assets to. Possible values: "SPOT", "FUTURES".'
+          required: true
+          schema:
+            type: string
+            enum: ["SPOT", "FUTURES"]
+            example: "SPOT"
+        - name: asset
+          in: query
+          description: The asset to transfer (e.g., "USDT", "BTC").
+          required: true
+          schema:
+            type: string
+            example: "USDT"
+        - name: amount
+          in: query
+          description: The amount of the asset to transfer.
+          required: true
+          schema:
+            type: string
+            example: "1"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully transferred the asset.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tranId:
+                    type: string
+                    example: "c45d800a47ba4cbc876a5cd29388319"
+                    description: The transaction ID of the transfer.
+
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+    get:
+      summary: Query user universal transfer history
+      description: This endpoint allows users to query the history of their transfers between account types (e.g., from SPOT to FUTURES or vice versa).
+      operationId: userUniversalTransferHistory
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: fromAccountType
+          in: query
+          description: 'The account type from which assets were transferred. Possible values: "SPOT", "FUTURES".'
+          required: true
+          schema:
+            type: string
+            enum: ["SPOT", "FUTURES"]
+            example: "SPOT"
+        - name: toAccountType
+          in: query
+          description: 'The account type to which assets were transferred. Possible values: "SPOT", "FUTURES".'
+          required: true
+          schema:
+            type: string
+            enum: ["SPOT", "FUTURES"]
+            example: "FUTURES"
+        - name: startTime
+          in: query
+          description: The start time for the query (in milliseconds). If not provided, defaults to the last 7 days.
+          required: false
+          schema:
+            type: string
+            example: "1615423578000"
+        - name: endTime
+          in: query
+          description: The end time for the query (in milliseconds). If not provided, defaults to the current time.
+          required: false
+          schema:
+            type: string
+            example: "1615865578000"
+        - name: page
+          in: query
+          description: The page number for pagination. Defaults to 1.
+          required: false
+          schema:
+            type: string
+            example: "1"
+        - name: size
+          in: query
+          description: The number of records per page. Default is 10, and the maximum is 100.
+          required: false
+          schema:
+            type: string
+            example: "10"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully fetched the universal transfer history.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfer"
+
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/transfer/tranId:
+    get:
+      summary: Query user universal transfer history by tranId
+      description: This endpoint allows users to query a specific transfer record by its `tranId`.
+      operationId: queryUserUniversalTransferHistoryByTranId
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: tranId
+          in: query
+          description: The unique transfer ID to query the specific transfer.
+          required: true
+          schema:
+            type: string
+            example: "cb28c88cd20c42819e4d5148d5fb5742"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully fetched the transfer record.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Transfers"
+
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/convert/list:
+    get:
+      summary: Get assets that can be converted into MX
+      description: This endpoint allows users to retrieve the list of assets that can be converted into MX, along with their balance and conversion details.
+      operationId: getAssetsForConversionToMX
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully fetched the list of assets that can be converted into MX.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ConversionList"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/convert:
+    post:
+      summary: Convert dust balances into a single asset (usually MX)
+      description: This endpoint allows users to convert small amounts of various assets (dust) into a single asset, such as MX, for easier management.
+      operationId: dustTransfer
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: asset
+          in: query
+          description: A comma-separated list of assets (up to 15) to be converted.
+          required: true
+          schema:
+            type: string
+            example: "BTC,FIL,ETH"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully converted dust balances into a single asset.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversion"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+    get:
+      summary: Query the history of dust balance conversions
+      description: This endpoint allows users to view the history of their dust conversions, including details of each conversion, such as the total amount converted and the associated fees.
+      operationId: dustLogQuery
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time of the period for which to retrieve dust conversion logs. (Optional)
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1632374792000
+        - name: endTime
+          in: query
+          description: The end time of the period for which to retrieve dust conversion logs. (Optional)
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 1632374792000
+        - name: page
+          in: query
+          description: The page number of results to retrieve. Default is 1.
+          required: false
+          schema:
+            type: integer
+            default: 1
+            example: 1
+        - name: limit
+          in: query
+          description: The maximum number of records to retrieve per page. Default is 1, and max is 1000.
+          required: false
+          schema:
+            type: integer
+            default: 1
+            maximum: 1000
+            example: 1
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+
+      responses:
+        "200":
+          description: Successfully retrieved the dust conversion history.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversions"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/transfer/internal:
+    post:
+      summary: Perform an internal transfer between accounts
+      description: This endpoint allows users to transfer assets to another account, identified by email, UID, or mobile number.
+      operationId: internalTransfer
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: toAccountType
+          in: query
+          description: The type of account to transfer funds to. Accepted values are "EMAIL", "UID", or "MOBILE".
+          required: true
+          schema:
+            type: string
+            enum: [EMAIL, UID, MOBILE]
+            example: "EMAIL"
+        - name: toAccount
+          in: query
+          description: The account identifier to transfer funds to (email address, UID, or mobile number).
+          required: true
+          schema:
+            type: string
+            example: "user@example.com"
+        - name: areaCode
+          in: query
+          description: The area code for a mobile number. This is only needed if the transfer is made to a mobile number.
+          required: false
+          schema:
+            type: string
+            example: "1"
+        - name: asset
+          in: query
+          description: The asset being transferred (e.g., BTC, USDT).
+          required: true
+          schema:
+            type: string
+            example: "USDT"
+        - name: amount
+          in: query
+          description: The amount of the asset to be transferred.
+          required: true
+          schema:
+            type: string
+            example: "100"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successfully initiated the internal transfer.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tranId:
+                    type: string
+                    description: The unique transaction ID for the transfer.
+                    example: "c45d800a47ba4cbc876a5cd29388319"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+    get:
+      summary: Query the internal transfer history
+      description: This endpoint returns the history of internal transfers for the specified time range or based on `tranId`.
+      operationId: queryInternalTransferHistory
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time for querying transfers (in milliseconds). If not provided, defaults to 7 days ago.
+          required: false
+          schema:
+            type: string
+            example: "1640995200000"
+        - name: endTime
+          in: query
+          description: The end time for querying transfers (in milliseconds). If not provided, defaults to the current time.
+          required: false
+          schema:
+            type: string
+            example: "1641580800000"
+        - name: page
+          in: query
+          description: The page number for pagination. Defaults to 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: limit
+          in: query
+          description: The limit for number of records per page. Defaults to 10.
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: tranId
+          in: query
+          description: A specific transfer ID to query. If provided, filters the results to this specific transaction.
+          required: false
+          schema:
+            type: string
+            example: "11945860693"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: A successful response containing internal transfer history.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalTransfer"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/capital/withdraw/apply:
+    post:
+      summary: Apply for a withdrawal request
+      description: This endpoint allows users to initiate a withdrawal of their assets to a specified address and network.
+      operationId: applyWithdrawal
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Wallet
+      parameters:
+        - name: coin
+          in: query
+          description: The coin being withdrawn (e.g., EOS, BTC, ETH).
+          required: true
+          schema:
+            type: string
+            example: "EOS"
+        - name: withdrawOrderId
+          in: query
+          description: A specific withdrawal order ID if you want to reference an existing order. This is optional.
+          required: false
+          schema:
+            type: string
+            example: "12345abcde"
+        - name: network
+          in: query
+          description: The network to use for the withdrawal (e.g., EOS, ERC20, TRC20). It must be supported by the asset.
+          required: false
+          schema:
+            type: string
+            example: "EOS"
+        - name: address
+          in: query
+          description: The withdrawal address where the funds should be sent.
+          required: true
+          schema:
+            type: string
+            example: "zzqqqqqqqqqq"
+        - name: memo
+          in: query
+          description: An optional memo if required by the network (e.g., for EOS, XMR).
+          required: false
+          schema:
+            type: string
+            example: "MX10086"
+        - name: amount
+          in: query
+          description: The amount of the asset to withdraw.
+          required: true
+          schema:
+            type: string
+            example: "10"
+        - name: remark
+          in: query
+          description: A remark to associate with the withdrawal. This is optional.
+          required: false
+          schema:
+            type: string
+            example: "Payment for invoice"
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: string
+            example: "1632374792000"
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: A successful withdrawal application.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The unique withdrawal ID for the transaction.
+                    example: "7213fea8e94b4a5593d507237e5a555b"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/taxQuery:
+    get:
+      summary: Get rebate history records
+      description: This endpoint allows users to query rebate history records, including details on spot and futures rebates.
+      operationId: getRebateHistory
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: endTime
+          in: query
+          description: The end time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: page
+          in: query
+          description: The page number for paginated results. Default is 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: recvWindow
+          in: query
+          description: The maximum acceptable time window in milliseconds for the request to be processed. Default is 5000 ms.
+          required: false
+          schema:
+            type: integer
+            example: 5000
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successful response with rebate history records.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RebateHistory"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/detail:
+    get:
+      summary: Get detailed rebate records
+      description: This endpoint retrieves detailed rebate records for the user, including the asset type, rebate rate, and transaction details.
+      operationId: getRebateRecordsDetail
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: endTime
+          in: query
+          description: The end time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: page
+          in: query
+          description: The page number for paginated results. Default is 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: recvWindow
+          in: query
+          description: The maximum acceptable time window in milliseconds for the request to be processed. Default is 5000 ms.
+          required: false
+          schema:
+            type: integer
+            example: 5000
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successful response with rebate record details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RebateDetails"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/detail/kickback:
+    get:
+      summary: Get self rebate records detail
+      description: This endpoint retrieves detailed self-rebate records, including the asset type, rebate rate, and transaction details for the user.
+      operationId: getSelfRebateRecordsDetail
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: endTime
+          in: query
+          description: The end time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: page
+          in: query
+          description: The page number for paginated results. Default is 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: recvWindow
+          in: query
+          description: The maximum acceptable time window in milliseconds for the request to be processed. Default is 5000 ms.
+          required: false
+          schema:
+            type: integer
+            example: 5000
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successful response with self rebate record details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Kickback"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/referCode:
+    get:
+      summary: Get the referral code of the user
+      description: This endpoint retrieves the referral code associated with the user account.
+      operationId: queryReferCode
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: recvWindow
+          in: query
+          description: The maximum acceptable time window in milliseconds for the request to be processed. Default is 5000 ms.
+          required: false
+          schema:
+            type: integer
+            example: 5000
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: integer
+            example: 1637651320000
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successful response with the referral code.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  referCode:
+                    type: string
+                    description: The referral code associated with the user.
+                    example: "in3jd"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/affiliate/commission:
+    get:
+      summary: Get affiliate commission record
+      description: This endpoint retrieves the commission records for an affiliate, including spot, ETF, futures, and total commissions.
+      operationId: getAffiliateCommissionRecord
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1637145478000
+        - name: endTime
+          in: query
+          description: The end time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1637145911000
+        - name: inviteCode
+          in: query
+          description: The invite code for the affiliate.
+          required: false
+          schema:
+            type: string
+            example: "mexc-12345"
+        - name: page
+          in: query
+          description: The page number for paginated results. Default is 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: pageSize
+          in: query
+          description: The number of records per page. Default is 10.
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: integer
+            example: 1637145911000
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successful response with affiliate commission record.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Commission"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/affiliate/withdraw:
+    get:
+      summary: Get affiliate withdrawal record
+      description: This endpoint retrieves withdrawal records for an affiliate, including asset type and withdrawal amounts.
+      operationId: getAffiliateWithdrawRecord
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1682320000000
+        - name: endTime
+          in: query
+          description: The end time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1682322000000
+        - name: page
+          in: query
+          description: The page number for paginated results. Default is 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: pageSize
+          in: query
+          description: The number of records per page. Default is 10.
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: integer
+            example: 1682321417000
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successful response with affiliate withdrawal records.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RebateWithdraw"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/affiliate/commission/detail:
+    get:
+      summary: Get detailed affiliate commission record
+      description: This endpoint retrieves detailed commission records for an affiliate, including commission types, amounts, and trade details.
+      operationId: getAffiliateCommissionDetailRecord
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1689264000000
+        - name: endTime
+          in: query
+          description: The end time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1689264000000
+        - name: inviteCode
+          in: query
+          description: The invite code for the affiliate.
+          required: false
+          schema:
+            type: string
+            example: "mexc-12345"
+        - name: page
+          in: query
+          description: The page number for paginated results. Default is 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: pageSize
+          in: query
+          description: The number of records per page. Default is 10.
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: type
+          in: query
+          description: The commission type. 1 = spot, 2 = futures, 3 = ETF.
+          required: false
+          schema:
+            type: integer
+            example: 2
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: integer
+            example: 1689264000000
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successful response with affiliate commission details.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommissionDetail"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/affiliate/campaign:
+    get:
+      summary: Get affiliate campaign data
+      description: This endpoint retrieves the affiliate campaign data, including the invite code, click count, sign-ups, deposits, and commissions.
+      operationId: getAffiliateCampaignData
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: The start time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1693152531000
+        - name: endTime
+          in: query
+          description: The end time for the query range in Unix timestamp (milliseconds).
+          required: false
+          schema:
+            type: integer
+            example: 1695125287000
+        - name: page
+          in: query
+          description: The page number for paginated results. Default is 1.
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: pageSize
+          in: query
+          description: The number of records per page. Default is 10.
+          required: false
+          schema:
+            type: integer
+            example: 10
+        - name: timestamp
+          in: query
+          description: The timestamp of the request in milliseconds.
+          required: true
+          schema:
+            type: integer
+            example: 1695125287000
+        - name: signature
+          in: query
+          description: The HMAC SHA256 signature of the request parameters for authentication.
+          required: true
+          schema:
+            type: string
+            example: "abcdef1234567890"
+      responses:
+        "200":
+          description: Successful response with affiliate campaign data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Campaigns"
+        "400":
+          description: Bad request, invalid parameters or missing data.
+        "401":
+          description: Unauthorized, failed authentication due to incorrect API key or signature.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/affiliate/referral:
+    get:
+      summary: Get affiliate referral data
+      description: This endpoint allows affiliates to retrieve their referral data.
+      operationId: getAffiliateReferralData
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: Optional parameter to specify the start time for the referral data.
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: endTime
+          in: query
+          description: Optional parameter to specify the end time for the referral data.
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: uid
+          in: query
+          description: Optional parameter to filter by user ID.
+          required: false
+          schema:
+            type: string
+        - name: inviteCode
+          in: query
+          description: Optional parameter to filter by the affiliate invite code.
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Optional parameter to specify the page number (default is 1).
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          description: Optional parameter to specify the number of results per page (default is 10).
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: timestamp
+          in: query
+          description: Mandatory timestamp of the request.
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: signature
+          in: query
+          description: Mandatory signature for the request.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with affiliate referral data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Referral"
+        "400":
+          description: Bad request, possibly missing required parameters.
+        "401":
+          description: Unauthorized, invalid or missing authentication.
+        "500":
+          description: Internal server error.
+  /api/v3/rebate/affiliate/subaffiliates:
+    get:
+      summary: Get affiliate subaffiliates data
+      description: This endpoint allows affiliates to retrieve their subaffiliates data.
+      operationId: getAffiliateSubaffiliatesData
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - Rebate Endpoints
+      parameters:
+        - name: startTime
+          in: query
+          description: Optional parameter to specify the start time for the subaffiliates data.
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: endTime
+          in: query
+          description: Optional parameter to specify the end time for the subaffiliates data.
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: inviteCode
+          in: query
+          description: Optional parameter to filter by the affiliate's invite code.
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Optional parameter to specify the page number (default is 1).
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          description: Optional parameter to specify the number of results per page (default is 10).
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: timestamp
+          in: query
+          description: Mandatory timestamp of the request.
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: signature
+          in: query
+          description: Mandatory signature for the request.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response with affiliate subaffiliates data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subaffiliates"
+        "400":
+          description: Bad request, possibly missing required parameters.
+        "401":
+          description: Unauthorized, invalid or missing authentication.
+        "500":
+          description: Internal server error.
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-MEXC-APIKEY
+  schemas:
+    Ping:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+    ServerResponse:
+      type: object
+      properties:
+        serverTime:
+          type: integer
+          example: 1609459200000
+    Symbols:
+      type: array
+      items:
+        type: string
+        example: BTCUSDT
+    ExchangeInfo:
+      type: object
+      properties:
+        exchangeInfo:
+          type: array
+          items:
+            type: object
+            properties:
+              symbol:
+                type: string
+                example: BTCUSDT
+              status:
+                type: string
+                example: ACTIVE
+    Orderbook:
+      type: object
+      properties:
+        bids:
+          $ref: "#/components/schemas/BidAsk"
+        asks:
+          $ref: "#/components/schemas/BidAsk"
+    BidAsk:
+      type: array
+      items:
+        type: array
+        items:
+          type: string
+          example: ["50000.00", "1"]
+    Trades:
+      type: array
+      items:
+        type: object
+        properties:
+          price:
+            type: string
+            example: "50000.00"
+          qty:
+            type: string
+            example: "1"
+          time:
+            type: integer
+            example: 1609459200000
+    Aggtrades:
+      type: array
+      items:
+        type: object
+        properties:
+          price:
+            type: string
+            example: "49500.00"
+          qty:
+            type: string
+            example: "3"
+          time:
+            type: integer
+            example: 1609459200000
+    Klines:
+      type: array
+      items:
+        type: array
+        items:
+          type: string
+          example:
+            [
+              "1609459200000",
+              "50000.00",
+              "50500.00",
+              "49000.00",
+              "49500.00",
+              "1.0",
+            ]
+    Ticker24:
+      type: object
+      properties:
+        priceChange:
+          type: string
+          example: "500.00"
+        priceChangePercent:
+          type: string
+          example: "1.0"
+        weightedAvgPrice:
+          type: string
+          example: "49500.00"
+        prevClosePrice:
+          type: string
+          example: "49000.00"
+    TickerPrice:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: BTCUSDT
+        price:
+          type: string
+          example: "50000.00"
+    BookTicker:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: BTCUSDT
+        askPrice:
+          type: string
+          example: "50500.00"
+        bidPrice:
+          type: string
+          example: "50000.00"
+    Order:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: Symbol
+          example: BTCUSDT
+        side:
+          type: string
+          enum: [BUY, SELL]
+          description: "ENUM: Order Side"
+        type:
+          type: string
+          enum:
+            [
+              LIMIT,
+              MARKET,
+              STOP_LOSS,
+              STOP_LOSS_LIMIT,
+              TAKE_PROFIT,
+              TAKE_PROFIT_LIMIT,
+              LIMIT_MAKER,
+            ]
+          description: "ENUM: Order Type"
+        quantity:
+          type: number
+          format: decimal
+          description: Quantity
+          example: 0.001
+        quoteOrderQty:
+          type: number
+          format: decimal
+          description: Quote order quantity
+          example: 100.0
+        price:
+          type: number
+          format: decimal
+          description: Price
+          example: 30000.0
+        newClientOrderId:
+          type: string
+          description: A unique ID for the order
+          example: myOrder1
+        recvWindow:
+          type: integer
+          format: int64
+          description: Max 60000
+          example: 5000
+        timestamp:
+          type: integer
+          format: int64
+          description: Timestamp
+          example: 1698765432000
+      required:
+        - symbol
+        - side
+        - type
+        - timestamp
+    SelfSymbols:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: Response code.
+          example: 200
+        data:
+          type: array
+          items:
+            type: string
+          description: Array of default symbols.
+          example:
+            - GENE1USDT
+            - SNTUSDT
+            - SQUAWKUSDT
+            - HEGICUSDT
+            - GUMUSDT
+        msg:
+          type: string
+          nullable: true
+          description: Response message (null if successful).
+          example: null
+    BatchRequest:
+      type: array
+      items:
+        type: object
+        properties:
+          type:
+            type: string
+            enum: [LIMIT_ORDER]
+            description: The type of the order.
+          price:
+            type: string
+            description: The price at which the order should be executed.
+          quantity:
+            type: string
+            description: The quantity of the asset to be traded.
+          symbol:
+            type: string
+            description: The trading pair symbol (e.g., BTCUSDT).
+          side:
+            type: string
+            enum: [BUY, SELL]
+            description: The side of the order (BUY or SELL).
+          newClientOrderId:
+            type: integer
+            description: A unique identifier for the order specified by the client.
+    BatchResponse:
+      type: object
+    CancelOrder:
+      type: object
+      properties:
+        symbol:
+          type: string
+          description: The trading pair symbol.
+        origClientOrderId:
+          type: string
+          description: The original client order ID.
+        orderId:
+          type: string
+          description: The unique identifier of the canceled order.
+        clientOrderId:
+          type: string
+          description: The client order ID.
+        price:
+          type: string
+          description: The price of the order.
+        origQty:
+          type: string
+          description: The original quantity of the order.
+        executedQty:
+          type: string
+          description: The executed quantity of the order.
+        cummulativeQuoteQty:
+          type: string
+          description: The cumulative quote quantity of the order.
+        status:
+          type: string
+          description: The status of the order (e.g., CANCELED).
+        timeInForce:
+          type: string
+          description: The time in force of the order.
+        type:
+          type: string
+          description: The type of the order (e.g., LIMIT).
+        side:
+          type: string
+          description: The side of the order (BUY or SELL).
+    OrderDeletion:
+      type: array
+      items:
+        type: object
+        properties:
+          symbol:
+            type: string
+            description: The trading pair symbol.
+          origClientOrderId:
+            type: string
+            description: The original client order ID.
+          orderId:
+            type: integer
+            description: The unique identifier of the canceled order.
+          orderListId:
+            type: integer
+            description: The ID of the order list (if applicable).
+          clientOrderId:
+            type: string
+            description: The client order ID.
+          price:
+            type: string
+            description: The price of the order.
+          origQty:
+            type: string
+            description: The original quantity of the order.
+          executedQty:
+            type: string
+            description: The executed quantity of the order.
+          cummulativeQuoteQty:
+            type: string
+            description: The cumulative quote quantity of the order.
+          status:
+            type: string
+            description: The status of the order (e.g., CANCELED).
+          timeInForce:
+            type: string
+            description: The time in force of the order.
+          type:
+            type: string
+            description: The type of the order (e.g., LIMIT).
+          side:
+            type: string
+            description: The side of the order (BUY or SELL).
+    openOrders:
+      type: array
+      items:
+        type: object
+        properties:
+          symbol:
+            type: string
+            example: "LTCBTC"
+          orderId:
+            type: integer
+            example: 1
+          orderListId:
+            type: integer
+            example: -1
+          clientOrderId:
+            type: string
+            example: "myOrder1"
+          price:
+            type: string
+            example: "0.1"
+          origQty:
+            type: string
+            example: "1.0"
+          executedQty:
+            type: string
+            example: "0.0"
+          cummulativeQuoteQty:
+            type: string
+            example: "0.0"
+          status:
+            type: string
+            example: "NEW"
+          timeInForce:
+            type: string
+            example: "GTC"
+          type:
+            type: string
+            example: "LIMIT"
+          side:
+            type: string
+            example: "BUY"
+          stopPrice:
+            type: string
+            example: "0.0"
+          icebergQty:
+            type: string
+            example: "0.0"
+          time:
+            type: integer
+            example: 1499827319559
+          updateTime:
+            type: integer
+            example: 1499827319559
+          isWorking:
+            type: boolean
+            example: true
+          origQuoteOrderQty:
+            type: string
+            example: "0.000000"
+    AccountInfo:
+      type: object
+      properties:
+        canTrade:
+          type: boolean
+          example: true
+        canWithdraw:
+          type: boolean
+          example: true
+        canDeposit:
+          type: boolean
+          example: true
+        updateTime:
+          type: string
+          nullable: true
+          example: null
+        accountType:
+          type: string
+          example: "SPOT"
+        balances:
+          type: array
+          items:
+            type: object
+            properties:
+              asset:
+                type: string
+                example: "NBNTEST"
+              free:
+                type: string
+                example: "1111078"
+              locked:
+                type: string
+                example: "33"
+        permissions:
+          type: array
+          items:
+            type: string
+            example: "SPOT"
+    Trade:
+      type: object
+      properties:
+        symbol:
+          type: string
+          example: "BNBBTC"
+        id:
+          type: string
+          example: "fad2af9e942049b6adbda1a271f990c6"
+        orderId:
+          type: string
+          example: "bb41e5663e124046bd9497a3f5692f39"
+        orderListId:
+          type: integer
+          example: -1
+        price:
+          type: string
+          example: "4.00000100"
+        qty:
+          type: string
+          example: "12.00000000"
+        quoteQty:
+          type: string
+          example: "48.000012"
+        commission:
+          type: string
+          example: "10.10000000"
+        commissionAsset:
+          type: string
+          example: "BNB"
+        time:
+          type: integer
+          example: 1499865549590
+        isBuyer:
+          type: boolean
+          example: true
+        isMaker:
+          type: boolean
+          example: false
+        isBestMatch:
+          type: boolean
+          example: true
+        isSelfTrade:
+          type: boolean
+          example: true
+        clientOrderId:
+          type: string
+          nullable: true
+          example: null
+    mxDeduct:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            mxDeductEnable:
+              type: boolean
+              example: true
+        code:
+          type: integer
+          example: 0
+        msg:
+          type: string
+          example: "success"
+        timestamp:
+          type: integer
+          example: 1669109672280
+    Subaccounts:
+      type: object
+      properties:
+        subAccounts:
+          type: array
+          items:
+            type: object
+            properties:
+              subAccount:
+                type: string
+                example: "mexc666"
+                description: The name of the sub-account.
+              isFreeze:
+                type: boolean
+                example: false
+                description: Indicates whether the sub-account is frozen.
+              createTime:
+                type: integer
+                example: 1544433328000
+                description: The creation time of the sub-account in milliseconds since the epoch.
+              uid:
+                type: string
+                example: "49910511"
+                description: The unique user ID associated with the sub-account.
+    ApiKey:
+      type: object
+      properties:
+        subAccount:
+          type: string
+          example: "mexc1"
+          description: The name of the sub-account for which the API key was created.
+        note:
+          type: string
+          example: "1"
+          description: The note or description associated with the API key.
+        apiKey:
+          type: string
+          example: "arg13sdfgs"
+          description: The generated API key for the sub-account.
+        secretKey:
+          type: string
+          example: "nkjwn21973ihi"
+          description: The generated secret key for the sub-account's API key.
+        permissions:
+          type: string
+          example: "SPOT_ACCOUNT_READ"
+          description: The permissions granted to the API key.
+        ip:
+          type: string
+          example: "135.181.193"
+          description: The IP address(es) allowed to use the API key.
+        creatTime:
+          type: integer
+          example: 1597026383085
+          description: The timestamp of when the API key was created (in milliseconds since the epoch).
+    ApiKeyList:
+      type: object
+      properties:
+        subAccount:
+          type: array
+          items:
+            type: object
+            properties:
+              note:
+                type: string
+                example: "v5"
+                description: A note or description associated with the API key.
+              apiKey:
+                type: string
+                example: "arg13sdfgs"
+                description: The API key associated with the sub-account.
+              permissions:
+                type: string
+                example: "SPOT_ACCOUNT_READ,SPOT_ACCOUNT_WRITE"
+                description: The permissions assigned to the API key.
+              ip:
+                type: string
+                example: "1.1.1.1,2.2.2.2"
+                description: The IP addresses allowed to use the API key (comma-separated if multiple).
+              creatTime:
+                type: integer
+                example: 1597026383085
+                description: The timestamp when the API key was created (in milliseconds since the epoch).
+    TransferHistory:
+      type: object
+      properties:
+        tranId:
+          type: string
+          example: "11945860693"
+          description: The transfer ID for the transaction.
+        fromAccount:
+          type: string
+          example: "SPOT"
+          description: The account from which the transfer was initiated.
+        toAccount:
+          type: string
+          example: "FUTURES"
+          description: The account to which the transfer was made.
+        clientTranId:
+          type: string
+          example: "client123"
+          description: The client-provided transaction ID.
+        asset:
+          type: string
+          example: "USDT"
+          description: The asset being transferred.
+        amount:
+          type: string
+          example: "1.82938475"
+          description: The amount of the asset transferred.
+        fromAccountType:
+          type: string
+          example: "SPOT"
+          description: The type of account from which the transfer originated.
+        toAccountType:
+          type: string
+          example: "FUTURES"
+          description: The type of account to which the transfer was made.
+        fromSymbol:
+          type: string
+          example: "BTC"
+          description: The symbol of the asset in the from account.
+        toSymbol:
+          type: string
+          example: "USDT"
+          description: The symbol of the asset in the to account.
+        status:
+          type: string
+          example: "COMPLETED"
+          description: The status of the transfer (e.g., `COMPLETED`, `PENDING`).
+        timestamp:
+          type: number
+          example: 1632374792000
+          description: The timestamp of the transfer in milliseconds since the epoch.
+    Assets:
+      type: object
+      properties:
+        balances:
+          type: array
+          items:
+            type: object
+            properties:
+              asset:
+                type: string
+                example: "MX"
+                description: The asset symbol (e.g., "MX", "BTC").
+              free:
+                type: string
+                example: "3"
+                description: The amount of the asset that is free to trade or withdraw.
+              locked:
+                type: string
+                example: "0"
+                description: The amount of the asset that is locked and cannot be used.
+    Capital:
+      type: array
+      items:
+        type: object
+        properties:
+          coin:
+            type: string
+            example: "EOS"
+            description: The currency symbol (e.g., "EOS", "BTC").
+          Name:
+            type: string
+            example: "EOS"
+            description: The name of the currency.
+          networkList:
+            type: array
+            items:
+              type: object
+              properties:
+                coin:
+                  type: string
+                  example: "EOS"
+                  description: The currency symbol for the network.
+                depositDesc:
+                  type: string
+                  nullable: true
+                  example: null
+                  description: A description of the deposit process (if available).
+                depositEnable:
+                  type: boolean
+                  example: true
+                  description: Whether deposits are enabled for this currency.
+                minConfirm:
+                  type: integer
+                  example: 0
+                  description: The minimum number of confirmations required for deposits.
+                Name:
+                  type: string
+                  example: "EOS"
+                  description: The name of the network.
+                network:
+                  type: string
+                  example: "EOS"
+                  description: The name of the network (e.g., "BEP20(BSC)", "EOS").
+                withdrawEnable:
+                  type: boolean
+                  example: false
+                  description: Whether withdrawals are enabled for this currency.
+                withdrawFee:
+                  type: string
+                  example: "0.000100000000000000"
+                  description: The fee for withdrawals.
+                withdrawIntegerMultiple:
+                  type: string
+                  nullable: true
+                  example: null
+                  description: The integer multiple for withdrawals (if applicable).
+                withdrawMax:
+                  type: string
+                  example: "10000.000000000000000000"
+                  description: The maximum amount that can be withdrawn.
+                withdrawMin:
+                  type: string
+                  example: "0.001000000000000000"
+                  description: The minimum amount that can be withdrawn.
+                sameAddress:
+                  type: boolean
+                  example: false
+                  description: Whether the same address is used for both deposit and withdrawal.
+                contract:
+                  type: string
+                  example: "TN3W4H6rK2ce4vX9YnFQHwKENnHjoxbm9"
+                  description: The smart contract address (if applicable).
+                withdrawTips:
+                  type: string
+                  nullable: true
+                  example: "Both a MEMO and an Address are required."
+                  description: Additional tips for withdrawals (if any).
+                depositTips:
+                  type: string
+                  nullable: true
+                  example: "Both a MEMO and an Address are required."
+                  description: Additional tips for deposits (if any).
+    Deposit:
+      type: array
+      items:
+        type: object
+        properties:
+          amount:
+            type: string
+            example: "50000"
+            description: The amount of cryptocurrency deposited.
+          coin:
+            type: string
+            example: "EOS"
+            description: The cryptocurrency symbol for the deposit.
+          network:
+            type: string
+            example: "EOS"
+            description: The network used for the deposit (e.g., EOS, BEP20).
+          status:
+            type: integer
+            example: 5
+            description: The status of the deposit (e.g., 5 might represent completed).
+          address:
+            type: string
+            example: "0x20b7cf77db93d6ef1ab979c49142ec168427fdee"
+            description: The deposit address where the funds were sent.
+          txId:
+            type: string
+            example: "01391d1c1397ef0a3cbb3c7f99a90846f7c8c2a8dddcdcf84f46b530dede203e1bc804"
+            description: The transaction ID of the deposit.
+          insertTime:
+            type: integer
+            example: 1659513342000
+            description: The timestamp when the deposit was initiated.
+          unlockConfirm:
+            type: string
+            example: "10"
+            description: The number of confirmations required to unlock the deposit.
+          confirmTimes:
+            type: string
+            example: "241"
+            description: The number of confirmations received for the deposit.
+          memo:
+            type: string
+            example: "xxyy1122"
+            description: A memo related to the deposit (if provided).
+    History:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            example: "bb17a2d452684f00a523c015d512a341"
+            description: The withdrawal transaction ID.
+          txId:
+            type: string
+            nullable: true
+            example: null
+            description: The transaction ID (nullable if not available).
+          coin:
+            type: string
+            example: "EOS"
+            description: The cryptocurrency symbol for the withdrawal.
+          network:
+            type: string
+            nullable: true
+            example: "EOS"
+            description: The network used for the withdrawal (nullable if not provided).
+          address:
+            type: string
+            example: "zzqqqqqqqqqq"
+            description: The withdrawal address.
+          amount:
+            type: string
+            example: "10"
+            description: The amount withdrawn.
+          transferType:
+            type: integer
+            example: 0
+            description: The transfer type (e.g., `0` might represent a standard transfer).
+          status:
+            type: integer
+            example: 3
+            description: The withdrawal status (e.g., `3` might represent completed).
+          transactionFee:
+            type: string
+            example: "0"
+            description: The transaction fee for the withdrawal.
+          confirmNo:
+            type: string
+            nullable: true
+            example: null
+            description: The number of confirmations received (nullable if not available).
+          applyTime:
+            type: integer
+            example: 1665300874000
+            description: The timestamp when the withdrawal was initiated.
+          remark:
+            type: string
+            example: ""
+            description: Any remarks associated with the withdrawal.
+          memo:
+            type: string
+            example: "MX10086"
+            description: A memo associated with the withdrawal.
+          transHash:
+            type: string
+            example: "0x0ced593b8b5adc9f600334d0d7335456a7ed772ea5547beda7ffc4f33a065c"
+            description: The transaction hash for the withdrawal.
+          updateTime:
+            type: integer
+            example: 1712134082000
+            description: The last updated timestamp of the withdrawal.
+          coinId:
+            type: string
+            example: "128f589271cb495b03e71e6323eb7be"
+            description: The internal coin ID.
+          vcoinId:
+            type: string
+            example: "af42c6414b9a46c8869ce30fd51660f"
+            description: The internal virtual coin ID.
+    DepositAddress:
+      type: array
+      items:
+        type: object
+        properties:
+          coin:
+            type: string
+            example: "USDT"
+            description: The cryptocurrency symbol.
+          network:
+            type: string
+            example: "TRC20"
+            description: The network used for the deposit.
+          address:
+            type: string
+            example: "TXobiKkdciupZrhdvZyTSSLjE8CmZAufS"
+            description: The generated deposit address.
+          tag:
+            type: string
+            nullable: true
+            example: null
+            description: A tag for the deposit address (nullable if not required).
+          memo:
+            type: string
+            nullable: true
+            example: "MX10068"
+            description: A memo associated with the deposit address (nullable if not required).
+    Address:
+      type: array
+      items:
+        type: object
+        properties:
+          coin:
+            type: string
+            example: "USDT"
+            description: The cryptocurrency symbol.
+          network:
+            type: string
+            example: "TRC20"
+            description: The network used for the deposit.
+          address:
+            type: string
+            example: "TXobiKkdciupZrhdvZyTSSLjE8CmZAufS"
+            description: The generated deposit address.
+          memo:
+            type: string
+            nullable: true
+            example: null
+            description: A memo associated with the deposit address (nullable if not required).
+    withdrawHistory:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              coin:
+                type: string
+                example: "USDT"
+                description: The cryptocurrency symbol.
+              network:
+                type: string
+                example: "TRC20"
+                description: The network used for withdrawal.
+              address:
+                type: string
+                example: "TArGWdTApuuZtiWMjupXqbZqQYsBTy126o"
+                description: The withdrawal address.
+              addressTag:
+                type: string
+                nullable: true
+                example: "test"
+                description: A tag for the address (if applicable).
+              memo:
+                type: string
+                nullable: true
+                example: null
+                description: A memo associated with the withdrawal address (nullable if not required).
+        totalRecords:
+          type: integer
+          example: 2
+          description: The total number of records available.
+        page:
+          type: integer
+          example: 1
+          description: The current page number.
+        totalPageNum:
+          type: integer
+          example: 1
+          description: The total number of pages available.
+    Transfer:
+      type: object
+      properties:
+        rows:
+          type: array
+          items:
+            type: object
+            properties:
+              tranId:
+                type: string
+                example: "11945860693"
+                description: The transfer ID.
+              clientTranId:
+                type: string
+                example: "test"
+                description: The client-provided transfer ID.
+              asset:
+                type: string
+                example: "BTC"
+                description: The asset being transferred.
+              amount:
+                type: string
+                example: "0.1"
+                description: The amount of the asset transferred.
+              fromAccountType:
+                type: string
+                example: "SPOT"
+                description: The account type from which the asset was transferred.
+              toAccountType:
+                type: string
+                example: "FUTURE"
+                description: The account type to which the asset was transferred.
+              fromSymbol:
+                type: string
+                example: "SPOT"
+                description: The source account symbol.
+              toSymbol:
+                type: string
+                example: "FUTURE"
+                description: The destination account symbol.
+              status:
+                type: string
+                example: "SUCCESS"
+                description: The status of the transfer.
+              timestamp:
+                type: integer
+                example: 1544433325000
+                description: The timestamp of the transfer.
+        total:
+          type: integer
+          example: 2
+          description: The total number of records available.
+    Transfers:
+      type: object
+      properties:
+        tranId:
+          type: string
+          example: "cb28c88cd20c42819e4d5148d5fb5742"
+          description: The unique transfer ID.
+        clientTranId:
+          type: string
+          example: "null"
+          description: The client-provided transfer ID (optional).
+        asset:
+          type: string
+          example: "USDT"
+          description: The asset being transferred.
+        amount:
+          type: string
+          example: "10"
+          description: The amount of the asset transferred.
+        fromAccountType:
+          type: string
+          example: "SPOT"
+          description: The account type from which the asset was transferred.
+        toAccountType:
+          type: string
+          example: "FUTURES"
+          description: The account type to which the asset was transferred.
+        symbol:
+          type: string
+          example: "null"
+          description: The symbol (optional, could be null).
+        status:
+          type: string
+          example: "SUCCESS"
+          description: The status of the transfer.
+        timestamp:
+          type: integer
+          example: 1678603205000
+          description: The timestamp when the transfer was executed.
+    ConversionList:
+      type: array
+      items:
+        type: object
+        properties:
+          convertMx:
+            type: string
+            example: "0.000009"
+            description: The amount of MX that can be converted from the given asset.
+          convertUsdt:
+            type: string
+            example: "0.000009"
+            description: The amount of USDT equivalent that can be converted from the given asset.
+          balance:
+            type: string
+            example: "0.000441"
+            description: The balance of the asset available for conversion.
+          asset:
+            type: string
+            example: "USDT"
+            description: The asset that can be converted into MX.
+          code:
+            type: string
+            example: "30021"
+            description: A unique code indicating the status of the conversion request.
+          message:
+            type: string
+            example: "xxxxxxx"
+            description: A message associated with the conversion status or error.
+    Conversion:
+      type: object
+      properties:
+        successList:
+          type: array
+          items:
+            type: string
+          description: List of assets that were successfully converted into MX.
+          example: ["ALGO", "OMG"]
+        failedList:
+          type: array
+          items:
+            type: string
+          description: List of assets that failed conversion.
+          example: []
+        totalConvert:
+          type: string
+          description: The total amount converted into MX.
+          example: "0.07085578"
+        convertFee:
+          type: string
+          description: The fee deducted for the conversion.
+          example: "0.00071571"
+    Conversions:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              totalConvert:
+                type: string
+                description: The total amount converted during the transaction.
+                example: "0.00885018"
+              totalFee:
+                type: string
+                description: The total fee for the conversion.
+                example: "0.000177"
+              convertTime:
+                type: integer
+                description: The timestamp of the conversion.
+                example: 1665360563000
+              convertDetails:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The unique identifier for this conversion transaction.
+                      example: "3e52a99c5c3447b2af2163cd829dca28"
+                    convert:
+                      type: string
+                      description: The amount converted.
+                      example: "0.00885018"
+                    fee:
+                      type: string
+                      description: The fee for this particular conversion.
+                      example: "0.000177"
+                    amount:
+                      type: string
+                      description: The remaining amount after fee.
+                      example: "0.007130464601986065"
+                    time:
+                      type: integer
+                      description: The timestamp of the individual conversion.
+                      example: 1665360563000
+                    asset:
+                      type: string
+                      description: The asset being converted.
+                      example: "ETHF"
+        totalRecords:
+          type: integer
+          description: The total number of conversion records.
+          example: 4
+        page:
+          type: integer
+          description: The current page number.
+          example: 1
+        totalPageNum:
+          type: integer
+          description: The total number of pages available.
+          example: 1
+    InternalTransfer:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: The current page number.
+          example: 1
+        totalRecords:
+          type: integer
+          description: The total number of records.
+          example: 1
+        totalPageNum:
+          type: integer
+          description: The total number of pages.
+          example: 1
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              tranId:
+                type: string
+                description: The unique transfer ID for the transaction.
+                example: "11945860693"
+              asset:
+                type: string
+                description: The asset transferred (e.g., BTC, ETH).
+                example: "BTC"
+              amount:
+                type: string
+                description: The amount of the asset transferred.
+                example: "0.1"
+              toAccountType:
+                type: string
+                description: The type of account the funds were sent to (e.g., EMAIL, UID).
+                example: "EMAIL"
+              toAccount:
+                type: string
+                description: The account to which the funds were transferred.
+                example: "156283619@outlook.com"
+              fromAccount:
+                type: string
+                description: The account from which the funds were transferred.
+                example: "156283618@outlook.com"
+              status:
+                type: string
+                description: The status of the transfer (e.g., SUCCESS, FAILED).
+                example: "SUCCESS"
+              timestamp:
+                type: integer
+                description: The timestamp of the transfer in milliseconds.
+                example: 1544433325000
+    RebateHistory:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number of results.
+          example: 1
+        totalRecords:
+          type: integer
+          description: Total number of rebate records available.
+          example: 1
+        totalPageNum:
+          type: integer
+          description: Total number of pages for the query.
+          example: 1
+        data:
+          type: array
+          description: List of rebate records.
+          items:
+            type: object
+            properties:
+              spot:
+                type: string
+                description: The spot rebate amount for the user.
+                example: "0.00082273"
+              futures:
+                type: string
+                description: The futures rebate amount for the user.
+                example: "0.00022487"
+              total:
+                type: string
+                description: The total rebate amount for the user.
+                example: "0.00012126"
+              uid:
+                type: string
+                description: The unique user ID of the rebate recipient.
+                example: "221827"
+              account:
+                type: string
+                description: The email account of the user receiving the rebate.
+                example: "154****291@qq.com"
+              inviteTime:
+                type: integer
+                description: The time when the user was invited (Unix timestamp in milliseconds).
+                example: 1637651320000
+    RebateDetails:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number of results.
+          example: 1
+        totalRecords:
+          type: integer
+          description: Total number of rebate records available.
+          example: 1
+        totalPageNum:
+          type: integer
+          description: Total number of pages for the query.
+          example: 1
+        data:
+          type: array
+          description: List of detailed rebate records.
+          items:
+            type: object
+            properties:
+              asset:
+                type: string
+                description: The asset type (e.g., USDT, ETH).
+                example: "USDT"
+              type:
+                type: string
+                description: The type of rebate (e.g., "spot").
+                example: "spot"
+              rate:
+                type: string
+                description: The rebate rate applied to the trade.
+                example: "0.3"
+              amount:
+                type: string
+                description: The rebate amount earned from the transaction.
+                example: "0.0001126"
+              uid:
+                type: string
+                description: The unique user ID associated with the rebate record.
+                example: "2293729101827"
+              account:
+                type: string
+                description: The email account associated with the user.
+                example: "154****291@qq.com"
+              tradeTime:
+                type: integer
+                description: The time of the trade in Unix timestamp format (milliseconds).
+                example: 1637651320000
+              updateTime:
+                type: integer
+                description: The last time the rebate record was updated, in Unix timestamp (milliseconds).
+                example: 1637651320000
+    Kickback:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number of results.
+          example: 1
+        totalRecords:
+          type: integer
+          description: Total number of rebate records available.
+          example: 27
+        totalPageNum:
+          type: integer
+          description: Total number of pages for the query.
+          example: 3
+        data:
+          type: array
+          description: List of detailed self-rebate records.
+          items:
+            type: object
+            properties:
+              asset:
+                type: string
+                description: The asset type (e.g., USDT, ETH).
+                example: "USDT"
+              type:
+                type: string
+                description: The type of rebate (e.g., "spot").
+                example: "spot"
+              rate:
+                type: string
+                description: The rebate rate applied to the trade.
+                example: "0.3"
+              amount:
+                type: string
+                description: The rebate amount earned from the transaction.
+                example: "0.0001126"
+              uid:
+                type: string
+                description: The unique user ID associated with the rebate record.
+                example: "2293729101827"
+              account:
+                type: string
+                description: The email account associated with the user.
+                example: "154****291@qq.com"
+              tradeTime:
+                type: integer
+                description: The time of the trade in Unix timestamp format (milliseconds).
+                example: 1637651320000
+              updateTime:
+                type: integer
+                description: The last time the rebate record was updated, in Unix timestamp (milliseconds).
+                example: 1637928379000
+    Commission:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful.
+          example: true
+        code:
+          type: integer
+          description: Response status code.
+          example: 0
+        message:
+          type: string
+          description: Additional message, if any.
+          example: null
+        data:
+          type: object
+          properties:
+            pageSize:
+              type: integer
+              description: Number of records per page.
+              example: 10
+            totalCount:
+              type: integer
+              description: Total number of commission records available.
+              example: 2
+            totalPage:
+              type: integer
+              description: Total number of pages for the query.
+              example: 1
+            currentPage:
+              type: integer
+              description: Current page number.
+              example: 1
+            usdtAmount:
+              type: string
+              description: Total USDT amount for commissions.
+              example: null
+            totalCommissionUsdtAmount:
+              type: string
+              description: Total USDT commission amount.
+              example: null
+            totalTradeUsdtAmount:
+              type: string
+              description: Total trade volume in USDT.
+              example: null
+            finished:
+              type: string
+              description: Completion status.
+              example: null
+            resultList:
+              type: array
+              description: List of commission records for the affiliate.
+              items:
+                type: object
+                properties:
+                  uid:
+                    type: string
+                    description: The user ID of the affiliate.
+                    example: "27121050"
+                  account:
+                    type: string
+                    description: The account associated with the affiliate.
+                    example: ""
+                  inviteCode:
+                    type: string
+                    description: The invite code used by the affiliate.
+                    example: "mexc-12345"
+                  inviteTime:
+                    type: integer
+                    description: The time the invite code was created, in Unix timestamp format (milliseconds).
+                    example: 1637145911
+                  spot:
+                    type: string
+                    description: The total spot commission amount.
+                    example: "0.00000000"
+                  etf:
+                    type: string
+                    description: The total ETF commission amount.
+                    example: "0.21131086"
+                  futures:
+                    type: string
+                    description: The total futures commission amount.
+                    example: "0.74546367"
+                  total:
+                    type: string
+                    description: The total commission earned by the affiliate.
+                    example: "0.95677453"
+                  deposit:
+                    type: string
+                    description: The deposit amount (if available).
+                    example: null
+                  firstDepositTime:
+                    type: string
+                    description: The time of the first deposit (if available).
+                    example: null
+    RebateWithdraw:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful.
+          example: true
+        code:
+          type: integer
+          description: Response status code.
+          example: 0
+        message:
+          type: string
+          description: Additional message, if any.
+          example: null
+        data:
+          type: object
+          properties:
+            pageSize:
+              type: integer
+              description: Number of records per page.
+              example: 10
+            totalCount:
+              type: integer
+              description: Total number of withdrawal records available.
+              example: 15
+            totalPage:
+              type: integer
+              description: Total number of pages for the query.
+              example: 2
+            currentPage:
+              type: integer
+              description: Current page number.
+              example: 1
+            resultList:
+              type: array
+              description: List of withdrawal records for the affiliate.
+              items:
+                type: object
+                properties:
+                  withdrawTime:
+                    type: integer
+                    description: The withdrawal time in Unix timestamp format (milliseconds).
+                    example: 1682321417000
+                  asset:
+                    type: string
+                    description: The asset type withdrawn (e.g., "USDT", "USDC").
+                    example: "USDT"
+                  amount:
+                    type: string
+                    description: The amount withdrawn.
+                    example: "0.00001000"
+    CommissionDetail:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful.
+          example: true
+        code:
+          type: integer
+          description: Response status code.
+          example: 0
+        message:
+          type: string
+          description: Additional message, if any.
+          example: null
+        data:
+          type: object
+          properties:
+            pageSize:
+              type: integer
+              description: Number of records per page.
+              example: 10
+            totalCount:
+              type: integer
+              description: Total number of commission records available.
+              example: 5
+            totalPage:
+              type: integer
+              description: Total number of pages for the query.
+              example: 1
+            currentPage:
+              type: integer
+              description: Current page number.
+              example: 1
+            totalCommissionUsdtAmount:
+              type: string
+              description: Total commission in USDT.
+              example: "0.0011"
+            totalTradeUsdtAmount:
+              type: string
+              description: Total trade volume in USDT.
+              example: "281.8096"
+            resultList:
+              type: array
+              description: List of detailed commission records.
+              items:
+                type: object
+                properties:
+                  type:
+                    type: integer
+                    description: The type of commission (1 = spot, 2 = futures, 3 = ETF).
+                    example: 2
+                  sourceType:
+                    type: integer
+                    description: The source type of commission.
+                    example: 2
+                  state:
+                    type: integer
+                    description: The state of the commission (e.g., 1 = Pending, 2 = Completed).
+                    example: 2
+                  date:
+                    type: integer
+                    description: The date of the commission in Unix timestamp format (milliseconds).
+                    example: 1689264000000
+                  uid:
+                    type: string
+                    description: The user ID associated with the commission.
+                    example: "17875073"
+                  rate:
+                    type: number
+                    format: float
+                    description: The rate applied for the commission.
+                    example: 0.1
+                  symbol:
+                    type: string
+                    description: The trading pair symbol for which the commission was earned.
+                    example: "USDT"
+                  takerAmount:
+                    type: string
+                    description: The taker's commission amount.
+                    example: "170.49326"
+                  makerAmount:
+                    type: string
+                    description: The maker's commission amount.
+                    example: "0"
+                  amountCurrency:
+                    type: string
+                    description: The currency for the commission amount.
+                    example: "USDT"
+                  usdtAmount:
+                    type: string
+                    description: The commission amount in USDT.
+                    example: "170.49326"
+                  commission:
+                    type: string
+                    description: The commission earned.
+                    example: "0.00085246"
+                  currency:
+                    type: string
+                    description: The currency of the commission.
+                    example: "USDT"
+    Campaigns:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful.
+          example: true
+        code:
+          type: integer
+          description: Response status code.
+          example: 0
+        message:
+          type: string
+          description: Additional message, if any.
+          example: null
+        data:
+          type: object
+          properties:
+            pageSize:
+              type: integer
+              description: Number of records per page.
+              example: 10
+            totalCount:
+              type: integer
+              description: Total number of campaign records available.
+              example: 15
+            totalPage:
+              type: integer
+              description: Total number of pages for the query.
+              example: 2
+            currentPage:
+              type: integer
+              description: Current page number.
+              example: 1
+            resultList:
+              type: array
+              description: List of campaign data for the affiliate.
+              items:
+                type: object
+                properties:
+                  campaign:
+                    type: string
+                    description: The campaign identifier.
+                    example: "11kd"
+                  inviteCode:
+                    type: string
+                    description: The affiliate's invite code.
+                    example: "mexc-11Kd"
+                  clickTime:
+                    type: integer
+                    description: The number of clicks for the campaign.
+                    example: 0
+                  createTime:
+                    type: integer
+                    description: The time when the campaign was created in Unix timestamp format (milliseconds).
+                    example: 1695125287000
+                  signup:
+                    type: integer
+                    description: The number of sign-ups for the campaign.
+                    example: 0
+                  traded:
+                    type: integer
+                    description: The number of trades made by referred users.
+                    example: 0
+                  deposited:
+                    type: integer
+                    description: The number of deposits made by referred users.
+                    example: 0
+                  depositAmount:
+                    type: string
+                    description: The total deposit amount in the campaign.
+                    example: "0"
+                  tradingAmount:
+                    type: string
+                    description: The total trading amount in the campaign.
+                    example: "0"
+                  commission:
+                    type: string
+                    description: The total commission earned in the campaign.
+                    example: "0"
+    Referral:
+      type: object
+      properties:
+        success:
+          type: boolean
+        code:
+          type: integer
+        message:
+          type: string
+          nullable: true
+        data:
+          type: object
+          properties:
+            pageSize:
+              type: integer
+            totalCount:
+              type: integer
+            totalPage:
+              type: integer
+            currentPage:
+              type: integer
+            resultList:
+              type: array
+              items:
+                type: object
+                properties:
+                  uid:
+                    type: string
+                  nickName:
+                    type: string
+                    nullable: true
+                  email:
+                    type: string
+                    nullable: true
+                  registerTime:
+                    type: integer
+                    format: int64
+                  inviteCode:
+                    type: string
+                  depositAmount:
+                    type: string
+                  tradingAmount:
+                    type: string
+                  commission:
+                    type: string
+                  firstDepositTime:
+                    type: integer
+                    format: int64
+                    nullable: true
+                  firstTradeTime:
+                    type: integer
+                    format: int64
+                    nullable: true
+                  lastDepositTime:
+                    type: integer
+                    format: int64
+                    nullable: true
+                  lastTradeTime:
+                    type: integer
+                    format: int64
+                    nullable: true
+                  withdrawAmount:
+                    type: string
+                  asset:
+                    type: string
+                  identification:
+                    type: integer
+    Subaffiliates:
+      type: object
+      properties:
+        success:
+          type: boolean
+        code:
+          type: integer
+        message:
+          type: string
+          nullable: true
+        data:
+          type: object
+          properties:
+            pageSize:
+              type: integer
+            totalCount:
+              type: integer
+            totalPage:
+              type: integer
+            currentPage:
+              type: integer
+            resultList:
+              type: array
+              items:
+                type: object
+                properties:
+                  subaffiliateName:
+                    type: string
+                  subaffiliateMail:
+                    type: string
+                  campaign:
+                    type: string
+                    nullable: true
+                  inviteCode:
+                    type: string
+                  activationTime:
+                    type: integer
+                    format: int64
+                  registered:
+                    type: integer
+                  deposited:
+                    type: integer
+                  depositAmount:
+                    type: string
+                  commission:
+                    type: string
