@@ -55,6 +55,8 @@ jobs:
       - name: commit and push changes
         run: |
           cd /tmp/exchange-collection-rust
+          git config user.name "Sho Kaneko"
+          git config user.email "kanekoshoyu@github.com"
           git add .
           if git diff --cached --quiet; then
             echo "No changes to commit."
