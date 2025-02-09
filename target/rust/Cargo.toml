@@ -1,8 +1,0 @@
-[package]
-name = "exchange-collection"
-version = "2.2.0"
-edition = "2021"
-
-[dependencies.exchange-collection-binance]
-version = "2.2.0"
-path = "src/binance"
