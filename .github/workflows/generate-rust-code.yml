@@ -5,6 +5,9 @@ on:
     branches:
       - release
 
+permissions:
+  contents: write # Grant write permission for pushing changes
+
 jobs:
   sync_crate:
     runs-on: ubuntu-latest
