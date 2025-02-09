@@ -46,7 +46,7 @@ jobs:
         run: find target/rust -maxdepth 4 -print
 
       - name: clone generated crate repo
-        run: git clone https://x-access-token:${{ secrets.PAK_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git /tmp/exchange-collection-rust
+        run: git clone https://x-access-token:${{ secrets.PAT }}@github.com/kanekoshoyu/exchange-collection-rust.git /tmp/exchange-collection-rust
 
       - name: sync generated crate
         run: |
