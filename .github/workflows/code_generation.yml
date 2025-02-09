@@ -34,14 +34,15 @@ jobs:
         run: find target/rust -maxdepth 4 -print
 
       - name: clone generated crate repo
-        run: git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git $GITHUB_WORKSPACE/generated
+        run: git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git /tmp/exchange-collection-rust
 
       - name: sync generated crate
-        run: rsync -av --delete target/rust/ $GITHUB_WORKSPACE/generated
+        run: |
+          mv target/rust/* /tmp/exchange-collection-rust
 
       - name: commit and push changes
         run: |
-          cd $GITHUB_WORKSPACE/generated
+          cd /tmp/exchange-collection-rust
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
           git add .
