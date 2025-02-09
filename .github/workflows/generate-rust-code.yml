@@ -49,9 +49,10 @@ jobs:
           token: ${{ secrets.PAT }}
           path: exchange-collection-rust
 
-      - name: copy generated crate
+      - name: sync generated crate
         run: |
-          mv target/rust/* exchange-collection-rust
+          rsync -av --exclude=README.md --exclude=.git --remove-source-files target/rust/ exchange-collection-rust/
+          find target/rust -type d -empty -delete
 
       - name: commit and push changes
         run: |
