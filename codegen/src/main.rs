@@ -35,7 +35,7 @@ fn run() -> EyreResult<()> {
             }
             _ => unreachable!(),
         };
-
+        dbg!(&input_files_param.len());
         let output_collection_directory = output_directory.to_owned().unwrap();
         let total_languages = output_languages.len();
         let total_files = &input_files_param.len();
