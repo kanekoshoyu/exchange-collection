@@ -46,6 +46,7 @@ impl Default for CliInput {
         Self {
             input_directory: Some(PathBuf::from_str("asset").unwrap()),
             input_filename: None,
+            // TODO make it such that it only allows one directory
             output_directory: Some(PathBuf::from_str("target").unwrap()),
             // TODO: enable python when the codegen is complete
             output_languages: [ProgrammingLanguage::Rust].to_vec(),

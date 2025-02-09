@@ -1,114 +1,126 @@
-use cargo_toml::Manifest;
+use cargo_toml::{Dependency, DependencyDetail, Manifest, Resolver, Workspace};
 use eyre::Result;
-use std::path::{Path, PathBuf};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+};
 
 use super::input::*;
 
 #[derive(Clone, Debug)]
-pub struct ProtocolCrate {
+pub struct ExchangeProtocolCrate {
+    pub exchange: String,
     pub protocol: Protocol,
     pub version: Version,
 }
-impl TryFrom<Manifest> for ProtocolCrate {
+impl TryFrom<Manifest> for ExchangeProtocolCrate {
     type Error = eyre::Error;
 
     fn try_from(manifest: Manifest) -> std::result::Result<Self, Self::Error> {
-        let Some(protocol_str) = manifest.package().name().split("-").last() else {
-            return Err(eyre::eyre!("failed parsing protocol name"));
-        };
+        let crate_name = manifest.package().name();
+        let tokens = crate_name.split("-").collect::<Vec<_>>();
+        let exchange = tokens[2];
+        let protocol = tokens[3];
         let version_str = manifest.package().version();
-        Ok(ProtocolCrate {
-            protocol: protocol_str.parse()?,
+        Ok(ExchangeProtocolCrate {
+            exchange: exchange.parse()?,
+            protocol: protocol.parse()?,
             version: version_str.parse()?,
         })
     }
 }
-impl ProtocolCrate {
+impl ExchangeProtocolCrate {
     pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
         // read Cargo.toml and fill in the data
         let path = path.as_ref();
         let cargo_toml_path = path.join(Path::new("Cargo.toml"));
-        let Ok(manifest) = Manifest::from_path(cargo_toml_path) else {
-            panic!("failed reading manifest from path");
-        };
-        ProtocolCrate::try_from(manifest)
+        let manifest = Manifest::from_path(cargo_toml_path)?;
+        ExchangeProtocolCrate::try_from(manifest)
+    }
+    // binance_rest
+    pub fn exchange_protocol(&self) -> String {
+        format!("{}_{}", self.exchange, self.protocol)
     }
 }
-#[derive(Clone, Debug, Default)]
-pub struct ExchangeCrate {
-    pub exchange_name: String,
-    pub version: Version,
-    pub protocol_crates: Vec<ProtocolCrate>,
-}
-impl ExchangeCrate {
-    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
-        // read Cargo.toml and fill in the data
-        let path = path.as_ref();
-        let src_path = path.join(PathBuf::from("src"));
 
-        let protocol_dirs: Vec<PathBuf> = std::fs::read_dir(src_path)?
+#[derive(Clone, Debug)]
+pub struct CollectionWorkspace {
+    pub protocol_crates: Vec<ExchangeProtocolCrate>,
+}
+impl CollectionWorkspace {
+    // this is for bottom up code generation where the srcs are already generated
+    pub fn from_src_path(workspace_src_path: impl AsRef<Path>) -> Result<Self> {
+        // read Cargo.toml and fill in the data
+        let exchange_protocol_dirs: Vec<PathBuf> = std::fs::read_dir(workspace_src_path)?
             .map(|item| item.unwrap().path())
             .filter(|path| path.is_dir())
             .collect();
 
         let mut protocol_crates = Vec::new();
-        for protocol_dir in protocol_dirs {
-            protocol_crates.push(ProtocolCrate::from_path(protocol_dir)?);
+        for dir in exchange_protocol_dirs {
+            let Ok(exchange_protocol_crate) = ExchangeProtocolCrate::from_path(&dir) else {
+                println!(
+                    "skipped faulty crate from {}",
+                    dir.to_str().unwrap_or_default()
+                );
+                continue;
+            };
+            protocol_crates.push(exchange_protocol_crate);
         }
 
-        let version = protocol_crates
-            .iter()
-            .cloned()
-            .fold(Version::default(), |acc, protocol_crate| {
-                acc + protocol_crate.version
-            });
-
-        let exchange_name: String = path
-            .file_name()
-            .unwrap_or_default()
-            .to_os_string()
-            .into_string()
-            .unwrap_or_default();
-
-        Ok(ExchangeCrate {
-            exchange_name,
-            version,
-            protocol_crates,
-        })
+        Ok(CollectionWorkspace { protocol_crates })
     }
-}
 
-#[derive(Clone, Debug)]
-pub struct CollectionCrate {
-    pub version: Version,
-    pub exchange_crates: Vec<ExchangeCrate>,
-}
-impl CollectionCrate {
-    pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
-        // read Cargo.toml and fill in the data
-        let path = path.as_ref();
-        let src_path = path.join(PathBuf::from("src"));
-
-        let exchange_dirs: Vec<PathBuf> = std::fs::read_dir(src_path)?
-            .map(|item| item.unwrap().path())
-            .filter(|path| path.is_dir())
+    pub fn to_workspace(&self) -> Workspace {
+        let members = self
+            .protocol_crates
+            .iter()
+            .map(|i: &ExchangeProtocolCrate| format!("src/{}", i.exchange_protocol()))
             .collect();
 
-        let mut exchange_crates = Vec::new();
-        for exchange_dir in exchange_dirs {
-            exchange_crates.push(ExchangeCrate::from_path(exchange_dir)?);
+        let dependencies = {
+            let mut dependencies = BTreeMap::new();
+            dependencies.insert(
+                "serde".to_string(),
+                Dependency::Detailed(Box::new(DependencyDetail {
+                    version: Some("1.0.217".to_string()),
+                    features: vec!["derive".to_string()],
+                    ..Default::default()
+                })),
+            );
+            dependencies.insert(
+                "serde_json".to_string(),
+                Dependency::Simple("1.0.138".to_string()),
+            );
+            dependencies.insert(
+                "serde_yaml".to_string(),
+                Dependency::Simple("0.9.33".to_string()),
+            );
+            dependencies.insert("url".to_string(), Dependency::Simple("2.5.4".to_string()));
+            dependencies.insert(
+                "reqwest".to_string(),
+                Dependency::Simple("0.12.12".to_string()),
+            );
+            dependencies
+        };
+
+        // Constructing the Workspace struct
+        Workspace {
+            members,
+            metadata: None,
+            package: None,
+            resolver: Some(Resolver::V2),
+            default_members: Vec::new(),
+            exclude: Default::default(),
+            dependencies, // ✅ Properly structured dependencies
+            lints: Default::default(),
         }
+    }
 
-        let version = exchange_crates
-            .iter()
-            .cloned()
-            .fold(Version::default(), |acc, protocol_crate| {
-                acc + protocol_crate.version
-            });
-
-        Ok(CollectionCrate {
-            version,
-            exchange_crates,
-        })
+    pub fn to_manifest(&self) -> Manifest {
+        Manifest {
+            workspace: Some(self.to_workspace()),
+            ..Default::default()
+        }
     }
 }

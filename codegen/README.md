@@ -1,6 +1,8 @@
 # [exchange-collection](../README.md)-codegen
 > codegen for exchange collection
 
+rust: cargo workspace that flat-includes all the exchange protocol crates
+
 ## versioning 
 [changelog](./CHANGELOG.md)  
 - protocol crate version = API config version + codegen version  
