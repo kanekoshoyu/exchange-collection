@@ -219,8 +219,10 @@ fn codegen_protocol_crate(
             output_language,
             exchange_name,
         )?;
+        dbg!(&command);
         // execute and await output
         let output = command.output()?;
+        dbg!("finished codegen");
         // dbg!(&output);
         // TODO check if we have to do post-codegen upon failure
         if !output.status.success() {
