@@ -219,7 +219,6 @@ fn codegen_protocol_crate(
             output_language,
             exchange_name,
         )?;
-        dbg!(&command);
         // execute and await output
         let output = command.output()?;
         // dbg!(&output);
@@ -231,6 +230,7 @@ fn codegen_protocol_crate(
 
     // post-codegen (anything that wraps the codegen material as package)
     {
+        dbg!("post codegen");
         // add package info
         match output_language {
             ProgrammingLanguage::Rust => {
@@ -268,11 +268,13 @@ fn codegen_protocol_crate(
                             }),
                         );
                     }
+                    dbg!(&protocol_directory);
                     // output as a file
                     std::fs::write(
                         protocol_directory.join(PathBuf::from_str("Cargo.toml").unwrap()),
                         toml::to_string(&manifest)?,
                     )?;
+                    dbg!("write done");
                 }
                 // anything other than the single module codegen should go to overall_codegen, e.g.
             }

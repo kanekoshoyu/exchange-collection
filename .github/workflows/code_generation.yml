@@ -24,15 +24,18 @@ jobs:
       - name: run codegen and build workspace
         run: cargo run
 
+      - name: list out target rust code
+        run: ls target/rust/
+
       - name: clone generated crate repo
-        run: git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git target/generated-crate-repo
+        run: git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git tmp/target
 
       - name: sync generated crate
-        run: rsync -av --delete target/rust/ target/generated-crate-repo/
+        run: rsync -av --delete target/rust/ tmp/target
 
       - name: commit and push changes
         run: |
-          cd target/generated-crate-repo
+          cd tartmp/target
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
           git add .
