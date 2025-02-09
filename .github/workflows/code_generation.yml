@@ -18,11 +18,14 @@ jobs:
       - name: build codegen
         run: cargo build
 
+      - name: list out current dir
+        run: ls -l
+
       - name: run codegen and build workspace
         run: cargo run
 
       - name: clone generated crate repo
-        run: git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git target/rust
+        run: git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git target/generated-crate-repo
 
       - name: sync generated crate
         run: rsync -av --delete target/rust/ target/generated-crate-repo/
