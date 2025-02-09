@@ -1,17 +1,21 @@
 use cargo_toml::{InheritedDependencyDetail, Manifest};
 use exchange_collection_codegen::meta::*;
-use eyre::Result;
+use eyre::Result as EyreResult;
+use indicatif::{ProgressBar, ProgressStyle};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::str::FromStr;
 use strum::IntoEnumIterator;
 
-fn run() -> Result<()> {
+fn run() -> EyreResult<()> {
     // load
-    let cli: CliInput = CliInput::load()?;
-    println!("{:#?}", cli);
-
+    let CliInput {
+        input_directory,
+        input_filename,
+        output_directory,
+        output_languages,
+    } = CliInput::load()?;
     // check internet connectivity
     {
         let url = "https://www.google.com";
@@ -20,53 +24,57 @@ fn run() -> Result<()> {
         }
     }
 
-    // protocol generation (lowest)
+    // code generation (lowest)
     {
-        match (cli.input_filename, cli.input_directory.clone()) {
-            (None, Some(input_dir)) => {
-                println!("batch load");
-                // batch load from input_dir
-                let file_params = InputFileParameter::from_directory(&input_dir)?;
-
-                // whitelist of exchange confirmed ready to generate when we batch load
-                let confirmed_whitelist = ["binance"];
-                let input_file_params: Vec<InputFileParameter> = file_params
-                    .into_iter()
-                    .filter(|i| confirmed_whitelist.contains(&i.exchange.as_str()))
-                    .collect();
-
-                //
-                let output_collection_directory = cli.output_directory.to_owned().unwrap();
-                for input_file_param in input_file_params {
-                    for output_language in cli.output_language.clone() {
-                        println!(
-                            "generating {} from {:?}",
-                            output_language, input_file_param.filename
-                        );
-                        codegen_protocol_crate(
-                            input_file_param.filename.clone(),
-                            output_collection_directory.clone(),
-                            output_language,
-                            &input_file_param.exchange,
-                        )?;
-                    }
-                }
-            }
+        let input_files_param = match (input_filename, input_directory.clone()) {
+            // batch load from input_dir
+            (None, Some(input_dir)) => InputFileParameter::from_directory(&input_dir)?,
             (Some(input_filename), None) => {
-                let input = InputFileParameter::from_file_path(input_filename)?;
-                // single load
-                println!("single load");
-                let output_directory = cli.output_directory.to_owned().unwrap();
-                for output_language in cli.output_language.clone() {
-                    codegen_protocol_crate(
-                        input.filename.clone(),
-                        output_directory.clone(),
-                        output_language,
-                        &input.exchange,
-                    )?;
-                }
+                vec![InputFileParameter::from_file_path(input_filename)?]
             }
             _ => unreachable!(),
+        };
+        let output_collection_directory = output_directory.to_owned().unwrap();
+        let total_languages = output_languages.len();
+        let total_files = &input_files_param.len();
+        let template = {
+            let max_exchange_name_len = input_files_param
+                .iter()
+                .map(|i| i.exchange.len())
+                .max()
+                .unwrap();
+            let max_language_name_len = output_languages
+                .iter()
+                .map(|i| i.to_string().len())
+                .max()
+                .unwrap();
+            let max_message_len = max_exchange_name_len + max_language_name_len + 1;
+            format!("[{{elapsed_precise}}] (eta: {{eta:4}}) {{wide_bar}} {{pos:>3}}/{{len:3}} {{msg:{max_message_len}}}")
+        };
+        let progress_bar = ProgressBar::new((total_files * total_languages) as u64);
+        progress_bar.set_style(ProgressStyle::default_bar().template(&template).unwrap());
+        let mut errors = Vec::new();
+        for input_file_param in input_files_param {
+            for output_language in output_languages.clone() {
+                if let Err(e) = codegen_protocol_crate(
+                    input_file_param.filename.clone(),
+                    output_collection_directory.clone(),
+                    output_language,
+                    &input_file_param.exchange,
+                ) {
+                    errors.push(e);
+                };
+                progress_bar
+                    .set_message(format!("{} {}", input_file_param.exchange, output_language)); // Updates the status dynamically
+                progress_bar.inc(1);
+            }
+        }
+        progress_bar.finish_with_message("✅ code generation complete");
+        if !errors.is_empty() {
+            println!("found {} errors as below:", errors.len());
+            for error in errors {
+                println!("{error}");
+            }
         }
     }
 
@@ -74,14 +82,12 @@ fn run() -> Result<()> {
         let collection_package_name = "exchange-collection";
         match language {
             ProgrammingLanguage::Rust => {
-                let collection_directory = cli
-                    .output_directory
+                let collection_directory = output_directory
                     .to_owned()
                     .unwrap()
                     .join(PathBuf::from_str("rust")?);
                 let target_collection_crate =
                     CollectionCrate::from_path(collection_directory.clone())?;
-                println!("{:#?}", target_collection_crate);
 
                 // collection Cargo.toml
                 {
@@ -265,7 +271,7 @@ fn command_for_codegen_protocol_crate(
     output_protocol_crate_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
     exchange_name: &str,
-) -> Result<Command> {
+) -> EyreResult<Command> {
     let param = InputFileParameter::from_file_path(&input_filename).unwrap();
     let out_dir = output_protocol_crate_directory.as_ref();
     // output
@@ -281,15 +287,17 @@ fn command_for_codegen_protocol_crate(
             cmd
         }
         ApiFileFormat::AsyncApi => {
+            // asyncapi generate fromTemplate asset/okx_ws_asyncapi.yaml asyncapi-rust-ws-template -p exchange=okx -o ~/Desktop/okx
             let mut cmd = Command::new("asyncapi");
             cmd.arg("generate");
-            cmd.arg("models");
-            cmd.arg(output_language.to_string());
+            cmd.arg("fromTemplate");
             cmd.arg(format!("{}", input_filename.display()));
-            cmd.arg("-o");
-            cmd.arg(format!("{}/src", out_dir.display()));
+            cmd.arg("asyncapi-rust-ws-template");
             cmd.arg("-p");
             cmd.arg(format!("exchange={}", exchange_name));
+            cmd.arg("-o");
+            cmd.arg(format!("{}", out_dir.display()));
+            cmd.arg("--force-write");
             cmd
         }
     })
@@ -301,14 +309,13 @@ fn codegen_protocol_crate(
     output_collection_directory: impl AsRef<Path>,
     output_language: ProgrammingLanguage,
     exchange_name: &str,
-) -> Result<()> {
+) -> EyreResult<()> {
     let param = InputFileParameter::from_file_path(&input_filename).unwrap();
     let protocol_directory = output_protocol_directory(
         &input_filename,
         &output_collection_directory,
         output_language,
     );
-    println!("codegen_output_directory: {}", protocol_directory.display());
     // pre-codegen (any thing that codegen requires)
     {
         // create dir
@@ -320,7 +327,6 @@ fn codegen_protocol_crate(
                 // copy the ignore script into target directory, keep the same filename
                 let from = PathBuf::from_str("codegen/.openapi-generator-ignore")?;
                 let to = protocol_directory.clone().join(from.file_name().unwrap());
-                // println!("copying from: {:?}, to: {:?}", from, to);
                 if let Err(e) = std::fs::copy(from, to) {
                     return Err(eyre::eyre!("failed copying ignore file, {e}"));
                 }
@@ -341,9 +347,9 @@ fn codegen_protocol_crate(
         )?;
         let output = command.output()?;
         let status = output.status;
-        match status.success() {
-            true => println!("codegen succeeded"),
-            false => println!("codegen failed, {:?}", command),
+        // TODO check if we have to do post-codegen upon failure
+        if !status.success() {
+            return Err(eyre::eyre!("codegen failed, {:?}", command));
         }
     }
 

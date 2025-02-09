@@ -39,7 +39,7 @@ pub struct CliInput {
     pub output_directory: Option<PathBuf>,
     // Empty when all all languages are in target
     #[arg(long)]
-    pub output_language: Vec<ProgrammingLanguage>,
+    pub output_languages: Vec<ProgrammingLanguage>,
 }
 impl Default for CliInput {
     fn default() -> Self {
@@ -48,7 +48,7 @@ impl Default for CliInput {
             input_filename: None,
             output_directory: Some(PathBuf::from_str("target").unwrap()),
             // TODO: enable python when the codegen is complete
-            output_language: [ProgrammingLanguage::Rust].to_vec(),
+            output_languages: [ProgrammingLanguage::Rust].to_vec(),
         }
     }
 }
@@ -60,8 +60,8 @@ impl CliInput {
         if input.output_directory.is_none() {
             input.output_directory = default.output_directory;
         }
-        if input.output_language.is_empty() {
-            input.output_language = default.output_language;
+        if input.output_languages.is_empty() {
+            input.output_languages = default.output_languages;
         }
         match (&input.input_filename, &input.input_directory) {
             (None, None) => {

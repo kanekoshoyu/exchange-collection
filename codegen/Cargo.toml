@@ -1,6 +1,6 @@
 [package]
 name = "exchange-collection-codegen"
-version = "0.1.0"
+version = "0.2.1"
 edition = "2021"
 
 [lib]
@@ -9,6 +9,7 @@ edition = "2021"
 cargo_toml.workspace = true
 clap.workspace = true
 eyre.workspace = true
+indicatif.workspace = true
 reqwest = { workspace = true, features = ["blocking"] }
 serde.workspace = true
 serde_yaml.workspace = true

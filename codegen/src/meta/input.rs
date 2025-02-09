@@ -211,8 +211,7 @@ impl InputFileParameter {
             return Err(eyre::eyre!("file does not exist, {filename:?}"));
         }
 
-        // get content first
-        println!("getting content of {:?}", &filename);
+        // read content
         let file_content = std::fs::read_to_string(filename).expect("Failed to read YAML file");
 
         // "binance_ws_asyncapi.yaml"

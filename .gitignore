@@ -2,6 +2,7 @@
 openapitools.json
 # **/.openapi-generator/*
 target/debug
+target/rust
 target/.rustc_info.json
 *.TAG
 # keep below format for debugging purpose
