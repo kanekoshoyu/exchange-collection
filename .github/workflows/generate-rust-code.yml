@@ -45,8 +45,12 @@ jobs:
       - name: list out target rust code
         run: find target/rust -maxdepth 4 -print
 
-      - name: clone generated crate repo
-        run: git clone https://x-access-token:${{ secrets.PAK_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git /tmp/exchange-collection-rust
+      - name:  heckout generated crate repo
+        uses: actions/checkout@v4
+        with:
+          repository: kanekoshoyu/exchange-collection-rust
+          token: ${{ secrets.PAK_TOKEN }}
+          path: /tmp/exchange-collection-rust
 
       - name: sync generated crate
         run: |
@@ -55,13 +59,12 @@ jobs:
       - name: commit and push changes
         run: |
           cd /tmp/exchange-collection-rust
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "github-actions@github.com"
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
           git add .
           if git diff --cached --quiet; then
             echo "No changes to commit."
-          else
-            git commit -m "Automated update of generated crate"
-            git pull --rebase origin main  # Pull latest changes before pushing
-            git push origin main
           fi
+          git commit -m "Automated update of generated crate"
+          git pull --rebase origin main || echo "No changes to pull"
+          git push origin main
