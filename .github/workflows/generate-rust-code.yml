@@ -45,8 +45,12 @@ jobs:
       - name: list out target rust code
         run: find target/rust -maxdepth 4 -print
 
-      - name: clone generated crate repo
-        run: git clone https://x-access-token:${{ secrets.PAT }}@github.com/kanekoshoyu/exchange-collection-rust.git /tmp/exchange-collection-rust
+      - name: checkout target repository
+        uses: actions/checkout@v4
+        with:
+          repository: kanekoshoyu/exchange-collection-rust
+          token: ${{ secrets.PAT }}
+          path: /tmp/exchange-collection-rust
 
       - name: sync generated crate
         run: |
@@ -55,8 +59,8 @@ jobs:
       - name: commit and push changes
         run: |
           cd /tmp/exchange-collection-rust
-          git config user.name "Sho Kaneko"
-          git config user.email "kanekoshoyu@gmail.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           if git diff --cached --quiet; then
             echo "No changes to commit."
