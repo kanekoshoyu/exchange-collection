@@ -263,10 +263,12 @@ impl InputFileParameter {
         let directory = directory.as_ref();
         let files = std::fs::read_dir(directory).unwrap();
         for file in files {
+            dbg!(&file);
             let file_name = file?.file_name();
             let file_name = file_name
                 .into_string()
                 .map_err(|_| eyre!("file name format"))?;
+            dbg!(&file_name);
             // filter out metadata files like DS_STORE
             if file_name.contains(".yaml") {
                 let file_path = directory.join(file_name);
