@@ -5,8 +5,7 @@ on:
     branches:
       - release
 
-permissions:
-  contents: write # Grant write permission for pushing changes
+permissions: write-all
 
 jobs:
   sync_crate:
