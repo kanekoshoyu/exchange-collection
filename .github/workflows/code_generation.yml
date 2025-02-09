@@ -9,6 +9,12 @@ jobs:
   sync_crate:
     runs-on: ubuntu-latest
     steps:
+      - name: Install asyncapi code generator
+        run: npm install -g @openapitools/openapi-generator-cli
+
+      - name: Install asyncapi code generator
+        run: npm install -g @asyncapi/generator
+
       - name: checkout main repository
         uses: actions/checkout@v3
 
