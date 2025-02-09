@@ -270,7 +270,6 @@ impl InputFileParameter {
             // filter out metadata files like DS_STORE
             if file_name.contains(".yaml") {
                 let file_path = directory.join(file_name);
-                dbg!(&file_path);
                 let file = InputFileParameter::from_file_path(file_path)?;
                 result.push(file);
             }

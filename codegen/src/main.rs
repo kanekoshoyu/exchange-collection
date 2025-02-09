@@ -35,7 +35,6 @@ fn run() -> EyreResult<()> {
             }
             _ => unreachable!(),
         };
-        dbg!(&input_files_param.len());
         let output_collection_directory = output_directory.to_owned().unwrap();
         let total_languages = output_languages.len();
         let total_files = &input_files_param.len();
@@ -220,8 +219,10 @@ fn codegen_protocol_crate(
             output_language,
             exchange_name,
         )?;
+        dbg!(&command);
         // execute and await output
         let output = command.output()?;
+        // dbg!(&output);
         // TODO check if we have to do post-codegen upon failure
         if !output.status.success() {
             return Err(eyre::eyre!("codegen failed, {:?}", command));
