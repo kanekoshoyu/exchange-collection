@@ -45,12 +45,8 @@ jobs:
       - name: list out target rust code
         run: find target/rust -maxdepth 4 -print
 
-      - name:  heckout generated crate repo
-        uses: actions/checkout@v4
-        with:
-          repository: kanekoshoyu/exchange-collection-rust
-          token: ${{ secrets.PAK_TOKEN }}
-          path: /tmp/exchange-collection-rust
+      - name: clone generated crate repo
+        run: git clone https://x-access-token:${{ secrets.PAK_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git /tmp/exchange-collection-rust
 
       - name: sync generated crate
         run: |
