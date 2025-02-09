@@ -1,6 +1,12 @@
 # [exchange-collection-codegen](./README.md) changelog
 > Notable changes to codegen
 
+## [0.2.2] - 2025-02-09
+### Added
+- github CI to write to `exchange-collection-rust`
+### Modified
+- generates workspace rather than binary
+
 ## [0.2.1] - 2025-02-09
 ### Added
 - progress bar
