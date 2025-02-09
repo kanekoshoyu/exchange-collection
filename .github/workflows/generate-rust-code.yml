@@ -1,4 +1,4 @@
-name: Sync Generated Crate
+name: generate rust code from assets
 
 on:
   push:
@@ -18,14 +18,14 @@ permissions:
   statuses: write
 
 jobs:
-  sync_crate:
+  generate_rust_code:
     runs-on: ubuntu-latest
     steps:
-      - name: Install asyncapi code generator
+      - name: Install OpenAPI code generator
         run: npm install -g @openapitools/openapi-generator-cli
 
-      - name: Install asyncapi code generator
-        run: npm install -g @asyncapi/generator
+      - name: Install AsyncAPI code generator
+        run: npm install -g @asyncapi/cli
 
       - name: checkout main repository
         uses: actions/checkout@v3
@@ -35,9 +35,6 @@ jobs:
 
       - name: build codegen
         run: cargo build
-
-      - name: list out current dir
-        run: ls -l
 
       - name: run codegen and build workspace
         run: cargo run
@@ -52,7 +49,7 @@ jobs:
           token: ${{ secrets.PAT }}
           path: exchange-collection-rust
 
-      - name: sync generated crate
+      - name: copy generated crate
         run: |
           mv target/rust/* exchange-collection-rust
 
