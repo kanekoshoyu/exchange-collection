@@ -31,7 +31,7 @@ jobs:
         run: cargo run
 
       - name: list out target rust code
-        run: ls target/rust/
+        run: find target/rust -maxdepth 4 -print
 
       - name: clone generated crate repo
         run: git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git tmp/target
@@ -41,7 +41,7 @@ jobs:
 
       - name: commit and push changes
         run: |
-          cd tartmp/target
+          cd tmp/target
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
           git add .
