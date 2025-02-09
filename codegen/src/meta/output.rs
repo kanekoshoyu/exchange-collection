@@ -118,9 +118,26 @@ impl CollectionWorkspace {
     }
 
     pub fn to_manifest(&self) -> Manifest {
+        // we need to define Manifest anyways
+        #[allow(deprecated)]
         Manifest {
+            package: None,
             workspace: Some(self.to_workspace()),
-            ..Default::default()
+            dependencies: Default::default(),
+            dev_dependencies: Default::default(),
+            build_dependencies: Default::default(),
+            target: Default::default(),
+            features: Default::default(),
+            replace: Default::default(),
+            patch: Default::default(),
+            lib: Default::default(),
+            profile: Default::default(),
+            badges: Default::default(),
+            bin: Default::default(),
+            bench: Default::default(),
+            test: Default::default(),
+            example: Default::default(),
+            lints: Default::default(),
         }
     }
 }

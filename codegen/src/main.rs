@@ -94,11 +94,9 @@ fn run() -> EyreResult<()> {
 
                 // workspace Cargo.toml
                 {
-                    let workspace_toml = collection_workspace.to_toml();
+                    let workspace_toml = collection_workspace.to_manifest();
                     // output into a file
                     let workspace_toml_str = toml::to_string(&workspace_toml)?;
-                    // Manually add `[workspace]` as its missing
-                    let workspace_toml_str = format!("[workspace]\n{}", workspace_toml_str);
                     let cargo_toml = workspace_src_directory
                         .parent()
                         .unwrap()
