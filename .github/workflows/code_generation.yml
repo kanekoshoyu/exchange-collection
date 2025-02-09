@@ -15,8 +15,11 @@ jobs:
       - name: install rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: run the codegen and build the workspace
+      - name: build codegen
         run: cargo build
+
+      - name: run codegen and build workspace
+        run: cargo run
 
       - name: clone generated crate repo
         run: git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kanekoshoyu/exchange-collection-rust.git target/rust
