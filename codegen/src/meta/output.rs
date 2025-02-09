@@ -101,6 +101,23 @@ impl CollectionWorkspace {
                 "reqwest".to_string(),
                 Dependency::Simple("0.12.12".to_string()),
             );
+            dependencies.insert(
+                "tokio-tungstenite".to_string(),
+                Dependency::Simple("0.24.0".to_string()),
+            );
+            dependencies.insert(
+                "typed-websocket".to_string(),
+                Dependency::Simple("0.1.0".to_string()),
+            );
+            dependencies.insert(
+                "tokio".to_string(),
+                Dependency::Detailed(Box::new(DependencyDetail {
+                    version: Some("1.43.0".to_string()),
+                    features: vec!["full".to_string(), "tracing".to_string()],
+                    ..Default::default()
+                })),
+            );
+
             dependencies
         };
 

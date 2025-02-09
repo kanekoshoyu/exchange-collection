@@ -248,7 +248,16 @@ fn codegen_protocol_crate(
                     package.edition = cargo_toml::Inheritable::Set(cargo_toml::Edition::E2021);
                     manifest.package = Some(package);
 
-                    let dependencies = ["reqwest", "serde", "serde_json", "serde_yaml", "url"];
+                    let dependencies = [
+                        "reqwest",
+                        "serde",
+                        "serde_json",
+                        "serde_yaml",
+                        "tokio",
+                        "tokio-tungstenite",
+                        "typed-websocket",
+                        "url",
+                    ];
                     for dependecy in dependencies {
                         manifest.dependencies.insert(
                             dependecy.to_string(),
