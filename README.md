@@ -1,5 +1,7 @@
 # exchange-collection
 > list of machine-readable crypto exchange OpenAPI AsyncAPI documents and code generators. 
+> [!IMPORTANT]  
+> generated code is now ready at [exchange-collection-rust](https://github.com/kanekoshoyu/exchange-collection-rust)
 
 [![doc](https://img.shields.io/badge/doc-rapidoc-blue)](https://repoch.co/exchange-collection)
 [![license](https://img.shields.io/github/license/kanekoshoyu/exchange-collection)](https://github.com/kanekoshoyu/exchange-collection/blob/master/LICENSE)
