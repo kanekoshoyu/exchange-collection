@@ -1,5 +1,6 @@
 # exchange-collection
 > list of machine-readable crypto exchange OpenAPI AsyncAPI documents and code generators. 
+
 > [!IMPORTANT]  
 > generated code is now ready at [exchange-collection-rust](https://github.com/kanekoshoyu/exchange-collection-rust)
 
