@@ -1,15 +1,15 @@
 # exchange-collection
-> machine-readable crypto exchange OpenAPI / AsyncAPI doc and clients
+> list of machine-readable crypto exchange OpenAPI AsyncAPI documents and code generators. 
 
 [![doc](https://img.shields.io/badge/doc-rapidoc-blue)](https://repoch.co/exchange-collection)
 [![license](https://img.shields.io/github/license/kanekoshoyu/exchange-collection)](https://github.com/kanekoshoyu/exchange-collection/blob/master/LICENSE)
 [![discord](https://img.shields.io/discord/1153997271294283827)](https://discord.gg/q3j5MYdwnm)  
 
 
-## why use machine readable API docs
+## why use OpenAPI AsyncAPI docs
 
-#### pain point: growth of cross exchnage trading
-Many trading strategies require data and execution at multiple exchanges. Trading libraries provides abstraction over multiple exchanges.
+### pain points in cross exchange trading
+Many trading strategies require cross exchange data and execution. There are trading libraries that provides abstraction across exchanges.
 
 | library / framework                                    | multi-exchange | primary language | wrapper language    |
 | ------------------------------------------------------ | -------------- | ---------------- | ------------------- |
@@ -19,25 +19,29 @@ Many trading strategies require data and execution at multiple exchanges. Tradin
 | [barter-rs](https://github.com/barter-rs/barter-rs)    | yes            | rust             | n/a                 |
 | [kelp](https://github.com/stellar-deprecated/kelp)     | yes            | go               | n/a                 |
 
-They have issues in the below aspects:
-1. **integration effort**: there are many crypto exchanges (N) and programming languages (L). The effort to convert those written API doc into exchange library is B, then the overall effort is N * L * B.
-2. **document consistecy**: exchanges freqently update API and there is no proper versioning pipeline, causing API doc inconsistency.
-3. **opinionated framework**: cross-exchange libraries often designed as complex framework,and often fails to meet the business needs.
-4. **multi-language support**: generally people prefer python for proof of concept and rust for production. we should use rust as backbone, then provide python support on top, but also provide flexibility for native python vertical integration.
+These libraries are each good in their way but does not solve the below 4 points at once.
+1. **integration effort**: N crypto exchanges, L programming languages, its a better when effort is N + L rather than N * L
+2. **document consistecy and code maintenance**: exchanges freqently update API. Without proper pipeline and versioning, code and API inconsistency is common
+3. **opinionated framework**: battery-included cross-exchange libraries has complex design, and often fail to meet the actual needs in low latency
+4. **multi-language support**: people use python for strategy proof of concept and rust for production.
 
-#### let's automate
+#### solution: building from bottom up
 by gathering OpenAPI / AsyncAPI docuements, we can build a CI pipeline that generate and test versioned clients for different languages solving the above issues. 
-1. crowdsource both OpenAPI / AsyncAPI YAML per exchange.
-2. Set up codegen CI for generating REST/WS clients.
-3. Implement trading traits per generated model. I have set up trading traits in [guilder](https://github.com/kanekoshoyu/guilder). If you do not like it, feel free to still use the this repo for the OpenAPI / AsyncAPI and proprietary clients. 
+1. gather both OpenAPI / AsyncAPI YAML per exchange
+2. develop codegen CI for generating REST/WS clients
+3. deploy CI for generating REST/WS clients
+4. implement trading traits per generated model
+   1. I have set up trading traits in [guilder](https://github.com/kanekoshoyu/guilder) for generated codes
+   2. or you can still use the this repo for the OpenAPI / AsyncAPI  
 
 ## project structure
 | location                       | feature                                                                             |
 | ------------------------------ | ----------------------------------------------------------------------------------- |
 | [asset](./asset/)              | OpenAPI and AsyncAPI YAML                                                           |
-| [codegen](./codegen/README.md) | codegen script in rust, run locally to generate and push                            |
-| [target](./target/README.md)   | generated code in python and rust                                                   |
+| [codegen](./codegen/README.md) | code generator script written in rust                                               |
 | [index.html](./index.html)     | OpenAPI / AsyncAPI viewer, hosted [here](https://www.repoch.co/exchange-collection) |
+
+this repo includes a CI which generates rust client and pushes to [exchange-collection-rust](https://github.com/kanekoshoyu/exchange-collection-rust)
 
 ## guidelines
 | specs                           | guidelines                                                                                            |
@@ -48,30 +52,11 @@ by gathering OpenAPI / AsyncAPI docuements, we can build a CI pipeline that gene
 | official codegen output support | `rust` `python (codegen coming soon)`                                                                 |
 | unofficial support              | `typescript` `csharp` `golang` `java` `dart` `kotlin` `php` `cplusplus` `scala`                       |
 
-## codegen commands
-#### initial set up
-install OpenAPI CLI
-```
-npm install -g @openapitools/openapi-generator-cli
-```
-install AsyncAPI CLI
-```
-npm install -g @asyncapi/generator
-```
-#### each codegen command
-| language | input                             | command                                                                                                    |
-| -------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| rust     | openapi (REST, reqwest)           | `openapi-generator-cli generate -i {YAML} -g rust -o {OUTPUT_DIR} --additional-properties=library=reqwest` |
-| rust     | asyncapi (WS, tokio-tungstenite)  | `asyncapi generate fromTemplate {YAML} asyncapi-rust-ws-template -p exchange={EXCHANGE}`                   |
-| python   | openapi (REST, asyncio)           | `openapi-generator-cli generate -i {YAML} -g python -o {OUTPUT_DIR} --additional-properties=asyncio=true`  |
-| python   | asyncapi (WS, asyncio-websockets) | `wip`                                                                                                      |
-
-
 ## exchange integration status
 - [list of notable exchanges](https://coinmarketcap.com/rankings/exchanges/derivatives)
 - [list of no kyc exchanges](https://koinly.io/blog/top-no-kyc-crypto-exchanges)
 
-below are the list of exchanges planned for integration. Please contact me if you want to integrate for orderbook exchange.
+below are the list of exchanges planned for integration. Please contact [Sho](https://github.com/kanekoshoyu) if you want to request exchanges for integration.
 | Exchange API                                                   | KYC | REST (OpenAPI) | WS (AsyncAPI) |
 | -------------------------------------------------------------- | --- | -------------- | ------------- |
 | [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)             | /   | done           | /             |
@@ -99,8 +84,36 @@ below are the list of exchanges planned for integration. Please contact me if yo
 | [korbit](https://apidocs.korbit.co.kr) (KR)                    | yes | postponed      | postponed     |
 | [bitkub](https://docs.polkadex.trade) (TH)                     | yes | postponed      | postponed     |
 
-I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix) due to limited number of supported exchanges. But it is definitely an interesting one to try in the future.  
-For AMM DEX like [Uniswap](https://docs.uniswap.org/contracts/v2/reference/API/overview), I will add support if there is a proper demand. My personal suggestion is to make use of JSON-RPC clients like ether-rs to connect RPC providers like [infura](https://www.infura.io) and [alchemy](https://www.alchemy.com). 
+- I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix) due to limited number of supported exchanges. Once the project reaches certain maturity it will be implemented.  
+- For AMM DEX like [Uniswap](https://docs.uniswap.org/contracts/v2/reference/API/overview), I will add support if there is a proper demand. My suggestion is to make use of JSON-RPC clients like ether-rs to connect RPC providers like [infura](https://www.infura.io) and [alchemy](https://www.alchemy.com). 
+
+## codegen status
+| Document | Language | framework         | CI status  | code issues                                                 |
+| -------- | -------- | ----------------- | ---------- | ----------------------------------------------------------- |
+| OpenAPI  | rust     | reqwest           | integrated | generated code cannot differentiate fields like "m" and "M" |
+| AsyncAPI | rust     | tokio-tungstenite | integrated | does not parse variables                                    |
+| AsyncAPI | rust     | async-tungstenite | planned    | /                                                           |
+| OpenAPI  | python   | reqwest           | planned    | /                                                           |
+| AsyncAPI | rust     | tokio-tungstenite | planned    | /                                                           |
+
+### codegen commands used
+you can use these commands to generate code manually as well
+#### initial set up
+install OpenAPI CLI
+```
+npm install -g @openapitools/openapi-generator-cli
+```
+install AsyncAPI CLI
+```
+npm install -g @asyncapi/cli
+```
+#### each codegen command
+| language | input                             | command                                                                                                    |
+| -------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| rust     | openapi (REST, reqwest)           | `openapi-generator-cli generate -i {YAML} -g rust -o {OUTPUT_DIR} --additional-properties=library=reqwest` |
+| rust     | asyncapi (WS, tokio-tungstenite)  | `asyncapi generate fromTemplate {YAML} asyncapi-rust-ws-template -p exchange={EXCHANGE}`                   |
+| python   | openapi (REST, asyncio)           | `openapi-generator-cli generate -i {YAML} -g python -o {OUTPUT_DIR} --additional-properties=asyncio=true`  |
+| python   | asyncapi (WS, asyncio-websockets) | `wip`                                                                                                      |
 
 ## TODO
 - [ ] gather assets
@@ -111,10 +124,12 @@ For AMM DEX like [Uniswap](https://docs.uniswap.org/contracts/v2/reference/API/o
   - [ ] rust codegen
     - [x] REST (reqwest) client
     - [x] WS (tokio-tungstenite) client template 
+    - [x] CI for pushing to sub-repo on generated code
     - [ ] CI for release on [crates.io](https://crates.io)
   - [ ] python codegen
     - [x] REST client
     - [ ] WS (asyncio-websockets)
+    - [ ] CI for pushing to sub-repo on generated code
     - [ ] CI for release on [pip]()
 - [x] set up [guilder](https://github.com/kanekoshoyu/guilder) trading library
   - [x] define market data traits
@@ -124,24 +139,22 @@ For AMM DEX like [Uniswap](https://docs.uniswap.org/contracts/v2/reference/API/o
   - [ ] package models with opinionated trait per language
 
 ## notes
-- the `ag` command seems to be deprecated and cannot generate code properly, use 'asyncapi generate' instead
+- the `ag` command seems to be deprecated and cannot generate code properly, use `asyncapi generate` instead
 - you can install `asyncapi-preview` extension on vs code for preview
 - comnunity AsyncAPI templates like `python-sanic-template` are not working properly 
 
-## partnership
+## partnership & recruitment
 I keep this project opensource so that everyone can take part of it. If you have any OpenAPI / AsyncAPI document for a crypto exchange, you are more than welcome to add with a pull request, or I am willing to purchase at reasonable cost as well.  
-If you want to get an exchange integrated, I can help get that up for an one-off cost in one week, just enough to pay my freelancing partner to get it done.  
 Please contact [Sho](https://github.com/kanekoshoyu) for partnerships.  
-
-## recruitment
 #### OpenAPI / AsyncAPI Author
 I am gathering API doc with @pakTech786 would be great if more people can help with it.  
 #### TypeScript AsyncAPI Template Developer
 > [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template)
 
-I have set up a repo to develop AsyncAPI template for Rust WS in React. I want a version for python as well. I am not a TS expert, so I would love to have an expert to accelarate development.  
+I have set up a repo to develop AsyncAPI template for Rust WS in React. I want a version for python/go as well. I am not a TS expert, so I would love to have an expert to accelarate development.  
 
 ## see also
+- [exchange-collection-rust](https://github.com/kanekoshoyu/exchange-collection-rust) - rust client generated from exchange-collection
 - [guilder](https://github.com/kanekoshoyu/guilder) - Unopinionated Cross-Exchange Crypto Trading Library
 - [asyncapi-rust-ws-template](https://github.com/kanekoshoyu/asyncapi-rust-ws-template) - AsyncAPI Template for Generating Rust WebSocket Client
 - [kucoin-arbitrage](https://github.com/kanekoshoyu/kucoin_arbitrage) - KuCoin Cyclic Arbitrage, in Tokio Rust (legacy)
