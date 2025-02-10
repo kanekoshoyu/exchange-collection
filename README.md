@@ -91,13 +91,13 @@ below are the list of exchanges planned for integration. Please contact [Sho](ht
 - For AMM DEX like [Uniswap](https://docs.uniswap.org/contracts/v2/reference/API/overview), I will add support if there is a proper demand. My suggestion is to make use of JSON-RPC clients like ether-rs to connect RPC providers like [infura](https://www.infura.io) and [alchemy](https://www.alchemy.com). 
 
 ## codegen status
-| Document | Language | framework         | CI status  | code issues                                                 |
-| -------- | -------- | ----------------- | ---------- | ----------------------------------------------------------- |
-| OpenAPI  | rust     | reqwest           | integrated | generated code cannot differentiate fields like "m" and "M" |
-| AsyncAPI | rust     | tokio-tungstenite | integrated | does not parse variables                                    |
-| AsyncAPI | rust     | async-tungstenite | planned    | /                                                           |
-| OpenAPI  | python   | reqwest           | planned    | /                                                           |
-| AsyncAPI | rust     | tokio-tungstenite | planned    | /                                                           |
+| Document | Language | framework         | CI status  | code issues                                                              |
+| -------- | -------- | ----------------- | ---------- | ------------------------------------------------------------------------ |
+| OpenAPI  | rust     | reqwest           | integrated | generated code cannot differentiate fields like "m" and "M"              |
+| AsyncAPI | rust     | tokio-tungstenite | integrated | does not parse variables in URL/channel name like "price_{base}_{quote}" |
+| AsyncAPI | rust     | async-tungstenite | planned    | /                                                                        |
+| OpenAPI  | python   | reqwest           | planned    | /                                                                        |
+| AsyncAPI | rust     | tokio-tungstenite | planned    | /                                                                        |
 
 ### codegen commands used
 you can use these commands to generate code manually as well
