@@ -1,0 +1,4587 @@
+openapi: 3.0.0
+servers:
+  - url: https://api-testnet.bybit.com
+    description: Testnet server
+info:
+  description: |
+    Collection of v5 Restul API
+  version: 3.0.0
+  title: Bybit Open API v5 explorer
+tags:
+  - name: account
+    description: Account endpoints
+    x-displayName: Account
+  - name: asset
+    description: Asset endpoints
+    x-displayName: Asset
+  - name: etp
+    description: ETP endpoints
+    x-displayName: Spot Leverage Token
+  - name: market
+    description: Market endpoints
+    x-displayName: Market
+  - name: position
+    description: All Position v5 REST API.
+    x-displayName: Position
+  - name: uta-margin-trade
+    description: Spot margin trade (UTA) endpoints
+    x-displayName: Spot Margin Trade (UTA)
+  - name: trade
+    description: All trade v5 REST API.
+    x-displayName: Trade
+  - name: user
+    description: User endpoints
+    x-displayName: User
+x-tagGroups:
+  - name: private
+    tags:
+      - account
+paths:
+  /v5/account/wallet-balance:
+    get:
+      tags:
+        - account
+      summary: Get Wallet Balance
+      description: Get wallet balance
+      operationId: wallet
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: accountType
+          in: query
+          description: Account type
+          required: true
+          schema:
+            type: string
+            enum:
+              - UNIFIED
+              - CONTRACT
+              - SPOT
+        - name: coin
+          in: query
+          description: Coin name. You can pass mutiple coins like USDT,USDC
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/account/upgrade-to-uta:
+    post:
+      tags:
+        - account
+      summary: Upgrade to Unified Account
+      description: Upgrade to UTA
+      operationId: upgrade-unified-account
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+
+  /v5/account/set-collateral-switch:
+    post:
+      tags:
+        - account
+      summary: Set Collateral Coin
+      description: Set collateral coin
+      operationId: set-collateral
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                coin:
+                  type: string
+                  description: coin
+                  example: BTC
+                collateralSwitch:
+                  type: string
+                  description: coin
+                  example: ON
+                  enum:
+                    - ON
+                    - OFF
+              required:
+                - coin
+                - collateralSwitch
+  /v5/account/borrow-history:
+    get:
+      tags:
+        - account
+      summary: Get Borrow History
+      description: Get borrow history
+      operationId: borrow-history
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: currency
+          in: query
+          description: e.g., USDC, USDT, BTC, ETH
+          required: false
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit per page. 1-50
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: Cusor, used for pagiation
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/account/collateral-info:
+    get:
+      tags:
+        - account
+      summary: Get Collateral Info
+      description: Get collateral info
+      operationId: collateral-info
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: currency
+          in: query
+          description: Collateral asset
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/account/coin-greeks:
+    get:
+      tags:
+        - account
+      summary: Get Coin Greeks
+      description: Get coin greek info
+      operationId: coin-greeks
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/account/fee-rate:
+    get:
+      tags:
+        - account
+      summary: Get Fee Rate
+      description: Get fee rate
+      operationId: fee-rate
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type. working for spot and option
+          required: true
+          schema:
+            type: string
+            enum:
+              - spot
+              - linear
+              - inverse
+              - option
+        - name: symbol
+          in: query
+          description: Symbol name. valid for linear,inverse and spot
+          required: false
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin. Valid for option
+          required: false
+          schema:
+            type: string
+            enum:
+              - SOL
+              - BTC
+              - ETH
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/account/info:
+    get:
+      tags:
+        - account
+      summary: Get Account Info
+      description: Get account info
+      operationId: account-info
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/account/transaction-log:
+    get:
+      tags:
+        - account
+      summary: Get Transaction Log
+      description: Get transaction log
+      operationId: transaction-log
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: accountType
+          in: query
+          description: Support `UNIFIED` for now
+          required: false
+          schema:
+            type: string
+            enum:
+              - UNIFIED
+        - name: category
+          in: query
+          description: Product category
+          required: false
+          schema:
+            type: string
+            enum:
+              - spot
+              - linear
+              - option
+        - name: currency
+          in: query
+          description: Currency
+          required: false
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Transaction log type
+          required: false
+          schema:
+            type: string
+            enum:
+              - TRANSFER_IN
+              - TRANSFER_OUT
+              - TRADE
+              - SETTLEMENT
+              - DELIVERY
+              - LIQUIDATION
+              - BONUS
+              - FEE_REFUND
+              - INTEREST
+              - CURRENCY_BUY
+              - CURRENCY_SELL
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit size for each page. 1-50
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: Cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/account/set-margin-mode:
+    post:
+      tags:
+        - account
+      summary: Set Margin Mode
+      description: Set margin mode
+      operationId: set-margin-mode
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                setMarginMode:
+                  type: string
+                  description: Margin mode
+                  enum:
+                    - REGULAR_MARGIN
+                    - ISOLATED_MARGIN
+                    - PORTFOLIO_MARGIN
+                  example: PORTFOLIO_MARGIN
+              required:
+                - setMarginMode
+  /v5/account/set-hedging-mode:
+    post:
+      tags:
+        - account
+      summary: Set Spot Hedging
+      description: Set spot hedging for Portfolio margin
+      operationId: set-spot-hedge
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                setHedgingMode:
+                  type: string
+                  description: on or off spot hedging mode
+                  enum:
+                    - ON
+                    - OFF
+                  example: ON
+              required:
+                - setHedgingMode
+
+  /v5/asset/exchange/order-record:
+    get:
+      tags:
+        - asset
+      summary: Get Coin Exchange Records
+      description: Get exchange records
+      operationId: exchange
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: fromCoin
+          in: query
+          description: From coin
+          required: false
+          schema:
+            type: string
+        - name: toCoin
+          in: query
+          description: To coin
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Limit size. 1-50
+          required: true
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: Cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/delivery-record:
+    get:
+      tags:
+        - asset
+      summary: Get Delivery Record
+      description: Get delivery record
+      operationId: delivery
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: string
+            enum:
+              - option
+              - linear
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+        - name: expDate
+          in: query
+          description: expired date
+          required: false
+          schema:
+            type: string
+          example:
+        - name: limit
+          in: query
+          description: 1-50. max 50
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/settlement-record:
+    get:
+      tags:
+        - asset
+      summary: Get USDC Session Settlement
+      description: Get usdc session settlement record.
+      operationId: settlement
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: string
+            enum:
+              - linear
+        - name: symbol
+          in: query
+          description: Symbol name. USDC perp or USDC futures
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: 1-50. max 50
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/transfer/query-asset-info:
+    get:
+      tags:
+        - asset
+      summary: Get Asset Info (Spot)
+      description: Get spot asset
+      operationId: asset-info
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: accountType
+          in: query
+          description: Account type
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/transfer/query-account-coins-balance:
+    get:
+      tags:
+        - asset
+      summary: Get All Coins Balance
+      description: Get All Coins Balance
+      operationId: all-balance
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+        - name: memberId
+          in: query
+          description: If query sub user balance, please input sub uid
+          required: false
+          schema:
+            type: string
+        - name: accountType
+          in: query
+          description: Account type
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT
+              - CONTRACT
+              - UNIFIED
+              - OPTION
+              - INVESTMENT
+              - FUND
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+        - name: withBonus
+          in: query
+          description: Query bonus or not. 0=false, 1=true
+          required: false
+          schema:
+            type: integer
+            enum:
+              - 0
+              - 1
+            default: 0
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/transfer/query-account-coin-balance:
+    get:
+      tags:
+        - asset
+      summary: Get Single Coin Balance
+      description: Get Single Coin Balance
+      operationId: account-coin-balance
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+        - name: memberId
+          in: query
+          description: If query sub user balance, please input sub uid
+          required: false
+          schema:
+            type: string
+        - name: accountType
+          in: query
+          description: Account type
+          required: true
+          schema:
+            type: string
+            enum:
+              - SPOT
+              - CONTRACT
+              - UNIFIED
+              - OPTION
+              - INVESTMENT
+              - FUND
+        - name: coin
+          in: query
+          description: Coin name
+          required: true
+          schema:
+            type: string
+        - name: withBonus
+          in: query
+          description: Query bonus or not. 0=false, 1=true
+          required: false
+          schema:
+            type: integer
+            enum:
+              - 0
+              - 1
+            default: 0
+        - name: withTransferSafeAmount
+          in: query
+          description: Whether query delay withdraw/transfer safe amount. 0：false, 1；true
+          required: false
+          schema:
+            type: integer
+            enum:
+              - 0
+              - 1
+            default: 0
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/transfer/query-transfer-coin-list:
+    get:
+      tags:
+        - asset
+      summary: Get Transferable Coin
+      description: Get transferable coins
+      operationId: transferable-coin
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: fromAccountType
+          in: query
+          description: From account type
+          required: true
+          schema:
+            type: string
+            enum:
+              - UNIFIED
+              - CONTRACT
+              - SPOT
+              - OPTION
+              - INVESTMENT
+              - FUND
+        - name: toAccountType
+          in: query
+          description: To account type
+          required: true
+          schema:
+            type: string
+            enum:
+              - UNIFIED
+              - CONTRACT
+              - SPOT
+              - OPTION
+              - INVESTMENT
+              - FUND
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/transfer/inter-transfer:
+    post:
+      tags:
+        - asset
+      summary: Create Internal Transfer
+      description: Create internal transfer
+      operationId: create-inter-transfer
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transferId:
+                  type: string
+                  description: UUID
+                  example: 42c0cab0-6bca-c242-bc76-4e6df6cbab16
+                coin:
+                  type: string
+                  description: Coin
+                  example: USDT
+                amount:
+                  type: string
+                  description: Amount
+                  example: "10"
+                fromAccountType:
+                  type: string
+                  description: From account type
+                  enum:
+                    - UNIFIED
+                    - CONTRACT
+                    - SPOT
+                    - OPTION
+                    - INVESTMENT
+                    - FUND
+                  example: UNIFIED
+                toAccountType:
+                  type: string
+                  description: To account type
+                  enum:
+                    - UNIFIED
+                    - CONTRACT
+                    - SPOT
+                    - OPTION
+                    - INVESTMENT
+                    - FUND
+                  example: SPOT
+              required:
+                - transferId
+                - coin
+                - amount
+                - fromAccountType
+                - toAccountType
+
+  /v5/asset/transfer/query-inter-transfer-list:
+    get:
+      tags:
+        - asset
+      summary: Get Internal Transfer Records
+      description: Get internal transfer records
+      operationId: inter-transfer-list
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: transferId
+          in: query
+          description: Transfer id
+          required: false
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Status
+          required: false
+          schema:
+            type: string
+            enum:
+              - SUCCESS
+              - PENDING
+              - FAILED
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit size. 1-50
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: Cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/transfer/query-sub-member-list:
+    get:
+      tags:
+        - asset
+      summary: Get Sub UID
+      description: Get sub uid
+      operationId: sub-uid-list
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/transfer/universal-transfer:
+    post:
+      tags:
+        - asset
+      summary: Create Universal Transfer
+      description: Create universal transfer
+      operationId: unitransfer
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                transferId:
+                  type: string
+                  description: Transfer id. UUID
+                  example: be7a2462-1138-4e27-80b1-62653f24925e
+                coin:
+                  type: string
+                  description: Coin name
+                  example: USDT
+                amount:
+                  type: string
+                  description: Amount
+                  example: "100"
+                fromMemberId:
+                  type: integer
+                  description: From UID
+                  example: 12345
+                toMemberId:
+                  type: integer
+                  description: To UID
+                  example: 54321
+                fromAccountType:
+                  type: string
+                  description: From account type
+                  enum:
+                    - UNIFIED
+                    - CONTRACT
+                    - SPOT
+                    - INVESTMENT
+                    - OPTION
+                    - FUND
+                  example: UNIFIED
+                toAccountType:
+                  type: string
+                  description: To account type
+                  enum:
+                    - UNIFIED
+                    - CONTRACT
+                    - SPOT
+                    - INVESTMENT
+                    - OPTION
+                    - FUND
+                  example: SPOT
+              required:
+                - transferId
+                - coin
+                - amount
+                - fromMemberId
+                - toMemberId
+                - fromAccountType
+                - toAccountType
+
+  /v5/asset/transfer/query-universal-transfer-list:
+    get:
+      tags:
+        - asset
+      summary: Get Universal Transfer Records
+      description: Get universal transfer record
+      operationId: unitransfer-list
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+        - name: transferId
+          in: query
+          description: Transfer id
+          required: false
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Status
+          required: false
+          schema:
+            type: string
+            enum:
+              - SUCCESS
+              - FAILED
+              - PENDING
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit size. 1-50
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: Cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/asset/deposit/query-allowed-list:
+    get:
+      tags:
+        - asset
+      summary: Get Allowed Deposit Coin Info
+      description: Get allowed deposit coin info
+      operationId: deposit-coin-spec
+      parameters:
+        - name: coin
+          in: query
+          description: Coin name. coin and chain must be paired if passed
+          required: false
+          schema:
+            type: string
+        - name: chain
+          in: query
+          description: Chain name. coin and chain must be paired if passed
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Limit size. 1-35
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: cursor
+          in: query
+          description: Cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/deposit/deposit-to-account:
+    post:
+      tags:
+        - asset
+      summary: Set Deposit Account
+      description: Set Deposit Account
+      operationId: set-deposit-acct
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                AccountType:
+                  type: string
+                  description: From account type
+                  enum:
+                    - UNIFIED
+                    - CONTRACT
+                    - SPOT
+                    - OPTION
+                    - FUND
+                  example: UNIFIED
+              required:
+                - AccountType
+
+  /v5/asset/deposit/query-record:
+    get:
+      tags:
+        - asset
+      summary: Get Deposit Record (on-chain)
+      description: Get deposit record
+      operationId: deposit-record
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit size. 1-50
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          description: Cursor, used to pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/deposit/query-sub-member-record:
+    get:
+      tags:
+        - asset
+      summary: Get Sub Account Deposit Records (on-chain)
+      description: Get sub account deposit record
+      operationId: sub-deposit-record
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+        - name: subMemberId
+          in: query
+          description: Sub UID
+          required: true
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit size. 1-50
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          description: Cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/deposit/query-internal-record:
+    get:
+      tags:
+        - asset
+      summary: Get Internal Deposit Records (off-chain)
+      description: Get deposit records through Bybit platform
+      operationId: internal-deposit-record
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit size. 1-50
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          description: Cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/deposit/query-address:
+    get:
+      tags:
+        - asset
+      summary: Get Master Deposit Address
+      description: Get master deposit address
+      operationId: master-deposit-addr
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: true
+          schema:
+            type: string
+        - name: chainType
+          in: query
+          description: Chain name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/deposit/query-sub-member-address:
+    get:
+      tags:
+        - asset
+      summary: Get Sub Deposit Address
+      description: Get sub deposit address
+      operationId: sub-deposit-addr
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: true
+          schema:
+            type: string
+        - name: chainType
+          in: query
+          description: Chain name
+          required: true
+          schema:
+            type: string
+        - name: subMemberId
+          in: query
+          description: Sub UID
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/coin/query-info:
+    get:
+      tags:
+        - asset
+      summary: Get Coin Info
+      description: Get coin info
+      operationId: coin-info
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/asset/withdraw/query-record:
+    get:
+      tags:
+        - asset
+      summary: Get Withdraw Records
+      description: Get withdraw record
+      operationId: withdraw-record
+      parameters:
+        - name: apiKey
+          in: header
+          description: Use master UID api key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Use master UID api secret
+          required: true
+          schema:
+            type: string
+        - name: withdrawID
+          in: query
+          description: Withdraw ID
+          required: false
+          schema:
+            type: string
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+        - name: withdrawType
+          in: query
+          description: Withdraw type. 0=on chain, 1=off chain, 2=all
+          required: false
+          schema:
+            type: integer
+            enum:
+              - 0
+              - 1
+              - 2
+            default: 0
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit size. 1-50
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          description: Cursor, used to pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/spot-lever-token/info:
+    get:
+      tags:
+        - etp
+      summary: Get Leverage Token Info
+      description: Get lt information
+      operationId: leverage-token-info
+      parameters:
+        - name: ltCoin
+          in: query
+          description: Levearage coin name. e.g., BTC3L
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/spot-lever-token/reference:
+    get:
+      tags:
+        - etp
+      summary: Get Leverage Token Market
+      description: Get lt market information
+      operationId: leverage-token-reference
+      parameters:
+        - name: ltCoin
+          in: query
+          description: Levearage coin name. e.g., BTC3L
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/spot-lever-token/purchase:
+    post:
+      tags:
+        - etp
+      summary: Purchase
+      description: Purchase leverage token
+      operationId: purchase
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ltCoin:
+                  type: string
+                  description: Levearage coin name. e.g., BTC3L
+                  example: EOS3L
+                ltAmount:
+                  type: string
+                  description: Purchase amount
+                  example: "100"
+                serialNo:
+                  type: string
+                  description: Serial number, customised order id
+                  example: test-001
+              required:
+                - ltCoin
+                - ltAmount
+
+  /v5/spot-lever-token/redeem:
+    post:
+      tags:
+        - etp
+      summary: Redeem
+      description: Redeem leverage token
+      operationId: redeem
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ltCoin:
+                  type: string
+                  description: Levearage coin name. e.g., BTC3L
+                  example: EOS3L
+                quantity:
+                  type: string
+                  description: Redeem quantity
+                  example: "150"
+                serialNo:
+                  type: string
+                  description: Serial number, customised order id
+                  example: test-002
+              required:
+                - ltCoin
+                - quantity
+  /v5/spot-lever-token/order-record:
+    get:
+      tags:
+        - etp
+      summary: Get Purchase or Redeem Records
+      description: Get the order history of purchase or redeem
+      operationId: order-record
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: ltCoin
+          in: query
+          description: Levearage coin name. e.g., BTC3L
+          required: false
+          schema:
+            type: string
+        - name: orderId
+          in: query
+          description: Order id
+          required: false
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Limit size of each page. 1-500
+          required: false
+          schema:
+            type: integer
+            default: 100
+        - name: ltOrderType
+          in: query
+          description: LT order type. 1=purchase, 2=redeem
+          required: false
+          schema:
+            type: integer
+            enum:
+              - 1
+              - 2
+        - name: serialNo
+          in: query
+          description: Serial number
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/time:
+    get:
+      tags:
+        - market
+      summary: Get Bybit Server Time
+      description: Get server time
+      operationId: time
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/kline:
+    get:
+      tags:
+        - market
+      summary: Get Kline
+      description: Get kline data
+      operationId: kline
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+                - spot
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: interval
+          in: query
+          description: kline interval
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - 1
+                - 3
+                - 5
+                - 15
+                - 30
+                - 60
+                - 120
+                - 240
+                - 360
+                - 720
+                - D
+                - M
+                - W
+        - name: start
+          in: query
+          description: start timestamp (ms). e.g., 1669852800000 (1 DEC 2022 UTC 0:00)
+          required: false
+          schema:
+            type: integer
+        - name: end
+          in: query
+          description: end timestamp (ms). e.g., 1671062400000 (15 DEC 2022 UTC 0:00)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Maximum 1000
+          required: false
+          schema:
+            type: integer
+            default: 200
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/mark-price-kline:
+    get:
+      tags:
+        - market
+      summary: Get Mark Price Kline
+      description: Get Mark Price Kline data
+      operationId: mark-kline
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+                - spot
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: interval
+          in: query
+          description: kline interval
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - 1
+                - 3
+                - 5
+                - 15
+                - 30
+                - 60
+                - 120
+                - 240
+                - 360
+                - 720
+                - D
+                - M
+                - W
+        - name: start
+          in: query
+          description: start timestamp (ms). e.g., 1669852800000 (1 DEC 2022 UTC 0:00)
+          required: false
+          schema:
+            type: integer
+        - name: end
+          in: query
+          description: end timestamp (ms). e.g., 1671062400000 (15 DEC 2022 UTC 0:00)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Maximum 1000
+          required: false
+          schema:
+            type: integer
+            default: 200
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/index-price-kline:
+    get:
+      tags:
+        - market
+      summary: Get Index Price Kline
+      description: Get Index Price Kline data
+      operationId: index-kline
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: interval
+          in: query
+          description: kline interval
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - 1
+                - 3
+                - 5
+                - 15
+                - 30
+                - 60
+                - 120
+                - 240
+                - 360
+                - 720
+                - D
+                - M
+                - W
+        - name: start
+          in: query
+          description: start timestamp (ms). e.g., 1669852800000 (1 DEC 2022 UTC 0:00)
+          required: false
+          schema:
+            type: integer
+        - name: end
+          in: query
+          description: end timestamp (ms). e.g., 1671062400000 (15 DEC 2022 UTC 0:00)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Maximum 1000
+          required: false
+          schema:
+            type: integer
+            default: 200
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/premium-index-price-kline:
+    get:
+      tags:
+        - market
+      summary: Get Premium Index Price Kline
+      description: Get Premium Index Price Kline data
+      operationId: premium-index-kline
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: interval
+          in: query
+          description: kline interval
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - 1
+                - 3
+                - 5
+                - 15
+                - 30
+                - 60
+                - 120
+                - 240
+                - 360
+                - 720
+                - D
+                - M
+                - W
+        - name: start
+          in: query
+          description: start timestamp (ms). e.g., 1669852800000 (1 DEC 2022 UTC 0:00)
+          required: false
+          schema:
+            type: integer
+        - name: end
+          in: query
+          description: end timestamp (ms). e.g., 1671062400000 (15 DEC 2022 UTC 0:00)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Maximum 1000
+          required: false
+          schema:
+            type: integer
+            default: 200
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/instruments-info:
+    get:
+      tags:
+        - market
+      summary: Get Instrument Info
+      description: Get launched instruments information.
+      operationId: instrument
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+                - option
+                - spot
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Status filter
+          required: false
+          schema:
+            type: string
+            enum:
+              - PreLaunch
+              - Trading
+              - Settling
+              - Delivering
+              - Closed
+        - name: baseCoin
+          in: query
+          description: for linear, invere and option ONLY
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Maximum 1000. spot does not have pagination
+          required: false
+          schema:
+            type: integer
+            default: 500
+        - name: cursor
+          in: query
+          description: pass cursor from the response param "nagePageCursor" to paginate
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/orderbook:
+    get:
+      tags:
+        - market
+      summary: Get Orderbook
+      description: Get order book data
+      operationId: orderbook
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+                - option
+                - spot
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: spot：1-200，default：1. linear&inverse：1-200，default：25. option：1-25，default：1
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/tickers:
+    get:
+      tags:
+        - market
+      summary: Get Tickers
+      description: Get all latest information of symbols. All parameters are needed for OPTION
+      operationId: tickers
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+                - option
+                - spot
+        - name: baseCoin
+          in: query
+          description: for option ONLY, baseCoin or symbol must be passed when query option
+          required: false
+          schema:
+            type: string
+        - name: expDate
+          in: query
+          description: Expiry date. For option only. Default is all, and the parameter format is 25MAR22.
+          required: false
+          schema:
+            type: string
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/funding/history:
+    get:
+      tags:
+        - market
+      summary: Get Funding Rate History
+      description: Get historical funding rate
+      operationId: history-fund-rate
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timstamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timstamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Maximum 200
+          required: false
+          schema:
+            type: integer
+            default: 200
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/recent-trade:
+    get:
+      tags:
+        - market
+      summary: Get Public Recent Trading History
+      description: Get public trade
+      operationId: recent-trade
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+                - option
+                - spot
+        - name: symbol
+          in: query
+          description: Symbol name.
+          required: true
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin. Valid for option. Default is BTC
+          required: false
+          schema:
+            type: string
+            default: BTC
+        - name: optionType
+          in: query
+          description: Option type. Valid for option.
+          required: false
+          schema:
+            type: string
+            enum:
+              - Call
+              - Put
+        - name: limit
+          in: query
+          description: Maximum 60 for spot. Maximum 1000 for others
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/open-interest:
+    get:
+      tags:
+        - market
+      summary: Get Open Interest
+      description: Get open interest
+      operationId: open-interest
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: intervalTime
+          in: query
+          description: interval time
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - 5min
+                - 15min
+                - 30min
+                - 1h
+                - 4h
+                - 1d
+        - name: startTime
+          in: query
+          description: The start timstamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timstamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: Maximum 200
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          description: pass cursor from the response param "nagePageCursor" to paginate
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/historical-volatility:
+    get:
+      tags:
+        - market
+      summary: Get Historical Volatility
+      description: Get historical volatility
+      operationId: iv
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - option
+        - name: baseCoin
+          in: query
+          description: Base coin. If not passed, BTC returned by default
+          required: false
+          schema:
+            type: string
+            default: BTC
+        - name: period
+          in: query
+          description: Period. If not passed, it returns 7 days by default. SOL does not have 180 and 270
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+              enum:
+                - 7
+                - 14
+                - 21
+                - 30
+                - 60
+                - 90
+                - 180
+                - 270
+        - name: startTime
+          in: query
+          description: The start timstamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timstamp (ms)
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/insurance:
+    get:
+      tags:
+        - market
+      summary: Get Insurance
+      description: Get Insurance
+      operationId: insurance
+      parameters:
+        - name: coin
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/risk-limit:
+    get:
+      tags:
+        - market
+      summary: Get Risk Limit
+      description: Get risk limit
+      operationId: risk-limit
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/delivery-price:
+    get:
+      tags:
+        - market
+      summary: Get Delivery Price
+      description: Get delivery price
+      operationId: delivery-price
+      parameters:
+        - name: category
+          in: query
+          description: Product type. linear, inverse, option
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+                - option
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin, for option only. Return BTC by default
+          required: false
+          schema:
+            type: string
+            default: BTC
+        - name: limit
+          in: query
+          description: Maximum 200
+          required: false
+          schema:
+            type: string
+            default: 50
+        - name: cursor
+          in: query
+          description: The cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/market/account-ratio:
+    get:
+      tags:
+        - market
+      summary: Get Long Short Ratio
+      description: Get long short ratio
+      operationId: long-short-ratio
+      parameters:
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - linear
+                - inverse
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: period
+          in: query
+          description: period
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - 5min
+                - 15min
+                - 30min
+                - 1h
+                - 4h
+                - 1d
+        - name: limit
+          in: query
+          description: Maximum 500
+          required: false
+          schema:
+            type: integer
+            default: 50
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/position/list:
+    get:
+      tags:
+        - position
+      summary: Get Position Info
+      operationId: position-info
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: string
+            enum:
+              - linear
+              - inverse
+              - option
+        - name: symbol
+          in: query
+          description: Symbol name
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin. For option only
+          required: false
+          schema:
+            type: string
+        - name: settleCoin
+          in: query
+          description: Used for linear & inverse, symbol or settleCoin is required
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: 1-200. max 200
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/position/set-leverage:
+    post:
+      tags:
+        - position
+      summary: Set Leverage
+      description: Set levearage.
+      operationId: leverage
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  enum:
+                    - linear
+                    - inverse
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: BTCUSDT
+                buyLeverage:
+                  type: string
+                  description: Buy side leverage
+                  example: "10"
+                sellLeverage:
+                  type: string
+                  description: Sell side leverage
+                  example: "10"
+              required:
+                - category
+                - symbol
+                - buyLevarge
+                - sellLevarge
+  /v5/position/switch-isolated:
+    post:
+      tags:
+        - position
+      summary: Switch Cross/Isolated Margin
+      description: Select cross margin mode or isolated margin mode
+      operationId: cross-isolate
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  enum:
+                    - linear
+                    - inverse
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: BTCUSDT
+                tradeMode:
+                  type: integer
+                  description: 0 - cross margin, 1 - isolated margin
+                  enum:
+                    - 0
+                    - 1
+                  example: 0
+                buyLeverage:
+                  type: string
+                  description: Buy side leverage
+                  example: "10"
+                sellLeverage:
+                  type: string
+                  description: Sell side leverage
+                  example: "10"
+              required:
+                - category
+                - symbol
+                - tradeMode
+                - buyLevarge
+                - sellLevarge
+
+  /v5/position/set-tpsl-mode:
+    post:
+      tags:
+        - position
+      summary: Set TP/SL Mode
+      description: Set tp/sl mode.
+      operationId: tpsl-mode
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  enum:
+                    - linear
+                    - inverse
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: ETHUSDT
+                tpSlMode:
+                  type: string
+                  description: Full = full position TP/SL, Partial = partial mode tp/sl
+                  enum:
+                    - Full
+                    - Partial
+                  example: Full
+              required:
+                - category
+                - symbol
+                - tpSlMode
+
+  /v5/position/switch-mode:
+    post:
+      tags:
+        - position
+      summary: Switch Position Mode
+      description: Switch Position Mode
+      operationId: position-mode
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  enum:
+                    - linear
+                    - inverse
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: ETHUSDT
+                coin:
+                  type: string
+                  description: Coin name
+                  example: USDT
+                mode:
+                  type: integer
+                  description: Position mode. 0 - Merged single, 3 - Both sides
+                  enum:
+                    - 0
+                    - 3
+                  example: 0
+              required:
+                - category
+                - mode
+
+  /v5/position/set-risk-limit:
+    post:
+      tags:
+        - position
+      summary: Set Risk Limit
+      description: Set risk limit.
+      operationId: set-risk-limit
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  enum:
+                    - linear
+                    - inverse
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: BTCUSDT
+                riskId:
+                  type: integer
+                  description: Risk limit id
+                  example: 2
+                positionIdx:
+                  type: integer
+                  description: Position index. 0=one-way-mode, 1=buy-hedge-mode, 2=sell-hedege-mode. <b>REQUIRED</b> for hedge-mode
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                  example: 0
+              required:
+                - category
+                - symbol
+                - riskId
+
+  /v5/position/trading-stop:
+    post:
+      tags:
+        - position
+      summary: Set Trading Stop
+      description: Set trade stop.
+      operationId: trading-stop
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  enum:
+                    - linear
+                    - inverse
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: ETHUSDT
+                takeProfit:
+                  type: string
+                  description: Take profit price
+                  example: "1600"
+                stopLoss:
+                  type: string
+                  description: Stop loss price
+                  example: "1000"
+                tpSize:
+                  type: string
+                  description: Take profit size
+                  example:
+                slSize:
+                  type: string
+                  description: Stop loss size
+                  example:
+                tpTriggerBy:
+                  type: string
+                  description: Take profit trigger price type
+                  enum:
+                    - LastPrice
+                    - MarkPrice
+                    - IndexPrice
+                  example: MarkPrice
+                slTriggerBy:
+                  type: string
+                  description: Stop loss trigger price type
+                  enum:
+                    - LastPrice
+                    - MarkPrice
+                    - IndexPrice
+                  example: MarkPrice
+                trailingStop:
+                  type: string
+                  description: Trailing stop
+                  example:
+                activePrice:
+                  type: string
+                  description: Trailing stop trigger price
+                  example:
+                positionIdx:
+                  type: integer
+                  description: Position index. 0=one-way-mode, 1=buy-hedge-mode, 2=sell-hedege-mode. <b>REQUIRED</b> for hedge-mode
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                  example: 0
+                tpLimitPrice:
+                  type: string
+                  description: The limit order price when take profit price is triggered
+                  example:
+                slLimitPrice:
+                  type: string
+                  description: The limit order price when stop loss price is triggered
+                  example:
+                tpOrderType:
+                  type: string
+                  description: The order type when take profit is triggered
+                  enum:
+                    - Market
+                    - Limit
+                  example:
+                slOrderType:
+                  type: string
+                  description: The order type when stop loss is triggered
+                  enum:
+                    - Market
+                    - Limit
+                  example:
+              required:
+                - category
+                - symbol
+                - positionIdx
+
+  /v5/position/set-auto-add-margin:
+    post:
+      tags:
+        - position
+      summary: Set Auto Add Margin
+      description: Set Auto Add Margin
+      operationId: auto-add-margin
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  enum:
+                    - linear
+                    - inverse
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: ETHUSDT
+                autoAddMargin:
+                  type: integer
+                  description: 0 - turn off, 1 - turn on
+                  example: 0
+                positionIdx:
+                  type: integer
+                  description: Position index. 0=one-way-mode, 1=buy-hedge-mode, 2=sell-hedege-mode. <b>REQUIRED</b> for hedge-mode
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                  example: 0
+              required:
+                - category
+                - symbol
+                - autoAddMargin
+                - positionIdx
+
+  /v5/position/add-margin:
+    post:
+      tags:
+        - position
+      summary: Add Or Reduce Margin
+      description: Manually add or reduce margin for isolated margin position
+      operationId: manual-add-margin
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  enum:
+                    - linear
+                    - inverse
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: ETHUSDT
+                margin:
+                  type: string
+                  description: 10 - add, -10 - reduce
+                  example: "11.5"
+                positionIdx:
+                  type: integer
+                  description: Position index. 0=one-way-mode, 1=buy-hedge-mode, 2=sell-hedege-mode. <b>REQUIRED</b> for hedge-mode
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                  example: 0
+              required:
+                - category
+                - symbol
+                - margin
+                - positionIdx
+
+  /v5/execution/list:
+    get:
+      tags:
+        - position
+      summary: Get Execution (2 years)
+      description: Get execution list
+      operationId: execution
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: string
+            enum:
+              - linear
+              - inverse
+              - spot
+              - option
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin
+          required: false
+          schema:
+            type: string
+          example:
+        - name: orderId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: orderLinkId
+          in: query
+          description: User customised order id
+          required: false
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: execType
+          in: query
+          description: Execution type
+          required: false
+          schema:
+            type: string
+            enum:
+            - Trade
+            - AdlTrade
+            - Funding
+            - BustTrade
+            - Settle
+        - name: limit
+          in: query
+          description: 1-100. max 100
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          description: cursor to pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/position/closed-pnl:
+    get:
+      tags:
+        - position
+      summary: Get Closed PnL
+      description: Get closed pnl
+      operationId: close-pnl
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: string
+            enum:
+              - linear
+              - inverse
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          description: 1-200. max 200
+          required: false
+          schema:
+            type: integer
+            default: 50
+        - name: cursor
+          in: query
+          description: cursor for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/spot-margin-trade/data:
+    get:
+      tags:
+        - uta-margin-trade
+      summary: Get VIP Margin Data
+      description: Get vip margin data
+      operationId: vip-margin
+      parameters:
+        - name: vipLevel
+          in: query
+          description: VIP level
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - No VIP
+                - VIP-1
+                - VIP-2
+                - VIP-3
+                - VIP-4
+                - VIP-5
+                - PRO-1
+                - PRO-2
+                - PRO-3
+                - PRO-4
+                - PRO-5
+        - name: currency
+          in: query
+          description: Coin name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/spot-margin-trade/switch-mode:
+    post:
+      tags:
+        - uta-margin-trade
+      summary: Toggle Margin Trade
+      description: Toggle margin trade
+      operationId: switch-mode
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                spotMarginMode:
+                  type: integer
+                  description: Margin mode. 0=off, 1=on
+                  enum:
+                    - 0
+                    - 1
+                  example: 0
+              required:
+                - spotMarginMode
+  /v5/spot-margin-trade/set-leverage:
+    post:
+      tags:
+        - uta-margin-trade
+      summary: Set Leverage
+      description: Set leverage for margin trade
+      operationId: set-leverage
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                leverage:
+                  type: integer
+                  description: Levearge, support 2-10
+                  enum:
+                    - 2
+                    - 3
+                    - 4
+                    - 5
+                    - 6
+                    - 7
+                    - 8
+                    - 9
+                    - 10
+                  example: 5
+              required:
+                - leverage
+  /v5/spot-margin-trade/state:
+    get:
+      tags:
+        - uta-margin-trade
+      summary: Get Status And Leverage
+      description: Get status and leverage
+      operationId: status
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/order/create:
+    post:
+      tags:
+        - trade
+      summary: Place Order
+      description: Place an order.
+      operationId: create-order
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  description: Product type
+                  example: linear
+                  enum:
+                    - linear
+                    - inverse
+                    - option
+                    - spot
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: ETHUSDT
+                isLeverage:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                  description: Whether to loan, only for spot. 0:No;1:Yes.
+                side:
+                  type: string
+                  enum:
+                    - Buy
+                    - Sell
+                  example: Buy
+                orderType:
+                  type: string
+                  enum:
+                    - Market
+                    - Limit
+                  description: Order type
+                  example: Limit
+                qty:
+                  type: string
+                  description: Order qty
+                  example: "1"
+                price:
+                  type: string
+                  description: ignore it if Market order
+                  example: "1000"
+                triggerPrice:
+                  type: string
+                  description: param for StopOrder
+                  example:
+                triggerDirection:
+                  type: integer
+                  description: param for StopOrder. 1=rise, 2=fall
+                  example:
+                triggerBy:
+                  type: string
+                  enum:
+                    - LastPrice
+                    - MarkPrice
+                    - IndexPrice
+                  description: param for StopOrder
+                  example:
+                orderFilter:
+                  type: string
+                  enum:
+                    - Order
+                    - tpslOrder
+                    - StopOrder
+                  description: Take profit stop loss, normal order or conditional order. Only valid for spot.
+                  default: Order
+                  example:
+                orderIv:
+                  type: string
+                  description: Implied volatility. param for option order
+                  example:
+                timeInForce:
+                  type: string
+                  description: Time in force
+                  enum:
+                    - GTC
+                    - IOC
+                    - FOK
+                    - PostOnly
+                  example: GTC
+                positionIdx:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                    - 2
+                  description: 0=one-way mode, 1=buy-hedge-mode, 2=sell-hedge-mode
+                  example: 0
+                orderLinkId:
+                  type: string
+                  description: required param for option order
+                  example: test-xx1
+                takeProfit:
+                  type: string
+                  description: Take profit price
+                  example:
+                stopLoss:
+                  type: string
+                  description: Stop loss price
+                  example:
+                tpTriggerBy:
+                  type: string
+                  description: Trigger take profit price price type
+                  enum:
+                    - LastPrice
+                    - MarkPrice
+                    - IndexPrice
+                  example:
+                slTriggerBy:
+                  type: string
+                  description: Trigger stop loss price price type
+                  enum:
+                    - LastPrice
+                    - MarkPrice
+                    - IndexPrice
+                  example:
+                reduceOnly:
+                  type: boolean
+                  description: specify true if a close position order
+                  enum:
+                    - true
+                    - false
+                  example: false
+                closeOnTrigger:
+                  type: boolean
+                  description: close on trigger
+                  enum:
+                    - true
+                    - false
+                  example: false
+                smpType:
+                  type: string
+                  description: Smp execution type
+                  enum:
+                    - None
+                    - CancelMaker
+                    - CancelTaker
+                    - CancelBoth
+                  example:
+                mmp:
+                  type: boolean
+                  description: market marker protection. for option order
+                  enum:
+                    - true
+                    - false
+                  example:
+                tpslMode:
+                  type: string
+                  description: TP/SL mode
+                  enum:
+                    - Full
+                    - Partial
+                  example:
+                tpLimitPrice:
+                  type: string
+                  description: The limit order price when take profit price is triggered
+                  example:
+                slLimitPrice:
+                  type: string
+                  description: The limit order price when stop loss price is triggered
+                  example:
+                tpOrderType:
+                  type: string
+                  description: The order type when take profit is triggered
+                  enum:
+                    - Market
+                    - Limit
+                  example:
+                slOrderType:
+                  type: string
+                  description: The order type when stop loss is triggered
+                  enum:
+                    - Market
+                    - Limit
+                  example:
+              required:
+                - category
+                - symbol
+                - side
+                - qty
+                - orderType
+
+  /v5/order/amend:
+    post:
+      tags:
+        - trade
+      summary: Amend Order
+      description: Amend an order.
+      operationId: amend-order
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  enum:
+                    - linear
+                    - inverse
+                    - option
+                    - spot
+                  description: Product type
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: ETHUSDT
+                orderId:
+                  type: string
+                  description: Either orderId or orderLinkId is required
+                  example:
+                orderLinkId:
+                  type: string
+                  description: Either orderId or orderLinkId is required
+                  example:
+                qty:
+                  type: string
+                  description: Modify the order qty
+                  example:
+                price:
+                  type: string
+                  description: Modify the order price
+                  example:
+                orderIv:
+                  type: string
+                  description: Modify option order iv
+                  example:
+                triggerPrice:
+                  type: string
+                  description: Modify StopOrder trigger price
+                  example:
+                tpslMode:
+                  type: string
+                  enum:
+                    - Full
+                    - Partial
+                  description: Full：TPSL for full size, Partial：TPSL for partial size
+                  example:
+                takeProfit:
+                  type: string
+                  description: Modify take profit price
+                  example:
+                stopLoss:
+                  type: string
+                  description: Modify stop loss price
+                  example:
+                triggerBy:
+                  type: string
+                  enum:
+                    - LastPrice
+                    - MarkPrice
+                    - IndexPrice
+                  description: Modify the type of trigger price
+                  example:
+                tpTriggerBy:
+                  type: string
+                  enum:
+                    - LastPrice
+                    - MarkPrice
+                    - IndexPrice
+                  description: Modify trigger take profit price price type
+                  example:
+                slTriggerBy:
+                  type: string
+                  enum:
+                    - LastPrice
+                    - MarkPrice
+                    - IndexPrice
+                  description: Modify trigger stop loss price price type
+                  example:
+                tpLimitPrice:
+                  type: string
+                  description: The limit order price when take profit price is triggered
+                  example:
+                slLimitPrice:
+                  type: string
+                  description: The limit order price when stop loss price is triggered
+                  example:
+              required:
+                - category
+                - symbol
+  /v5/order/cancel:
+    post:
+      tags:
+        - trade
+      summary: Cancel Order
+      description: Cancel a single order.
+      operationId: cancel-order
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  enum:
+                    - linear
+                    - inverse
+                    - option
+                    - spot
+                  description: Product type
+                  example: spot
+                symbol:
+                  type: string
+                  description: Symbol name
+                  example: ETHUSDT
+                orderId:
+                  type: string
+                  description: Either orderId or orderLinkId is required
+                  example:
+                orderLinkId:
+                  type: string
+                  description: Either orderId or orderLinkId is required
+                  example:
+                orderFilter:
+                  type: string
+                  enum:
+                    - Order
+                    - tpslOrder
+                    - StopOrder
+                  description: Take profit stop loss or ordinary order. Only valid for spot.
+                  default: Order
+                  example: Order
+              required:
+                - category
+                - symbol
+
+  /v5/order/realtime:
+    get:
+      tags:
+        - trade
+      summary: Get Open Orders (real-time)
+      description: Get unfilled orders or partially filled orders
+      operationId: open-order
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: string
+            enum:
+              - linear
+              - inverse
+              - option
+              - spot
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin
+          required: false
+          schema:
+            type: string
+        - name: settleCoin
+          in: query
+          description: Settle coin. Spot is not available
+          required: false
+          schema:
+            type: string
+        - name: orderId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: orderLinkId
+          in: query
+          description: User customised order id
+          required: false
+          schema:
+            type: string
+        - name: orderFilter
+          in: query
+          description: Order filter. Default：all kinds of orders
+          required: false
+          schema:
+            type: string
+            enum:
+              - Order
+              - StopOrder
+              - tpslOrder
+        - name: openOnly
+          in: query
+          description: Whether to only query active orders, if openOnly = 0, only get active orders. If it is 1, return only the order data of the final status (cancelled/rejected/completely filled, etc.) in the last 10 minutes
+          required: false
+          schema:
+            type: integer
+            enum:
+              - 0
+              - 1
+              - 2
+            default: 0
+        - name: limit
+          in: query
+          description: 1-50. max 50
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/order/cancel-all:
+    post:
+      tags:
+        - trade
+      summary: Cancel All Orders
+      description: Cancel all orders.
+      operationId: cancel-all
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  enum:
+                    - linear
+                    - inverse
+                    - option
+                    - spot
+                  description: Product type
+                  example: linear
+                symbol:
+                  type: string
+                  description: Symbol name. **Required** if not passing baseCoin or settleCoin
+                  example: BTCUSDT
+                baseCoin:
+                  type: string
+                  description: Cancel by base coin. **Required** if not passing symbol or settleCoin
+                  example:
+                settleCoin:
+                  type: string
+                  description: Cancel by settle coin. Does not support `spot`. **Required** if not passing symbol or baseCoin
+                  example:
+              required:
+                - category
+
+  /v5/order/history:
+    get:
+      tags:
+        - trade
+      summary: Get Order History (2 years)
+      description: Get order history.
+      operationId: order-list
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: string
+            enum:
+              - linear
+              - inverse
+              - option
+              - spot
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: false
+          schema:
+            type: string
+        - name: baseCoin
+          in: query
+          description: Base coin
+          required: false
+          schema:
+            type: string
+        - name: orderId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: orderLinkId
+          in: query
+          description: User customised order id
+          required: false
+          schema:
+            type: string
+        - name: startTime
+          in: query
+          description: The start timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: endTime
+          in: query
+          description: The end timestamp (ms)
+          required: false
+          schema:
+            type: integer
+        - name: orderStatus
+          in: query
+          description: Order status
+          required: false
+          schema:
+            type: string
+            enum:
+              - Created
+              - New
+              - Rejected
+              - PartiallyFilled
+              - PartillyFilledCancelled
+              - Filled
+              - PendingCancel
+              - Cancelled
+              - Untriggered
+              - Triggered
+              - Deactivated
+              - Active
+        - name: orderFilter
+          in: query
+          description: Order filter
+          required: false
+          schema:
+            type: string
+            enum:
+              - Order
+              - StopOrder
+              - tpslOrder
+        - name: limit
+          in: query
+          description: 1-50. max 50
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: cursor to pagnition
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/order/create-batch:
+    post:
+      tags:
+        - trade
+      summary: Batch Place Order
+      description: Batch place orders
+      operationId: batch-place
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  enum:
+                    - option
+                    - linear
+                  description: Product type. `linear`, `option`
+                  example: option
+                request:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: object
+                    properties:
+                      symbol:
+                        type: string
+                        description: Symbol name
+                        example: ETH-25JAN23-1600-P
+                      side:
+                        type: string
+                        enum:
+                          - Buy
+                          - Sell
+                        example: Buy
+                      orderType:
+                        type: string
+                        description: Order type
+                        enum:
+                          - Market
+                          - Limit
+                        example: Limit
+                      qty:
+                        type: string
+                        description: Order qty
+                      price:
+                        type: string
+                        description: Order price
+                      orderIv:
+                        type: string
+                        description: Order iv
+                      timeInForce:
+                        type: string
+                        enum:
+                          - GTC
+                          - IOC
+                          - FOK
+                          - PostOnly
+                        description: Time in force
+                        example: GTC
+                      positionIdx:
+                        type: integer
+                        enum:
+                          - 0
+                        description: Position mode. one-way mode only for unified.
+                        example: 0
+                      orderLinkId:
+                        type: string
+                        description: REQUIRED param when place an option order
+                        example: test-xx1
+                      reduceOnly:
+                        type: boolean
+                        enum:
+                          - true
+                          - false
+                        description: specify true if a close position order
+                        example: false
+                      mmp:
+                        type: boolean
+                        enum:
+                          - true
+                          - false
+                        description: enable market marker protection
+                        example: false
+                      smpType:
+                        type: string
+                        description: Smp execution type
+                        enum:
+                          - None
+                          - CancelMaker
+                          - CancelTaker
+                          - CancelBoth
+                        example:
+                    required:
+                      - symbol
+                      - side
+                      - orderType
+                      - qty
+                      - orderLinkId
+                      - timeInForce
+              required:
+                - category
+                - request
+
+  /v5/order/amend-batch:
+    post:
+      tags:
+        - trade
+      summary: Batch Amend Order
+      description: Batch amend orders
+      operationId: batch-amend
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  enum:
+                    - option
+                    - linear
+                  description: Product type
+                  example: option
+                request:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: object
+                    properties:
+                      symbol:
+                        type: string
+                        description: Symbol name
+                        example: ETH-25JAN23-1600-P
+                      orderId:
+                        type: string
+                        description: Either orderId or orderLinkId is required
+                        example:
+                      orderLinkId:
+                        type: string
+                        description: Either orderId or orderLinkId is required
+                        example: option-test-001
+                      qty:
+                        type: string
+                        description: Modify the order qty
+                        example: 10
+                      price:
+                        type: string
+                        description: Modify the order price
+                        example:
+                      orderIv:
+                        type: string
+                        description: Modify option order iv
+                        example:
+                    required:
+                      - symbol
+              required:
+                - category
+                - request
+  /v5/order/cancel-batch:
+    post:
+      tags:
+        - trade
+      summary: Batch Cancel Order
+      description: Batch cancel orders
+      operationId: batch-cancel
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  enum:
+                    - option
+                    - linear
+                  description: Product type
+                  example: option
+                request:
+                  type: array
+                  maxItems: 10
+                  items:
+                    type: object
+                    properties:
+                      symbol:
+                        type: string
+                        description: Symbol name
+                        example: ETH-25JAN23-1600-P
+                      orderId:
+                        type: string
+                        description: Either orderId or orderLinkId is required
+                        example:
+                      orderLinkId:
+                        type: string
+                        description: Either orderId or orderLinkId is required
+                        example: option-test-001
+                    required:
+                      - symbol
+              required:
+                - category
+                - request
+
+  /v5/order/spot-borrow-check:
+    get:
+      tags:
+        - trade
+      summary: Get Borrow Quota (Spot)
+      description: Query user's spot available quota
+      operationId: query-spot-quota
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Product type
+          required: true
+          schema:
+            type: string
+            enum:
+              - spot
+        - name: symbol
+          in: query
+          description: Symbol name
+          required: true
+          schema:
+            type: string
+        - name: side
+          in: query
+          description: Buy or Sell
+          required: true
+          schema:
+            type: string
+            enum:
+              - Buy
+              - Sell
+      responses:
+        "200":
+          description: successful operation
+
+  /v5/user/query-api:
+    get:
+      tags:
+        - user
+      summary: Get API Key Information
+      description: Get API Key Information
+      operationId: apikey-info
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/user/sub-apikeys:
+    get:
+      tags:
+        - user
+      summary: Get Sub Account All API Keys
+      description: Get Sub Account All API Keys
+      operationId: list-sub-apikeys
+      parameters:
+        - name: apiKey
+          in: header
+          description: Please use main account API key
+          required: true
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Please use main account secret key
+          required: true
+          schema:
+            type: string
+        - name: subMemberId
+          in: query
+          description: Sub UID
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: 1-20. max 20
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: cursor
+          in: query
+          description: cursor, used for pagination
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/user/get-member-type:
+    get:
+      tags:
+        - user
+      summary: Get UID Wallet Type
+      description: Get uid wallet type
+      operationId: wallet-type
+      parameters:
+        - name: apiKey
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: A UTA sub account API key is provided by default
+          required: false
+          schema:
+            type: string
+        - name: memberIds
+          in: query
+          description: Main UID or Sub UIDs
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+  /v5/user/aff-customer-info:
+    get:
+      tags:
+        - user
+      summary: Get Affiliate User Info
+      description: Get affiliate user info
+      operationId: affiliate-info
+      parameters:
+        - name: apiKey
+          in: header
+          description: Please use the key with "Affiliate" permission
+          required: false
+          schema:
+            type: string
+        - name: secret
+          in: header
+          description: Please use the key with "Affiliate" permission
+          required: false
+          schema:
+            type: string
+        - name: uid
+          in: query
+          description: The main UID of referral
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
