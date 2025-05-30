@@ -59,33 +59,35 @@ this repo includes a CI which generates rust client and pushes to [exchange-coll
 - [list of notable exchanges](https://coinmarketcap.com/rankings/exchanges/derivatives)
 - [list of no kyc exchanges](https://koinly.io/blog/top-no-kyc-crypto-exchanges)
 
-below are the list of exchanges planned for integration. Please contact [Sho](https://github.com/kanekoshoyu) if you want to request exchanges for integration.
-| Exchange API                                                   | KYC | REST (OpenAPI) | WS (AsyncAPI) |
-| -------------------------------------------------------------- | --- | -------------- | ------------- |
-| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest)             | /   | done           | /             |
-| [hyperliquid](https://hyperliquid.gitbook.io)                  | no  | done           | done          |
-| [mexc](https://www.mexc.com/mexc-api)                          | no  | done           | done          |
-| [bitwyre](https://docs.bitwyre.com)                            | yes | done           | done          |
-| [bitget](https://www.bitget.com/api-doc)                       | yes | done           | done          |
-| [binance](https://binance-docs.github.io)                      | yes | done           | done          |
-| [coinbase](https://docs.cdp.coinbase.com)                      | yes | done           | done          |
-| [coincheck](https://coincheck.com/documents/exchange/api) (JP) | yes | done           | done          |
-| [hashkey](https://hashkeypro-apidoc.readme.io) (HK)            | yes | done           | done          |
-| [okx](https://www.okx.com/docs-v5/en)                          | yes | done           | done          |
-| [krakenfutures](https://docs.kraken.com/api)                   | yes | done           | done          |
-| [gateio](https://www.gate.io/docs/developers/apiv4)            | yes | WIP            | WIP           |
-| [dydx](https://docs.dydx.exchange)                             | no  | postponed      | /             |
-| [polkadex](https://docs.polkadex.trade)                        | no  | postponed      | /             |
-| [zkex](https://docs.zkex.com)                                  | no  | postponed      | /             |
-| [gmx](https://gmx-docs.io)                                     | no  | postponed      | /             |
-| [coinex](https://docs.coinex.com/api/v2)                       | no  | WIP            | WIP           |
-| [bybit](https://bybit-exchange.github.io/docs)                 | yes | planned        | planned       |
-| [kucoin](https://www.kucoin.com/docs)                          | yes | planned        | planned       |
-| [htx](https://www.htx.com/en-us/opend/newApiPages)             | yes | planned        | planned       |
-| [bitbank](https://lightning.bitflyer.com/docs) (JP)            | yes | postponed      | postponed     |
-| [bitflyer](https://lightning.bitflyer.com/docs) (JP)           | yes | postponed      | postponed     |
-| [korbit](https://apidocs.korbit.co.kr) (KR)                    | yes | postponed      | postponed     |
-| [bitkub](https://docs.polkadex.trade) (TH)                     | yes | postponed      | postponed     |
+Below is a the list of exchanges planned for integration. Please contact [Sho](https://github.com/kanekoshoyu) if you want to request exchanges for integration.
+
+| Exchange API | KYC | REST (OpenAPI) | WS (AsyncAPI) | Beeceptor Mock Server |
+|--------------|-----|----------------|----------------|------------------------|
+| [ccxtrest](https://github.com/ccxt-rest/ccxt-rest) | / | done | / | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/ccxtrest_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [hyperliquid](https://hyperliquid.gitbook.io) | no | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/hyperliquid_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [mexc](https://www.mexc.com/mexc-api) | no | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/mexc_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [bitwyre](https://docs.bitwyre.com) | yes | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/bitwyre_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [bitget](https://www.bitget.com/api-doc) | yes | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/bitget_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [binance](https://binance-docs.github.io) | yes | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/binance_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [coinbase](https://docs.cdp.coinbase.com) | yes | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/coinbase_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [coincheck](https://coincheck.com/documents/exchange/api) (JP) | yes | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/coincheck_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [hashkey](https://hashkeypro-apidoc.readme.io) (HK) | yes | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/hashkey_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [okx](https://www.okx.com/docs-v5/en) | yes | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/okx_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [krakenfutures](https://docs.kraken.com/api) | yes | done | done | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/krakenfutures_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [gateio](https://www.gate.io/docs/developers/apiv4) | yes | WIP | WIP |  |
+| [dydx](https://docs.dydx.exchange) | no | postponed | / |  |
+| [polkadex](https://docs.polkadex.trade) | no | postponed | / |  |
+| [zkex](https://docs.zkex.com) | no | postponed | / |  |
+| [gmx](https://gmx-docs.io) | no | postponed | / |  |
+| [coinex](https://docs.coinex.com/api/v2) | no | WIP | WIP |  |
+| [bybit](https://bybit-exchange.github.io/docs) | yes | planned | planned | <a href="https://beeceptor.com/openapi-mock-server/?utm_source=github-exchange-collection&url=https://raw.githubusercontent.com/kanekoshoyu/exchange-collection/refs/heads/main/asset/bybit_rest_openapi.yaml" target="_blank"><img src="https://cdn.beeceptor.com/assets/images/buttons/mock-openapi-with-beeceptor.png" alt="Mock These APIs Instantly" style="height: 60px;"></a> |
+| [kucoin](https://www.kucoin.com/docs) | yes | planned | planned |  |
+| [htx](https://www.htx.com/en-us/opend/newApiPages) | yes | planned | planned |  |
+| [bitbank](https://lightning.bitflyer.com/docs) (JP) | yes | postponed | postponed |  |
+| [bitflyer](https://lightning.bitflyer.com/docs) (JP) | yes | postponed | postponed |  |
+| [korbit](https://apidocs.korbit.co.kr) (KR) | yes | postponed | postponed |  |
+| [bitkub](https://docs.polkadex.trade) (TH) | yes | postponed | postponed |  |
+
 
 - I currently have no plan of supporting [FIX protocol](https://www.fixtrading.org/what-is-fix) due to limited number of supported exchanges. Once the project reaches certain maturity it will be implemented.  
 - For AMM DEX like [Uniswap](https://docs.uniswap.org/contracts/v2/reference/API/overview), I will add support if there is a proper demand. My suggestion is to make use of JSON-RPC clients like ether-rs to connect RPC providers like [infura](https://www.infura.io) and [alchemy](https://www.alchemy.com). 
